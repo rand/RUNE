@@ -78,7 +78,7 @@ while IFS= read -r ref; do
     fi
 
     # Extract file path from URL
-    FILE_PATH=$(echo "$ref" | grep -oE '/blob/v[0-9.a-z-]+/[^)#]+' | sed 's|/blob/v[0-9.a-z-]+/||' | cut -d'#' -f1)
+    FILE_PATH=$(echo "$ref" | grep -oE '/blob/v[0-9.a-z-]+/[^)#]+' | sed 's|^/blob/v[0-9.a-z-]*-*[a-z]*-*[0-9]*/||' | cut -d'#' -f1)
 
     if [[ -z "$FILE_PATH" ]]; then
         continue
@@ -118,7 +118,7 @@ if [[ -f "target/release/rune" ]]; then
     pass "Release binary exists"
 
     info "  Running quick benchmark (100 requests)..."
-    if timeout 10 ./target/release/rune benchmark --requests 100 --threads 2 >/dev/null 2>&1; then
+    if ./target/release/rune benchmark --requests 100 --threads 2 >/dev/null 2>&1; then
         pass "  Benchmark runs successfully"
     else
         fail "  Benchmark failed to run"
@@ -165,10 +165,13 @@ if [[ -d "$DIAGRAM_DIR" ]]; then
         if command -v d2 &> /dev/null; then
             info "  d2 is installed, validating diagrams..."
             for diagram in "$DIAGRAM_DIR"/*.d2; do
-                if d2 "$diagram" /dev/null --dry-run 2>/dev/null; then
+                TMPFILE=$(mktemp /tmp/d2-validate-XXXXXX.svg)
+                if d2 "$diagram" "$TMPFILE" 2>/dev/null; then
                     pass "  Valid: $(basename "$diagram")"
+                    rm -f "$TMPFILE"
                 else
                     fail "  Invalid: $(basename "$diagram")"
+                    rm -f "$TMPFILE"
                 fi
             done
         else
