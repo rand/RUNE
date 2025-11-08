@@ -1,0 +1,123 @@
+# RUNE Project .gitignore
+
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock is committed for binaries but not for libraries
+# Uncommenting the next line will ignore it for this workspace
+# /Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Linux
+*~
+.nfs*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.vs/
+
+# Documentation builds
+/docs/_site/
+/docs/.jekyll-cache/
+/docs/.jekyll-metadata
+/docs/Gemfile.lock
+*.d2.svg
+*.d2.png
+*.d2.pdf
+
+# D2 diagram outputs (keep source .d2 files)
+/diagrams/*.svg
+/diagrams/*.png
+/diagrams/*.pdf
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+*.db
+
+# Test coverage
+*.profraw
+*.profdata
+/coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# Benchmarks
+/benches/results/
+criterion/
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+.cache/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# CI/CD
+.github/workflows/*.log
+
+# Beads task tracking (local state)
+.beads/
