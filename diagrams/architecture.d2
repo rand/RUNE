@@ -1,0 +1,298 @@
+# RUNE System Architecture
+
+direction: down
+
+# Client Layer
+clients: Client Applications {
+  style.fill: "#E3F2FD"
+  style.stroke: "#1976D2"
+  style.font-size: 16
+  style.bold: true
+
+  python: Python\n(PyO3 Bindings) {
+    style.fill: "#BBDEFB"
+    icon: https://icons.terrastruct.com/dev/python.svg
+  }
+
+  rust: Rust\n(Native API) {
+    style.fill: "#90CAF9"
+    icon: https://icons.terrastruct.com/dev/rust.svg
+  }
+
+  cli: CLI\n(rune binary) {
+    style.fill: "#64B5F6"
+    icon: https://icons.terrastruct.com/tech/bash.svg
+  }
+}
+
+# Core Engine Layer
+core: RUNE Core Engine {
+  style.fill: "#F3E5F5"
+  style.stroke: "#7B1FA2"
+  style.font-size: 18
+  style.bold: true
+  style.shadow: true
+
+  # Cache subsystem
+  cache: Request Cache {
+    style.fill: "#E1BEE7"
+    style.stroke: "#8E24AA"
+
+    impl: DashMap<CacheKey, Decision> {
+      style.fill: "#CE93D8"
+      style.font-size: 12
+    }
+
+    ttl: TTL: 60s | LRU Eviction {
+      style.fill: "#BA68C8"
+      style.font-size: 11
+    }
+  }
+
+  # Orchestration
+  orchestrator: Request Orchestrator {
+    style.fill: "#F0F4C3"
+    style.stroke: "#AFB42B"
+
+    validate: Validate Request
+    build: Build Context
+    parallel: Spawn Parallel Eval
+    merge: Merge Results
+  }
+}
+
+# Dual Engine Layer
+engines: Dual Engines {
+  style.fill: "#FFF9C4"
+  style.stroke: "#F57F17"
+  style.font-size: 16
+  style.bold: true
+  style.double-border: true
+
+  # Datalog Engine
+  datalog: Datalog Engine {
+    style.fill: "#E0F2F1"
+    style.stroke: "#00695C"
+    style.shadow: true
+
+    parser: Rule Parser {
+      style.fill: "#B2DFDB"
+    }
+
+    evaluator: Semi-Naive Evaluator {
+      style.fill: "#80CBC4"
+
+      stratify: Stratification
+      fixpoint: Fixed-Point Iteration
+      negation: Stratified Negation
+    }
+
+    derive: Fact Derivation {
+      style.fill: "#4DB6AC"
+    }
+  }
+
+  # Cedar Engine
+  cedar: Cedar Policy Engine {
+    style.fill: "#FCE4EC"
+    style.stroke: "#C2185B"
+    style.shadow: true
+
+    convert: Type Conversion\n(RUNE → Cedar) {
+      style.fill: "#F8BBD0"
+    }
+
+    policies: Policy Set {
+      style.fill: "#F48FB1"
+
+      parse: Policy Parser
+      validate: Schema Validation
+      analyze: Static Analysis
+    }
+
+    eval: Policy Evaluator {
+      style.fill: "#F06292"
+
+      entities: Entity Resolution
+      attributes: Attribute Evaluation
+      conditions: Condition Checking
+    }
+  }
+}
+
+# Storage Layer
+storage: Lock-Free Storage {
+  style.fill: "#E1F5FE"
+  style.stroke: "#0277BD"
+  style.font-size: 16
+  style.bold: true
+  style.shadow: true
+
+  facts: Fact Store {
+    style.fill: "#B3E5FC"
+    style.stroke: "#0288D1"
+
+    index: DashMap<Predicate, Arc<Vec<Fact>>> {
+      style.fill: "#81D4FA"
+      style.font-size: 12
+    }
+
+    all: Atomic<Arc<Vec<Fact>>> {
+      style.fill: "#4FC3F7"
+      style.font-size: 12
+    }
+
+    version: AtomicU64 (versioning) {
+      style.fill: "#29B6F6"
+      style.font-size: 11
+    }
+  }
+
+  memory: Memory Management {
+    style.fill: "#B2EBF2"
+    style.stroke: "#0097A7"
+
+    epoch: Crossbeam Epoch\n(Safe Reclamation) {
+      style.fill: "#80DEEA"
+      style.font-size: 12
+    }
+
+    arc: Arc<T> Sharing\n(Zero-Copy) {
+      style.fill: "#4DD0E1"
+      style.font-size: 12
+    }
+  }
+}
+
+# Connections - Client to Core
+clients.python -> core.orchestrator: authorize(request) {
+  style.stroke: "#1976D2"
+  style.stroke-width: 2
+}
+
+clients.rust -> core.orchestrator: authorize(request) {
+  style.stroke: "#1976D2"
+  style.stroke-width: 2
+}
+
+clients.cli -> core.orchestrator: eval command {
+  style.stroke: "#1976D2"
+  style.stroke-width: 2
+}
+
+# Core to Cache
+core.orchestrator -> core.cache: 1. Check cache {
+  style.stroke: "#7B1FA2"
+  style.animated: true
+}
+
+core.cache -> core.orchestrator: Hit: return cached {
+  style.stroke: "#4CAF50"
+  style.stroke-dash: 3
+}
+
+# Core to Storage
+core.orchestrator -> storage.facts: 2. Load facts {
+  style.stroke: "#0277BD"
+  style.stroke-width: 2
+}
+
+storage.facts -> core.orchestrator: Facts snapshot {
+  style.stroke: "#0277BD"
+  style.stroke-width: 2
+}
+
+# Core to Engines (Parallel)
+core.orchestrator -> engines.datalog.evaluator: 3a. Eval rules || {
+  style.stroke: "#00BCD4"
+  style.stroke-width: 3
+  style.animated: true
+}
+
+core.orchestrator -> engines.cedar.eval: 3b. Eval policies || {
+  style.stroke: "#E91E63"
+  style.stroke-width: 3
+  style.animated: true
+}
+
+# Engines to Storage
+engines.datalog.evaluator -> storage.facts: Read facts {
+  style.stroke: "#00695C"
+  style.stroke-dash: 5
+}
+
+engines.cedar.eval -> storage.facts: Read facts {
+  style.stroke: "#C2185B"
+  style.stroke-dash: 5
+}
+
+# Engines to Core
+engines.datalog.derive -> core.orchestrator: Derived facts {
+  style.stroke: "#00BCD4"
+  style.stroke-width: 2
+}
+
+engines.cedar.eval -> core.orchestrator: Policy decision {
+  style.stroke: "#E91E63"
+  style.stroke-width: 2
+}
+
+# Core back to Client
+core.orchestrator -> clients: 4. Return decision {
+  style.stroke: "#4CAF50"
+  style.stroke-width: 3
+}
+
+# Storage internals
+storage.facts.index -> storage.memory.epoch: Protected by epoch {
+  style.stroke: "#0277BD"
+  style.stroke-dash: 3
+}
+
+storage.facts.all -> storage.memory.arc: Shared via Arc {
+  style.stroke: "#0277BD"
+  style.stroke-dash: 3
+}
+
+# Performance annotations
+perf: Performance Characteristics {
+  style.fill: "#FFFDE7"
+  style.stroke: "#FBC02D"
+  style.font-size: 14
+
+  p1: "Cache hit: ~50ns\nCache miss: ~500ns"
+  p2: "Lock-free reads:\nZero contention"
+  p3: "Parallel eval:\n2x speedup"
+  p4: "Throughput:\n5M+ ops/sec"
+}
+
+perf.p1 -> core.cache: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+perf.p2 -> storage.memory: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+perf.p3 -> engines: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+perf.p4 -> core: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+# Legend
+legend: Legend {
+  style.fill: "#ECEFF1"
+  style.stroke: "#455A64"
+
+  l1: Solid Line = Data Flow
+  l2: Dashed Line = References
+  l3: Thick Line = Hot Path
+  l4: Animated = Parallel
+}

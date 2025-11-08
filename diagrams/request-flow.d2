@@ -1,0 +1,170 @@
+# RUNE Request Flow Diagram
+
+direction: down
+
+agent: AI Agent {
+  style.fill: "#E3F2FD"
+  style.stroke: "#1976D2"
+  icon: https://icons.terrastruct.com/tech/ai.svg
+}
+
+request: Authorization Request {
+  style.fill: "#FFF3E0"
+  style.stroke: "#F57C00"
+
+  principal: Principal
+  action: Action
+  resource: Resource
+  context: Context
+}
+
+engine: RUNE Engine {
+  style.fill: "#F3E5F5"
+  style.stroke: "#7B1FA2"
+  style.font-size: 16
+  style.bold: true
+
+  cache_check: Cache Check {
+    style.fill: "#E8F5E9"
+    style.stroke: "#388E3C"
+  }
+
+  build_context: Build Context\nfrom Facts {
+    style.fill: "#FCE4EC"
+    style.stroke: "#C2185B"
+  }
+
+  parallel: Parallel Evaluation {
+    style.fill: "#FFF9C4"
+    style.stroke: "#F57F17"
+    style.double-border: true
+  }
+}
+
+datalog: Datalog Engine {
+  style.fill: "#E0F2F1"
+  style.stroke: "#00695C"
+
+  eval: Evaluate Rules {
+    style.fill: "#B2DFDB"
+  }
+
+  derive: Derive Facts {
+    style.fill: "#80CBC4"
+  }
+}
+
+cedar: Cedar Engine {
+  style.fill: "#FCE4EC"
+  style.stroke: "#C2185B"
+
+  convert: Convert to\nCedar Entities {
+    style.fill: "#F8BBD0"
+  }
+
+  eval: Evaluate Policies {
+    style.fill: "#F48FB1"
+  }
+}
+
+facts: Lock-Free Fact Store {
+  style.fill: "#E1F5FE"
+  style.stroke: "#0277BD"
+  style.font-size: 14
+  style.bold: true
+
+  storage: Crossbeam Epoch\nZero-Copy Arc {
+    style.fill: "#B3E5FC"
+  }
+}
+
+merge: Merge Results {
+  style.fill: "#FFF9C4"
+  style.stroke: "#F57F17"
+}
+
+decision: Authorization Decision {
+  style.fill: "#C8E6C9"
+  style.stroke: "#388E3C"
+  style.font-size: 14
+  style.bold: true
+
+  result: Decision: PERMIT/DENY
+  explanation: Explanation
+  timing: Evaluation Time
+  rules: Evaluated Rules
+}
+
+# Flow connections
+agent -> request: Makes request
+request -> engine.cache_check: 1. Check cache
+
+engine.cache_check -> decision: Cache hit\n(~50ns) {
+  style.stroke: "#4CAF50"
+  style.stroke-width: 3
+  style.stroke-dash: 3
+}
+
+engine.cache_check -> engine.build_context: Cache miss {
+  style.stroke: "#FF9800"
+}
+
+engine.build_context -> facts.storage: Read facts {
+  style.stroke: "#2196F3"
+}
+
+facts.storage -> engine.parallel: Facts loaded {
+  style.stroke: "#2196F3"
+}
+
+engine.parallel -> datalog.eval: Thread 1 {
+  style.stroke: "#00BCD4"
+  style.animated: true
+}
+
+engine.parallel -> cedar.convert: Thread 2 {
+  style.stroke: "#E91E63"
+  style.animated: true
+}
+
+datalog.eval -> datalog.derive: Evaluate
+datalog.derive -> merge: Derived facts {
+  style.stroke: "#009688"
+}
+
+cedar.convert -> cedar.eval: Convert
+cedar.eval -> merge: Policy result {
+  style.stroke: "#E91E63"
+}
+
+merge -> decision: Combine\n(~500ns total)
+
+decision -> agent: Return decision {
+  style.stroke: "#4CAF50"
+  style.stroke-width: 3
+}
+
+# Notes
+notes: {
+  style.fill: "#FFFDE7"
+  style.stroke: "#FBC02D"
+
+  note1: "Lock-free fact store\nenables concurrent access"
+  note2: "Parallel evaluation:\nboth engines run simultaneously"
+  note3: "Cache provides 5x speedup\nfor repeated requests"
+}
+
+notes.note1 -> facts: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+notes.note2 -> engine.parallel: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
+
+notes.note3 -> engine.cache_check: {
+  style.stroke-dash: 5
+  style.stroke: "#757575"
+}
