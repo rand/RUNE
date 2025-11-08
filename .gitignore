@@ -82,8 +82,8 @@ $RECYCLE.BIN/
 *.d2.png
 *.d2.pdf
 
-# D2 diagram outputs (keep source .d2 files)
-/diagrams/*.svg
+# D2 diagram outputs (commit SVG for GitHub Pages, ignore PNG/PDF)
+# /diagrams/*.svg  # Commented to allow committing SVG diagrams
 /diagrams/*.png
 /diagrams/*.pdf
 
