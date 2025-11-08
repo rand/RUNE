@@ -1,6 +1,6 @@
 # RUNE - High-Performance Authorization & Configuration Engine
 
-RUNE is a production-grade authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It provides **real, enforceable guardrails** for AI agents with sub-millisecond latency and 5M+ ops/sec throughput.
+RUNE is a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It provides **real, enforceable guardrails** for AI agents with sub-millisecond latency and 5M+ ops/sec throughput.
 
 ## Key Features
 
