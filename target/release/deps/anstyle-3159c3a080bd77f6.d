@@ -1,0 +1,12 @@
+/Users/rand/src/RUNE/target/release/deps/anstyle-3159c3a080bd77f6.d: /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/rand/src/RUNE/target/release/deps/libanstyle-3159c3a080bd77f6.rlib: /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/rand/src/RUNE/target/release/deps/libanstyle-3159c3a080bd77f6.rmeta: /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs /Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs
+
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/lib.rs:
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/macros.rs:
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/color.rs:
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/effect.rs:
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/reset.rs:
+/Users/rand/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/anstyle-1.0.13/src/style.rs:

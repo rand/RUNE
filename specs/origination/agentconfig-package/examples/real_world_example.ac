@@ -1,0 +1,826 @@
+# real_world_example.ac
+# Example: Production-grade AI coding assistant for a Python/Rust project
+
+metadata {
+  name = "ProductionCodingAssistant"
+  version = "2.0.0"
+  author = "Engineering Team"
+  description = """
+    AI assistant configured for safe, effective work on our production codebase.
+    Focuses on Python backend services and Rust performance-critical components.
+  """
+}
+
+# ============================================================================
+# Base Configuration
+# ============================================================================
+
+agent "prod-assistant" {
+  # Model selection
+  model = "claude-sonnet-4-5"
+  
+  # Context settings
+  context {
+    temperature = 0.2  # Low for consistent, predictable behavior
+    max_tokens = 200000
+    
+    system_prompt = """
+    You are a senior software engineer working on a production system.
+    Your code must be safe, tested, well-documented, and maintainable.
+    Always follow the security policies and testing requirements.
+    """
+  }
+  
+  # ============================================================================
+  # Type Definitions
+  # ============================================================================
+  
+  types {
+    # Define what a valid code file looks like
+    CodeFile :: {
+      path: string & =~ "^/app/(src|tests)/.*$",
+      language: "python" | "rust" | "yaml" | "toml",
+      last_modified: timestamp,
+      size_bytes: int & > 0 & < 10485760,  # Max 10MB
+      owner: string,
+      reviewed: bool = false
+    }
+    
+    # Define security levels
+    SecurityLevel :: "public" | "internal" | "confidential" | "secret"
+    
+    # Define what constitutes a code change
+    CodeChange :: {
+      type: "feature" | "bugfix" | "refactor" | "documentation",
+      files: [string],
+      risk_level: "low" | "medium" | "high" | "critical",
+      requires_review: bool,
+      requires_tests: bool
+    }
+    
+    # Tool permissions
+    ToolPermission :: {
+      tool: string,
+      allowed: bool,
+      max_duration_ms: int & > 0,
+      restricted_to: [string]  # Paths or patterns
+    }
+  }
+  
+  # ============================================================================
+  # Facts: Domain Knowledge
+  # ============================================================================
+  
+  facts {
+    # Project structure
+    project {
+      root = "/app"
+      source_dir = "/app/src"
+      test_dir = "/app/tests"
+      docs_dir = "/app/docs"
+      config_dir = "/app/config"
+    }
+    
+    # Programming languages and their tooling
+    language("python") {
+      version = "3.11"
+      style_guide = "pep8"
+      formatter = "black"
+      linter = "ruff"
+      type_checker = "mypy"
+      test_framework = "pytest"
+      coverage_minimum = 0.85
+    }
+    
+    language("rust") {
+      edition = "2024"
+      formatter = "rustfmt"
+      linter = "clippy"
+      test_framework = "cargo test"
+      coverage_minimum = 0.90
+    }
+    
+    # Available tools
+    tool("pytest") {
+      language = "python"
+      type = "testing"
+      command = "pytest -v --cov"
+      timeout_ms = 120000
+    }
+    
+    tool("black") {
+      language = "python"
+      type = "formatting"
+      command = "black --line-length 88"
+      timeout_ms = 10000
+    }
+    
+    tool("ruff") {
+      language = "python"
+      type = "linting"
+      command = "ruff check"
+      timeout_ms = 30000
+    }
+    
+    tool("mypy") {
+      language = "python"
+      type = "type_checking"
+      command = "mypy --strict"
+      timeout_ms = 60000
+    }
+    
+    tool("cargo") {
+      language = "rust"
+      type = "build"
+      command = "cargo build --release"
+      timeout_ms = 300000
+    }
+    
+    tool("clippy") {
+      language = "rust"
+      type = "linting"
+      command = "cargo clippy -- -D warnings"
+      timeout_ms = 120000
+    }
+    
+    # Security policies
+    security {
+      # Sensitive file patterns
+      secret_patterns = [
+        "API_KEY",
+        "SECRET",
+        "PASSWORD",
+        "PRIVATE_KEY",
+        "TOKEN",
+        "credentials",
+        ".env"
+      ]
+      
+      # Allowed network domains for documentation
+      allowed_domains = [
+        "docs.python.org",
+        "doc.rust-lang.org",
+        "docs.rs",
+        "github.com",
+        "stackoverflow.com"
+      ]
+    }
+    
+    # Path permissions
+    allowed_path("/app/src/**")
+    allowed_path("/app/tests/**")
+    allowed_path("/app/docs/**")
+    allowed_path("/app/pyproject.toml")
+    allowed_path("/app/Cargo.toml")
+    
+    forbidden_path("/app/config/secrets/**")
+    forbidden_path("/app/.env")
+    forbidden_path("/app/.env.*")
+    forbidden_path("/etc/**")
+    forbidden_path("/var/**")
+    
+    # Critical files that need extra scrutiny
+    critical_file("/app/src/database.py")
+    critical_file("/app/src/auth.py")
+    critical_file("/app/src/api/routes.py")
+    critical_file("/app/config/production.toml")
+    
+    # Team members (for ownership tracking)
+    team_member("alice") { role = "lead", focus = "architecture" }
+    team_member("bob") { role = "senior", focus = "backend" }
+    team_member("carol") { role = "senior", focus = "performance" }
+  }
+  
+  # ============================================================================
+  # Rules: Business Logic
+  # ============================================================================
+  
+  rules {
+    # === File Access Control ===
+    
+    can_read(Path) :-
+      allowed_path(Pattern),
+      path_matches(Path, Pattern),
+      not forbidden_path(Path).
+    
+    can_write(Path) :-
+      can_read(Path),
+      not critical_file(Path).
+    
+    can_write_critical(Path) :-
+      critical_file(Path),
+      user_confirmed("modify_critical_file", Path).
+    
+    deny_access(Path) :-
+      forbidden_path(Pattern),
+      path_matches(Path, Pattern).
+    
+    # === Language Detection ===
+    
+    file_language(File, "python") :-
+      file_extension(File, ".py").
+    
+    file_language(File, "rust") :-
+      file_extension(File, ".rs").
+    
+    file_language(File, "yaml") :-
+      file_extension(File, ".yaml").
+    
+    file_language(File, "yaml") :-
+      file_extension(File, ".yml").
+    
+    # === Tool Selection ===
+    
+    use_tool(Tool) :-
+      current_task(Task),
+      task_requires(Task, Type),
+      tool(Tool) { type = Type },
+      tool_enabled(Tool).
+    
+    use_tool(Tool) :-
+      current_file(File),
+      file_language(File, Lang),
+      tool(Tool) { language = Lang },
+      tool_enabled(Tool).
+    
+    # === Code Quality Workflow ===
+    
+    before_modify(File) :-
+      can_write(File),
+      understand_file(File),
+      check_dependencies(File),
+      backup_file(File).
+    
+    after_modify(File) :-
+      file_language(File, Lang),
+      format_code(File, Lang),
+      run_linter(File, Lang),
+      update_tests(File).
+    
+    format_code(File, Lang) :-
+      language(Lang) { formatter = Formatter },
+      run_tool(Formatter, File).
+    
+    run_linter(File, Lang) :-
+      language(Lang) { linter = Linter },
+      run_tool(Linter, File).
+    
+    # === Testing Requirements ===
+    
+    must_run_tests() :-
+      any_file_modified(File),
+      file_in_directory(File, "/app/src"),
+      has_tests_for(File).
+    
+    must_run_tests() :-
+      critical_file_modified(File).
+    
+    has_tests_for(File) :-
+      file_in_directory(File, "/app/src"),
+      corresponding_test_file(File, TestFile),
+      file_exists(TestFile).
+    
+    test_coverage_sufficient(File) :-
+      file_language(File, Lang),
+      language(Lang) { coverage_minimum = Min },
+      test_coverage(File, Coverage),
+      Coverage >= Min.
+    
+    # === Security Rules ===
+    
+    security_violation(Action) :-
+      action_accesses(Action, File),
+      contains_secrets(File).
+    
+    contains_secrets(File) :-
+      file_content(File, Content),
+      security { secret_patterns = Patterns },
+      any_pattern_matches(Content, Patterns).
+    
+    security_violation(Action) :-
+      action_network_access(Action, Domain),
+      not allowed_domain(Domain).
+    
+    allowed_domain(Domain) :-
+      security { allowed_domains = Allowed },
+      member(Domain, Allowed).
+    
+    # === Code Review Requirements ===
+    
+    needs_review(Change) :-
+      change_modifies(Change, File),
+      critical_file(File).
+    
+    needs_review(Change) :-
+      change { risk_level = "high" }.
+    
+    needs_review(Change) :-
+      change { risk_level = "critical" }.
+    
+    needs_review(Change) :-
+      change_modifies(Change, File),
+      file_complexity(File, Complexity),
+      Complexity > 15.
+    
+    # === Complexity Management ===
+    
+    suggest_refactor(File) :-
+      file_complexity(File, Score),
+      Score > 15,
+      not recently_refactored(File).
+    
+    file_complexity(File, Score) :-
+      cyclomatic_complexity(File, CC),
+      cognitive_complexity(File, CogC),
+      Score = CC + CogC.
+    
+    # === Documentation Requirements ===
+    
+    needs_documentation(Function) :-
+      function_is_public(Function),
+      not has_docstring(Function).
+    
+    needs_documentation(File) :-
+      file_complexity(File, Score),
+      Score > 10,
+      not has_readme_entry(File).
+    
+    # === Performance Considerations ===
+    
+    should_use_rust(Component) :-
+      component_type(Component, "cpu_intensive").
+    
+    should_use_rust(Component) :-
+      component_type(Component, "real_time").
+    
+    # === Deployment Safety ===
+    
+    safe_to_deploy() :-
+      all_tests_passing(),
+      test_coverage_sufficient(_),
+      no_security_violations(),
+      no_critical_warnings().
+    
+    all_tests_passing() :-
+      not exists file: test_failed(file).
+    
+    no_security_violations() :-
+      not exists action: security_violation(action).
+    
+    # === Recursive Dependencies ===
+    
+    depends_on(A, B) :- 
+      direct_import(A, B).
+    
+    depends_on(A, C) :- 
+      depends_on(A, B),
+      depends_on(B, C).
+    
+    has_circular_dependency(A) :-
+      depends_on(A, B),
+      depends_on(B, A).
+    
+    # === Aggregations ===
+    
+    total_files_modified(Count) :-
+      Count = count(File : modified(File)).
+    
+    average_test_coverage(Avg) :-
+      Avg = avg(Coverage : test_coverage(_, Coverage)).
+    
+    max_complexity(Max) :-
+      Max = max(Score : file_complexity(_, Score)).
+  }
+  
+  # ============================================================================
+  # Constraints: Invariants That Must Hold
+  # ============================================================================
+  
+  constraints {
+    # Temperature must be reasonable
+    context.temperature >= 0.0 && context.temperature <= 1.0
+    
+    # Files must not be too large
+    forall f in files:
+      file_size(f) <= 10485760  # 10MB
+    
+    # Test coverage minimums must be met
+    forall lang in languages:
+      exists tests:
+        test_coverage >= lang.coverage_minimum
+    
+    # No circular dependencies
+    not exists file:
+      has_circular_dependency(file)
+    
+    # Critical files must have reviews
+    forall f in critical_files:
+      exists review:
+        reviewed(f) == true
+    
+    # All tools must have timeouts
+    forall t in tools:
+      t.timeout_ms > 0
+    
+    # Security: no hardcoded secrets
+    forall f in source_files:
+      not contains_secrets(f)
+  }
+  
+  # ============================================================================
+  # Tool Configurations
+  # ============================================================================
+  
+  tools {
+    bash {
+      enabled = true
+      timeout_ms = 60000
+      
+      # Whitelist of allowed commands
+      allowed_commands = [
+        "git status",
+        "git diff",
+        "git log",
+        "git blame",
+        "ls",
+        "cat",
+        "grep",
+        "find",
+        "pytest",
+        "black",
+        "ruff",
+        "mypy",
+        "cargo test",
+        "cargo build",
+        "cargo clippy"
+      ]
+      
+      # Blacklist patterns
+      forbidden_patterns = [
+        "rm -rf",
+        "sudo",
+        "chmod 777",
+        "curl .*\\|.*bash",  # Pipe to bash
+        "> /dev/",
+        "> /etc/",
+        "dd if="
+      ]
+      
+      constraint {
+        command =~ allowed_commands
+        not (command =~ forbidden_patterns)
+      }
+    }
+    
+    file_editor {
+      enabled = true
+      max_file_size = 10485760  # 10MB
+      
+      constraint {
+        path =~ allowed_paths
+        not (path =~ forbidden_paths)
+      }
+    }
+    
+    web_search {
+      enabled = true
+      rate_limit_per_hour = 100
+      
+      constraint {
+        domain =~ allowed_domains
+      }
+    }
+    
+    python_repl {
+      enabled = true
+      timeout_ms = 30000
+      
+      constraint {
+        # No dangerous imports
+        not (code =~ "import os.*system")
+        not (code =~ "import subprocess")
+        not (code =~ "eval\\(")
+        not (code =~ "exec\\(")
+      }
+    }
+  }
+  
+  # ============================================================================
+  # Monitoring & Observability
+  # ============================================================================
+  
+  monitoring {
+    log_level = "info"
+    log_format = "json"
+    
+    metrics {
+      enabled = true
+      
+      track = [
+        "token_usage",
+        "action_count",
+        "error_rate",
+        "test_runs",
+        "file_modifications",
+        "security_violations_prevented",
+        "review_requests"
+      ]
+      
+      aggregations {
+        # Daily summaries
+        daily {
+          total_tokens = sum(token_usage)
+          avg_completion_time = avg(completion_time_ms)
+          error_rate = count(errors) / count(total_actions)
+        }
+      }
+    }
+    
+    alerts {
+      # Critical security violation
+      security_violation {
+        condition = security_violation_detected
+        severity = "critical"
+        action = "block_immediately"
+        notify = ["security-team@company.com"]
+      }
+      
+      # High error rate
+      high_error_rate {
+        condition = error_rate > 0.1
+        severity = "warning"
+        action = "notify"
+        notify = ["devops-team@company.com"]
+      }
+      
+      # Test failures on critical files
+      critical_test_failure {
+        condition = test_failed(critical_file)
+        severity = "high"
+        action = "block_and_notify"
+        notify = ["dev-lead@company.com"]
+      }
+      
+      # Coverage drop
+      coverage_drop {
+        condition = test_coverage < language.coverage_minimum
+        severity = "medium"
+        action = "warn"
+      }
+    }
+  }
+  
+  # ============================================================================
+  # Workflows: Common Task Patterns
+  # ============================================================================
+  
+  workflows {
+    fix_bug {
+      description = "Standard workflow for fixing a bug"
+      
+      steps = [
+        "understand_bug_report",
+        "locate_affected_code",
+        "write_failing_test",
+        "implement_fix",
+        "verify_fix_with_tests",
+        "run_full_test_suite",
+        "update_documentation",
+        "request_review"
+      ]
+      
+      rules {
+        # Must write test first
+        implement_fix() :-
+          failing_test_exists().
+        
+        # Must pass all tests
+        complete() :-
+          all_tests_passing(),
+          test_coverage_maintained().
+      }
+    }
+    
+    add_feature {
+      description = "Standard workflow for adding a new feature"
+      
+      steps = [
+        "review_requirements",
+        "design_api",
+        "write_tests",
+        "implement_feature",
+        "run_tests",
+        "update_documentation",
+        "request_review",
+        "deploy_to_staging"
+      ]
+      
+      rules {
+        # New features need tests
+        implement_feature() :-
+          tests_written_for_feature().
+        
+        # Documentation required
+        complete() :-
+          documentation_updated(),
+          api_documented().
+      }
+    }
+    
+    refactor {
+      description = "Safe refactoring workflow"
+      
+      steps = [
+        "ensure_test_coverage",
+        "plan_refactoring",
+        "apply_changes_incrementally",
+        "run_tests_after_each_change",
+        "verify_behavior_unchanged",
+        "update_documentation"
+      ]
+      
+      rules {
+        # Must have good coverage before refactoring
+        start_refactor() :-
+          test_coverage >= 0.9.
+        
+        # Tests must pass at each step
+        continue_refactor() :-
+          all_tests_passing().
+      }
+    }
+  }
+}
+
+# ============================================================================
+# Export Configurations
+# ============================================================================
+
+export target "claude-code" {
+  format = "json"
+  output = ".claude/config.json"
+  
+  transform {
+    # Convert rules to Claude's instruction format
+    system_prompt = agent.context.system_prompt + """
+    
+    === DERIVED RULES ===
+    """ + render_rules_as_instructions(agent.rules)
+    
+    # Map tools to Claude's format
+    tools = [
+      {
+        type = "bash",
+        config = agent.tools.bash
+      },
+      {
+        type = "text_editor",
+        config = agent.tools.file_editor
+      }
+    ]
+    
+    # Constraints become validation hooks
+    constraints = agent.constraints
+  }
+}
+
+export target "openai" {
+  format = "openai_assistant"
+  output = "openai_assistant.json"
+  
+  transform {
+    instructions = render_rules_as_natural_language(agent.rules)
+    tools = map_to_openai_tools(agent.tools)
+  }
+}
+
+# ============================================================================
+# Testing Suite
+# ============================================================================
+
+tests {
+  test "security: block access to forbidden paths" {
+    given {
+      facts {
+        action("read_file") { target = "/etc/passwd" }
+      }
+    }
+    
+    when {
+      query deny_access(Path)
+    }
+    
+    then {
+      assert exists Path where Path == "/etc/passwd"
+    }
+  }
+  
+  test "security: detect secrets in code" {
+    given {
+      facts {
+        file("config.py") {
+          content = "API_KEY = 'sk-1234567890'"
+        }
+      }
+    }
+    
+    when {
+      query contains_secrets(File)
+    }
+    
+    then {
+      assert exists File where File == "config.py"
+    }
+  }
+  
+  test "workflow: python files trigger python tools" {
+    given {
+      facts {
+        current_file("utils.py")
+        file_extension("utils.py", ".py")
+        modified("utils.py")
+      }
+    }
+    
+    when {
+      query use_tool(Tool)
+    }
+    
+    then {
+      assert exists Tool where Tool == "pytest"
+      assert exists Tool where Tool == "black"
+      assert exists Tool where Tool == "ruff"
+    }
+  }
+  
+  test "workflow: critical file changes need review" {
+    given {
+      facts {
+        critical_file("/app/src/auth.py")
+        change("update_auth") {
+          files = ["/app/src/auth.py"]
+          type = "bugfix"
+        }
+      }
+    }
+    
+    when {
+      query needs_review(Change)
+    }
+    
+    then {
+      assert exists Change where Change == "update_auth"
+    }
+  }
+  
+  test "constraint: temperature in valid range" {
+    given {
+      agent "test" {
+        context { temperature = 1.5 }
+      }
+    }
+    
+    when {
+      validate constraints
+    }
+    
+    then {
+      assert constraint_violated("temperature out of range")
+    }
+  }
+  
+  test "constraint: no circular dependencies" {
+    given {
+      facts {
+        direct_import("module_a.py", "module_b.py")
+        direct_import("module_b.py", "module_c.py")
+        direct_import("module_c.py", "module_a.py")
+      }
+    }
+    
+    when {
+      query has_circular_dependency(File)
+    }
+    
+    then {
+      assert exists File where File == "module_a.py"
+    }
+  }
+  
+  property "monotonicity: adding facts never removes derived facts" {
+    forall valid_config:
+      let facts1 = valid_config.facts
+      let derived1 = evaluate(valid_config.rules, facts1)
+      
+      let facts2 = facts1 + generate_compatible_facts()
+      let derived2 = evaluate(valid_config.rules, facts2)
+      
+      assert derived1 ⊆ derived2
+  }
+  
+  property "coverage: all source files have test files" {
+    forall file in source_files:
+      exists test_file:
+        has_tests_for(file)
+  }
+}

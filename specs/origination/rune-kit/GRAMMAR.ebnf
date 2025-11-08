@@ -1,0 +1,18 @@
+file        := header? data* rules? tests?
+header      := 'version' '=' STRING
+data        := toml_table | toml_kv
+rules       := '[rules]' rule+
+rule        := head ':-' body '.' | head '.'
+head        := predicate '(' args? ')'
+body        := clause (';' clause)*
+clause      := literal (',' literal)*
+literal     := predicate '(' args? ')' | guard
+predicate   := IDENT
+args        := term (',' term)*
+term        := STRING | NUMBER | IDENT | PATH | list | object
+guard       := comparison | arithmetic | negation | membership | builtin
+comparison  := expr ( '=' | '!=' | '<' | '=< ' | '>' | '>=' ) expr
+arithmetic  := expr ( '+' | '-' | '*' | '/' ) expr
+negation    := 'not' literal
+membership  := expr 'in' expr
+assignment  := 'set(' path ',' term ')'

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "rune"
+version = "0.0.1"
+description = "Declarative config plus rules for LLM providers"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name="RUNE Authors"}]
+dependencies = [
+  "typer>=0.12",
+  "rich>=13.7",
+  "pydantic>=2.6",
+  "lark>=1.1",
+  "jsonschema>=4.22",
+  "tomli>=2.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+rune = "rune.cli:app"

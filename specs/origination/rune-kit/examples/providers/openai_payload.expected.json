@@ -1,0 +1,24 @@
+{
+  "model": "gpt-4o-mini",
+  "temperature": 0.2,
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "web_search",
+        "description": "Search the web",
+        "parameters": {
+          "type": "object",
+          "required": [
+            "q"
+          ],
+          "properties": {
+            "q": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+version = "rune/1.0"
+
+[data]
+environment = "development"
+agent.name = "code-assistant"
+agent.capabilities = ["read", "write", "execute"]
+
+[rules]
+# Allow file operations in /tmp
+allow_file_read(Path) :-
+    action("file.read"),
+    path(Path),
+    Path.starts_with("/tmp").
+
+allow_file_write(Path) :-
+    action("file.write"),
+    path(Path),
+    Path.starts_with("/tmp"),
+    environment("development").
+
+# Deny dangerous operations
+deny_action(A) :-
+    action(A),
+    A.contains("rm -rf").
+
+[policies]
+permit(
+    principal in Group::"agents",
+    action == Action::"read",
+    resource in File::"/tmp/*"
+) when {
+    principal.verified == true
+};
+
+forbid(
+    principal,
+    action == Action::"execute",
+    resource
+) when {
+    resource.dangerous == true
+};

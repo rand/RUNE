@@ -1,0 +1,58 @@
+version = "rune/0.3"
+
+[inputs]
+task        = "code"
+risk        = "low"
+budget.hour = 3.00
+user.tz     = "America/Denver"
+
+[tools.web_search]
+description  = "Search the web"
+input_schema = { type="object", required=["q"], properties={ q={type="string"} } }
+
+[providers.openai]
+model.default = "gpt-4o-mini"
+temperature.default = 0.2
+
+[providers.claude]
+model.default = "claude-3.7-haiku"
+temperature.default = 0.2
+
+[providers.gemini]
+model.default = "gemini-2.5-flash"
+temperature.default = 0.2
+
+[rules]
+low_budget()      :- budget.hour =< 5.0.
+code_task()       :- task = "code".
+research_task()   :- task = "research".
+ideation_task()   :- task = "ideation".
+
+choose_model(openai, "gpt-4o-mini")    :- code_task(), low_budget().
+choose_model(openai, "gpt-4.1")        :- not low_budget().
+
+choose_model(claude, "claude-3.7-haiku")  :- code_task(), low_budget().
+choose_model(claude, "claude-3.7-sonnet") :- not low_budget().
+
+choose_model(gemini, "gemini-2.5-flash") :- code_task(), low_budget().
+choose_model(gemini, "gemini-2.5-pro")   :- not low_budget().
+
+derive.temperature(0.2) :- code_task().
+derive.temperature(0.6) :- research_task().
+derive.temperature(0.9) :- ideation_task().
+
+enable_tool("web_search") :- research_task() ; ideation_task().
+disable_tool("web_search") :- code_task(), risk = "high".
+
+set(provider(P).model, M)        :- choose_model(P, M).
+set(provider(P).temperature, T)  :- derive.temperature(T).
+set(provider(P).tools, Ts)       :- collect_enabled_tools(Ts).
+
+enabled(T) :- enable_tool(T), not disable_tool(T).
+collect_enabled_tools([T*]) :- enabled(T).
+
+[tests.low_cost_code]
+given = { task="code", "budget.hour"=3.0 }
+expect = { "provider.openai.model"="gpt-4o-mini",
+           "provider.openai.temperature"=0.2,
+           "provider.openai.tools"=[] }

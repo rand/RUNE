@@ -1,0 +1,65 @@
+[workspace]
+members = [
+    "rune-core",
+    "rune-cli",
+    # "rune-python", # Disabled until Python dev environment is configured
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["RUNE Contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/rune"
+
+[workspace.dependencies]
+# Parser
+nom = "7.1"
+winnow = "0.5"
+
+# Performance
+crossbeam = "0.8"
+dashmap = "5.5"
+rayon = "1.8"
+parking_lot = "0.12"
+ahash = "0.8"
+
+# Cedar integration
+cedar-policy = "3.1"
+cedar-policy-core = "3.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Tracing and metrics
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+metrics = "0.21"
+metrics-exporter-prometheus = "0.13"
+
+# Testing
+criterion = "0.5"
+proptest = "1.4"
+quickcheck = "1.0"
+
+# Python bindings
+pyo3 = { version = "0.20", features = ["extension-module", "abi3-py39"] }
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+colored = "2.1"
+
+# Memory mapping and optimization
+memmap2 = "0.9"
+# SIMD optimization (requires nightly Rust) - disabled for now
+# packed_simd = { version = "0.3", package = "packed_simd_2" }

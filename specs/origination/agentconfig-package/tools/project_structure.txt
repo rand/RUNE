@@ -1,0 +1,297 @@
+# AgentConfig Project Structure Guide
+
+This file shows the complete directory structure you should create for implementing AgentConfig.
+
+## Complete Directory Tree
+
+```
+agentconfig/
+│
+├── README.md                           # User-facing documentation
+├── IMPLEMENTATION.md                   # Implementation guide
+├── LICENSE                             # Your chosen license
+├── pyproject.toml                      # Python project configuration
+├── setup.py                            # Setup script (if needed)
+├── .gitignore                          # Git ignore file
+│
+├── src/                                # Source code root
+│   └── agentconfig/
+│       ├── __init__.py                 # Package initialization
+│       │
+│       ├── parser/                     # ⭐ PHASE 1: Week 1-2
+│       │   ├── __init__.py
+│       │   ├── ast.py                  # AST node definitions
+│       │   ├── toml_parser.py          # Parse TOML sections
+│       │   ├── datalog_parser.py       # Parse Datalog rules/queries
+│       │   ├── validator.py            # Syntax validation
+│       │   └── grammar.lark            # Lark grammar file
+│       │
+│       ├── types/                      # ⭐ PHASE 1: Week 3-4
+│       │   ├── __init__.py
+│       │   ├── type_system.py          # Type class hierarchy
+│       │   ├── constraints.py          # Constraint definitions
+│       │   ├── unification.py          # Unification algorithm
+│       │   └── checker.py              # Type checking logic
+│       │
+│       ├── engine/                     # ⭐ PHASE 1: Week 5-6
+│       │   ├── __init__.py
+│       │   ├── datalog.py              # Main Datalog engine
+│       │   ├── fact_store.py           # Indexed fact storage (EDB)
+│       │   ├── evaluator.py            # Semi-naive evaluation
+│       │   ├── stratifier.py           # Rule stratification
+│       │   ├── query.py                # Query resolution
+│       │   └── unify.py                # Pattern matching/unification
+│       │
+│       ├── testing/                    # ⭐ PHASE 2: Week 9-10
+│       │   ├── __init__.py
+│       │   ├── test_case.py            # Test case definitions
+│       │   ├── runner.py               # Test runner
+│       │   ├── assertions.py           # Assertion types
+│       │   └── property.py             # Property-based testing
+│       │
+│       ├── cli/                        # ⭐ PHASE 2: Week 9-10
+│       │   ├── __init__.py
+│       │   ├── main.py                 # CLI entry point
+│       │   ├── commands.py             # Command implementations
+│       │   ├── output.py               # Output formatting
+│       │   └── utils.py                # CLI utilities
+│       │
+│       ├── adapters/                   # ⭐ PHASE 3: Week 13-14
+│       │   ├── __init__.py
+│       │   ├── base.py                 # Base adapter interface
+│       │   ├── claude_code.py          # Claude Code adapter
+│       │   ├── openai.py               # OpenAI adapter
+│       │   ├── gemini.py               # Gemini adapter
+│       │   └── utils.py                # Shared adapter utilities
+│       │
+│       ├── lsp/                        # ⭐ PHASE 4: Week 15+ (Optional)
+│       │   ├── __init__.py
+│       │   ├── server.py               # LSP server implementation
+│       │   ├── features.py             # LSP features
+│       │   ├── diagnostics.py          # Error diagnostics
+│       │   └── completion.py           # Autocomplete
+│       │
+│       ├── config.py                   # Main AgentConfig class
+│       ├── exceptions.py               # Custom exceptions
+│       └── utils.py                    # Shared utilities
+│
+├── tests/                              # Test suite
+│   ├── __init__.py
+│   ├── conftest.py                     # Pytest configuration
+│   │
+│   ├── test_parser.py                  # Parser tests
+│   ├── test_types.py                   # Type system tests
+│   ├── test_engine.py                  # Datalog engine tests
+│   ├── test_testing.py                 # Testing framework tests
+│   ├── test_adapters.py                # Adapter tests
+│   ├── test_cli.py                     # CLI tests
+│   ├── test_integration.py             # End-to-end tests
+│   │
+│   └── fixtures/                       # Test fixtures
+│       ├── simple.ac
+│       ├── types.ac
+│       ├── rules.ac
+│       └── complete.ac
+│
+├── examples/                           # Example configurations
+│   ├── simple.ac                       # Minimal example
+│   ├── python_assistant.ac             # Python code assistant
+│   ├── security_policies.ac            # Security-focused config
+│   ├── multi_language.ac               # Multi-language support
+│   └── production_agent.ac             # Complete production example
+│
+├── docs/                               # Documentation
+│   ├── index.md                        # Documentation home
+│   ├── getting_started.md              # Quick start guide
+│   ├── language_reference.md           # Language reference
+│   ├── tutorial.md                     # Step-by-step tutorial
+│   ├── api.md                          # API documentation
+│   ├── architecture.md                 # Architecture overview
+│   ├── contributing.md                 # Contribution guide
+│   └── design/                         # Design documents
+│       ├── agentconfig-design.md
+│       └── agentconfig-advantages.md
+│
+├── benchmarks/                         # Performance benchmarks
+│   ├── __init__.py
+│   ├── bench_parser.py                 # Parser benchmarks
+│   ├── bench_engine.py                 # Engine benchmarks
+│   ├── bench_integration.py            # Integration benchmarks
+│   └── configs/                        # Benchmark configs
+│       ├── small.ac                    # ~100 rules
+│       ├── medium.ac                   # ~500 rules
+│       └── large.ac                    # ~2000 rules
+│
+└── scripts/                            # Development scripts
+    ├── format.sh                       # Run code formatters
+    ├── lint.sh                         # Run linters
+    ├── test.sh                         # Run test suite
+    └── benchmark.sh                    # Run benchmarks
+```
+
+## File Creation Commands
+
+### Create All Directories
+```bash
+mkdir -p agentconfig/{src/agentconfig/{parser,types,engine,testing,cli,adapters,lsp},tests/fixtures,examples,docs/design,benchmarks/configs,scripts}
+```
+
+### Create All __init__.py Files
+```bash
+touch agentconfig/src/agentconfig/{__init__,parser,types,engine,testing,cli,adapters,lsp}/__init__.py
+touch agentconfig/tests/__init__.py
+touch agentconfig/benchmarks/__init__.py
+```
+
+### Create Core Python Files
+```bash
+# Parser
+touch agentconfig/src/agentconfig/parser/{ast,toml_parser,datalog_parser,validator}.py
+
+# Types
+touch agentconfig/src/agentconfig/types/{type_system,constraints,unification,checker}.py
+
+# Engine
+touch agentconfig/src/agentconfig/engine/{datalog,fact_store,evaluator,stratifier,query,unify}.py
+
+# Testing
+touch agentconfig/src/agentconfig/testing/{test_case,runner,assertions,property}.py
+
+# CLI
+touch agentconfig/src/agentconfig/cli/{main,commands,output,utils}.py
+
+# Adapters
+touch agentconfig/src/agentconfig/adapters/{base,claude_code,openai,gemini,utils}.py
+
+# LSP (optional)
+touch agentconfig/src/agentconfig/lsp/{server,features,diagnostics,completion}.py
+
+# Root
+touch agentconfig/src/agentconfig/{config,exceptions,utils}.py
+```
+
+### Create Test Files
+```bash
+touch agentconfig/tests/{conftest,test_parser,test_types,test_engine,test_testing,test_adapters,test_cli,test_integration}.py
+```
+
+### Create Documentation Files
+```bash
+touch agentconfig/docs/{index,getting_started,language_reference,tutorial,api,architecture,contributing}.md
+```
+
+### Create Scripts
+```bash
+touch agentconfig/scripts/{format,lint,test,benchmark}.sh
+chmod +x agentconfig/scripts/*.sh
+```
+
+## Implementation Order by Directory
+
+### Phase 1: Core Language (Weeks 1-8)
+
+1. **src/agentconfig/parser/** (Week 1-2)
+   - Start with `ast.py` - define all AST nodes
+   - Then `toml_parser.py` - parse TOML sections
+   - Then `datalog_parser.py` - parse rules and queries
+   - Finally `validator.py` - syntax validation
+
+2. **src/agentconfig/types/** (Week 3-4)
+   - Start with `type_system.py` - type class hierarchy
+   - Then `constraints.py` - constraint definitions
+   - Then `unification.py` - unification algorithm
+   - Finally `checker.py` - type checking
+
+3. **src/agentconfig/engine/** (Week 5-6)
+   - Start with `fact_store.py` - indexed storage
+   - Then `stratifier.py` - rule ordering
+   - Then `evaluator.py` - semi-naive evaluation
+   - Then `query.py` - query resolution
+   - Finally `datalog.py` - main engine class
+
+4. **src/agentconfig/** (Week 7-8)
+   - `config.py` - main AgentConfig class
+   - `exceptions.py` - custom exceptions
+   - `utils.py` - shared utilities
+   - Integration and testing
+
+### Phase 2: Tooling (Weeks 9-12)
+
+5. **src/agentconfig/cli/** (Week 9-10)
+   - Start with `main.py` - entry point
+   - Then `commands.py` - command implementations
+   - Then `output.py` - pretty printing
+   - Add `utils.py` as needed
+
+6. **src/agentconfig/testing/** (Week 11-12)
+   - Start with `test_case.py` - test definitions
+   - Then `assertions.py` - assertion types
+   - Then `runner.py` - test execution
+   - Add `property.py` for property-based tests
+
+### Phase 3: Integration (Weeks 13-14)
+
+7. **src/agentconfig/adapters/** (Week 13-14)
+   - Start with `base.py` - adapter interface
+   - Then `claude_code.py` - Claude Code export
+   - Then `openai.py` - OpenAI export
+   - Then `gemini.py` - Gemini export
+   - Add `utils.py` for shared code
+
+### Phase 4: Advanced (Weeks 15+)
+
+8. **src/agentconfig/lsp/** (Optional)
+   - Start with `server.py` - LSP server
+   - Then `features.py` - basic features
+   - Add `diagnostics.py` and `completion.py`
+
+## Key Files to Start With
+
+### 1. src/agentconfig/parser/ast.py
+The foundation - define all AST nodes here first.
+
+### 2. src/agentconfig/types/type_system.py
+Core type definitions that everything else uses.
+
+### 3. src/agentconfig/engine/fact_store.py
+Efficient fact storage with indexing.
+
+### 4. src/agentconfig/engine/evaluator.py
+The heart of the system - semi-naive evaluation.
+
+### 5. src/agentconfig/config.py
+Ties everything together - the main API.
+
+## Testing Structure
+
+### tests/ Organization
+```
+tests/
+├── unit/           # Unit tests for individual components
+├── integration/    # Integration tests for workflows
+├── performance/    # Performance tests
+└── fixtures/       # Test data files
+```
+
+### Test Naming Convention
+- `test_<component>.py` - Tests for a component
+- `test_integration_<workflow>.py` - Integration tests
+- `bench_<component>.py` - Benchmarks
+
+## Development Workflow
+
+1. **Create structure**: Use commands above
+2. **Install dependencies**: `pip install -e ".[dev]"`
+3. **Run tests**: `pytest`
+4. **Format code**: `black src/ tests/`
+5. **Lint code**: `ruff check src/ tests/`
+6. **Type check**: `mypy src/`
+7. **Build package**: `python -m build`
+
+## Tips
+
+- Start small: Get basic parsing working first
+- Test as you go: Write tests for each component
+- Use type hints: Make mypy happy
+- Document: Docstrings for all public APIs
+- Profile: Use cProfile to find bottlenecks

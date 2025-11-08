@@ -1,0 +1,29 @@
+[package]
+name = "rune-python"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[lib]
+name = "rune_python"
+crate-type = ["cdylib"]
+
+[dependencies]
+rune-core = { path = "../rune-core" }
+
+# Python bindings
+pyo3 = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+
+[features]
+default = ["pyo3/extension-module"]

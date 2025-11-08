@@ -1,0 +1,124 @@
+# simple.ac
+# A minimal AgentConfig example to get started
+
+metadata {
+  name = "SimpleAgent"
+  version = "1.0.0"
+  description = "A simple agent configuration example"
+}
+
+agent "simple-assistant" {
+  # Basic configuration
+  model = "claude-sonnet-4-5"
+  
+  context {
+    temperature = 0.7
+    max_tokens = 100000
+  }
+  
+  # Simple facts about our domain
+  facts {
+    # Programming languages we support
+    language("python")
+    language("javascript")
+    language("rust")
+    
+    # Tools we have available
+    tool("pytest") { for_language = "python" }
+    tool("jest") { for_language = "javascript" }
+    tool("cargo") { for_language = "rust" }
+    
+    # Current context
+    current_file("example.py")
+  }
+  
+  # Simple rules
+  rules {
+    # Determine file language
+    file_language(File, Lang) :-
+      file_extension(File, Ext),
+      language_for_extension(Lang, Ext).
+    
+    # Language to extension mapping
+    language_for_extension("python", ".py").
+    language_for_extension("javascript", ".js").
+    language_for_extension("rust", ".rs").
+    
+    # Use appropriate tool for language
+    use_tool(Tool) :-
+      current_file(File),
+      file_language(File, Lang),
+      tool(Tool) { for_language = Lang }.
+    
+    # Always format code after editing
+    should_format(File) :-
+      modified(File),
+      file_language(File, _).
+  }
+  
+  # Simple constraints
+  constraints {
+    # Temperature must be valid
+    context.temperature >= 0.0 && context.temperature <= 1.0
+    
+    # Must have at least one language
+    exists lang: language(lang)
+  }
+  
+  # Tool configuration
+  tools {
+    bash {
+      enabled = true
+      timeout_ms = 30000
+    }
+    
+    file_editor {
+      enabled = true
+      max_file_size = 1048576  # 1MB
+    }
+  }
+}
+
+# Export for Claude Code
+export target "claude-code" {
+  format = "json"
+  output = "config.json"
+}
+
+# Simple tests
+tests {
+  test "python files use pytest" {
+    given {
+      facts {
+        current_file("test.py")
+        file_extension("test.py", ".py")
+        tool("pytest") { for_language = "python" }
+      }
+    }
+    
+    when {
+      query use_tool(T)
+    }
+    
+    then {
+      assert exists T where T == "pytest"
+    }
+  }
+  
+  test "modified files should be formatted" {
+    given {
+      facts {
+        modified("script.py")
+        file_language("script.py", "python")
+      }
+    }
+    
+    when {
+      query should_format(F)
+    }
+    
+    then {
+      assert exists F where F == "script.py"
+    }
+  }
+}
