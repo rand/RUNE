@@ -4,4 +4,4 @@ title: Agent Guide
 permalink: /agent-guide
 ---
 
-{% include_relative ../AGENT_GUIDE.md %}
+{% include agent-guide-content.md %}

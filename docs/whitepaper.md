@@ -4,4 +4,4 @@ title: Technical Whitepaper
 permalink: /whitepaper
 ---
 
-{% include_relative ../WHITEPAPER.md %}
+{% include whitepaper-content.md %}
