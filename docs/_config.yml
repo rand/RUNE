@@ -1,0 +1,76 @@
+# RUNE GitHub Pages Configuration
+
+# Site settings
+title: RUNE
+description: High-Performance Authorization and Configuration Engine for AI Agents
+tagline: Real, Enforceable Guardrails
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+theme: minima
+
+# Syntax highlighting
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name
+
+# Navigation
+nav_links:
+  - title: Home
+    url: /
+  - title: Whitepaper
+    url: /whitepaper
+  - title: Agent Guide
+    url: /agent-guide
+  - title: GitHub
+    url: https://github.com/yourusername/rune
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache
+  - gemfiles
+  - README.md
+  - WHITEPAPER_RESEARCH.md
+
+# SEO
+author: RUNE Contributors
+twitter:
+  username:
+  card: summary_large_image
+logo: /assets/images/rune-logo.svg
+social:
+  name: RUNE
+  links:
+    - https://github.com/yourusername/rune
+
+# Google Analytics (optional)
+# google_analytics: UA-XXXXXXXXX-X
+
+# Theme customization
+minima:
+  skin: dark
+  date_format: "%b %-d, %Y"
+  social_links:
+    github: yourusername/rune
