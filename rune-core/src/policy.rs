@@ -147,11 +147,8 @@ impl PolicySet {
         // Create context (simplified for now)
         let context = Context::empty();
 
-        Ok(
-            CedarRequest::new(Some(principal), Some(action), Some(resource), context, None)
-                .map_err(|e| {
-                    RUNEError::InvalidRequest(format!("Failed to create Cedar request: {}", e))
-                })?,
+        CedarRequest::new(Some(principal), Some(action), Some(resource), context, None).map_err(
+            |e| RUNEError::InvalidRequest(format!("Failed to create Cedar request: {}", e)),
         )
     }
 

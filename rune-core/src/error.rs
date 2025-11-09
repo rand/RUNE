@@ -23,7 +23,10 @@ pub enum RUNEError {
 
     /// Authorization denied
     #[error("Authorization denied: {reason}")]
-    AuthorizationDenied { reason: String },
+    AuthorizationDenied {
+        /// Reason for authorization denial
+        reason: String,
+    },
 
     /// Configuration error
     #[error("Configuration error: {0}")]

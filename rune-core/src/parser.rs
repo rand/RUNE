@@ -203,7 +203,7 @@ fn parse_atom(input: &str) -> Result<Atom> {
             .split(',')
             .map(|s| {
                 let s = s.trim();
-                if s.chars().next().map_or(false, |c| c.is_uppercase()) {
+                if s.chars().next().is_some_and(|c| c.is_uppercase()) {
                     Term::Variable(s.to_string())
                 } else {
                     Term::Constant(s.trim_matches('"').to_string())

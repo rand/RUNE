@@ -32,6 +32,8 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert!(!VERSION.is_empty());
+        // VERSION is a compile-time constant from CARGO_PKG_VERSION
+        // Just verify it has semantic version format
+        assert!(VERSION.contains('.'));
     }
 }

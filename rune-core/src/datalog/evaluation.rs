@@ -49,7 +49,7 @@ impl Evaluator {
         let mut all_accumulated: HashSet<Fact> = HashSet::new();
 
         // Process each stratum in order
-        for (_stratum_level, stratum_rules) in strata.iter().enumerate() {
+        for stratum_rules in strata.iter() {
             // Separate facts from rules
             let (fact_rules, non_fact_rules): (Vec<_>, Vec<_>) =
                 stratum_rules.iter().partition(|r| r.is_fact());
