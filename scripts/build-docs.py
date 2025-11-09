@@ -22,9 +22,9 @@ SITE_URL = "https://rand.github.io/RUNE/"
 
 # Directories
 BASE_DIR = Path(__file__).parent.parent
-DOCS_DIR = BASE_DIR / "docs"
+SOURCE_DIR = BASE_DIR  # Markdown source files in root
 TEMPLATES_DIR = BASE_DIR / "templates"
-SITE_DIR = BASE_DIR / "site"
+SITE_DIR = BASE_DIR / "docs"  # Output to docs/ for GitHub Pages
 
 # Navigation structure
 NAV_LINKS = [
@@ -57,22 +57,17 @@ def setup_markdown():
 
 
 def copy_static_files():
-    """Copy CSS, JS, images, and other static assets to site directory."""
-    static_dirs = ["css", "js", "assets", "images"]
+    """Ensure static assets are in place."""
+    # For RUNE: static files are already in docs/ (SITE_DIR)
+    # Just verify they exist
+    static_dirs = ["css", "js", "assets"]
 
-    for dir_name in static_dirs:
-        src_dir = DOCS_DIR / dir_name
-        if src_dir.exists():
-            dest_dir = SITE_DIR / dir_name
-            if dest_dir.exists():
-                shutil.rmtree(dest_dir)
-            shutil.copytree(src_dir, dest_dir)
-            print(f"  Copied {dir_name}/ → site/{dir_name}/")
+    all_present = all((SITE_DIR / dir_name).exists() for dir_name in static_dirs)
 
-    # Copy favicon files
-    for favicon_file in DOCS_DIR.glob("favicon*"):
-        shutil.copy(favicon_file, SITE_DIR / favicon_file.name)
-        print(f"  Copied {favicon_file.name}")
+    if all_present:
+        print("  Static assets already in place")
+    else:
+        print("  ⚠️  Some static assets missing - check docs/ folder")
 
 
 def strip_yaml_frontmatter(content):
@@ -87,7 +82,7 @@ def strip_yaml_frontmatter(content):
 def render_page(template_env, md_parser, template_name, md_file, output_file, extra_context=None):
     """Render a single page from markdown to HTML."""
     # Read markdown content
-    md_path = DOCS_DIR / md_file
+    md_path = SOURCE_DIR / md_file
     if not md_path.exists():
         print(f"  ⚠️  Skipping {md_file} (not found)")
         return
@@ -139,10 +134,12 @@ def build():
     """Main build function."""
     print(f"\n🔨 Building {PROJECT_NAME} documentation...\n")
 
-    # Clean and create site directory
-    if SITE_DIR.exists():
-        shutil.rmtree(SITE_DIR)
-    SITE_DIR.mkdir(parents=True)
+    # Clean old HTML files (but keep static assets!)
+    for html_file in SITE_DIR.glob("*.html"):
+        html_file.unlink()
+
+    # Ensure site directory exists
+    SITE_DIR.mkdir(parents=True, exist_ok=True)
 
     # Setup Jinja2 environment
     template_env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
@@ -152,9 +149,9 @@ def build():
 
     # Render pages
     print("Rendering pages:")
-    render_page(template_env, md_parser, "index.html", "index.md", "index.html")
-    render_page(template_env, md_parser, "whitepaper.html", "whitepaper.md", "whitepaper.html")
-    render_page(template_env, md_parser, "whitepaper.html", "guide/agent-guide.md", "agent-guide.html")
+    render_page(template_env, md_parser, "index.html", "README.md", "index.html")
+    render_page(template_env, md_parser, "whitepaper.html", "WHITEPAPER.md", "whitepaper.html")
+    render_page(template_env, md_parser, "whitepaper.html", "AGENT_GUIDE.md", "agent-guide.html")
 
     # Copy static files
     print("\nCopying static assets:")
