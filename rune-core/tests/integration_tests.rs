@@ -168,6 +168,8 @@ fn test_end_to_end_negation() {
         .filter(|f| f.predicate.as_ref() == "allowed")
         .collect();
 
+    eprintln!("DEBUG negation: allowed_facts = {:?}", allowed_facts);
+
     // alice and bob should be allowed, charlie should not
     assert_eq!(allowed_facts.len(), 2);
 
