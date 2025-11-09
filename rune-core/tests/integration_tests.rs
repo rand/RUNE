@@ -2,7 +2,7 @@
 //!
 //! Tests the full pipeline: parser → evaluation → Cedar bridge → authorization
 
-use rune_core::datalog::{CedarDatalogBridge, DatalogEngine, Rule};
+use rune_core::datalog::{CedarDatalogBridge, DatalogEngine};
 use rune_core::facts::{Fact, FactStore};
 use rune_core::parser::parse_rules;
 use rune_core::request::Request;
@@ -292,7 +292,7 @@ fn test_integration_request_authorization_with_rules() {
 
     // alice should be able to read (admin role)
     assert!(can_read_facts.iter().any(|f| {
-        matches!(&f.args[..], [Value::String(u), Value::String(f)]
+        matches!(&f.args[..], [Value::String(u), Value::String(_f)]
             if u.as_ref() == "alice")
     }));
 }
