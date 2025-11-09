@@ -12,6 +12,7 @@ pub mod error;
 pub mod facts;
 pub mod parser;
 pub mod policy;
+pub mod reload;
 pub mod request;
 pub mod types;
 pub mod watcher;
