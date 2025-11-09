@@ -350,10 +350,12 @@ mod tests {
                 let result = trace_cache_lookup(async {
                     // Simulate cache lookup
                     Some("cached_value")
-                }).await;
+                })
+                .await;
                 assert_eq!(result, Some("cached_value"));
             }
-        }).await;
+        })
+        .await;
     }
 
     #[test]

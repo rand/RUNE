@@ -3,8 +3,8 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 use std::fs;
-use tempfile::NamedTempFile;
 use std::io::Write;
+use tempfile::NamedTempFile;
 
 /// Test the version command
 #[test]
@@ -36,8 +36,10 @@ fn test_cli_help() {
 fn test_eval_basic() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("read")
-        .arg("--resource").arg("/tmp/file.txt")
+        .arg("--action")
+        .arg("read")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
         .assert()
         .success()
         .stdout(predicate::str::contains("Evaluating request..."))
@@ -49,9 +51,12 @@ fn test_eval_basic() {
 fn test_eval_with_principal() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("write")
-        .arg("--principal").arg("user:alice")
-        .arg("--resource").arg("/data/secret.txt")
+        .arg("--action")
+        .arg("write")
+        .arg("--principal")
+        .arg("user:alice")
+        .arg("--resource")
+        .arg("/data/secret.txt")
         .assert()
         .success()
         .stdout(predicate::str::contains("Evaluating request"));
@@ -62,9 +67,12 @@ fn test_eval_with_principal() {
 fn test_eval_json_format() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("delete")
-        .arg("--resource").arg("/tmp/file.txt")
-        .arg("--format").arg("json")
+        .arg("--action")
+        .arg("delete")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
+        .arg("--format")
+        .arg("json")
         .assert()
         .success()
         .stdout(predicate::str::contains("decision"));
@@ -76,8 +84,10 @@ fn test_eval_verbose() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("--verbose")
         .arg("eval")
-        .arg("--action").arg("read")
-        .arg("--resource").arg("/tmp/file.txt")
+        .arg("--action")
+        .arg("read")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
         .assert()
         .success();
 }
@@ -87,7 +97,8 @@ fn test_eval_verbose() {
 fn test_eval_missing_action() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--resource").arg("/tmp/file.txt")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
         .assert()
         .failure()
         .stderr(predicate::str::contains("required"));
@@ -98,7 +109,8 @@ fn test_eval_missing_action() {
 fn test_eval_missing_resource() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("read")
+        .arg("--action")
+        .arg("read")
         .assert()
         .failure()
         .stderr(predicate::str::contains("required"));
@@ -109,7 +121,9 @@ fn test_eval_missing_resource() {
 fn test_validate_valid_config() {
     // Create a valid config file
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, r#"version = "rune/1.0"
+    writeln!(
+        temp_file,
+        r#"version = "rune/1.0"
 
 [data]
 debug = true
@@ -123,7 +137,9 @@ permit (
     action == Action::"read",
     resource
 );
-"#).unwrap();
+"#
+    )
+    .unwrap();
     temp_file.flush().unwrap();
 
     let mut cmd = Command::cargo_bin("rune").unwrap();
@@ -186,8 +202,10 @@ fn test_benchmark_default() {
 fn test_benchmark_custom() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("benchmark")
-        .arg("--requests").arg("100")
-        .arg("--threads").arg("2")
+        .arg("--requests")
+        .arg("100")
+        .arg("--threads")
+        .arg("2")
         .assert()
         .success()
         .stdout(predicate::str::contains("100"))
@@ -200,7 +218,8 @@ fn test_benchmark_verbose() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("--verbose")
         .arg("benchmark")
-        .arg("--requests").arg("10")
+        .arg("--requests")
+        .arg("10")
         .assert()
         .success();
 }
@@ -210,7 +229,8 @@ fn test_benchmark_verbose() {
 fn test_benchmark_invalid_requests() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("benchmark")
-        .arg("--requests").arg("not_a_number")
+        .arg("--requests")
+        .arg("not_a_number")
         .assert()
         .failure()
         .stderr(predicate::str::contains("invalid"));
@@ -221,8 +241,10 @@ fn test_benchmark_invalid_requests() {
 fn test_benchmark_zero_threads() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("benchmark")
-        .arg("--threads").arg("0")
-        .arg("--requests").arg("10")
+        .arg("--threads")
+        .arg("0")
+        .arg("--requests")
+        .arg("10")
         .assert()
         .success()
         .stdout(predicate::str::contains("Total requests:"));
@@ -248,7 +270,9 @@ fn test_eval_help() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Evaluate an authorization request"))
+        .stdout(predicate::str::contains(
+            "Evaluate an authorization request",
+        ))
         .stdout(predicate::str::contains("action"))
         .stdout(predicate::str::contains("principal"))
         .stdout(predicate::str::contains("resource"));
@@ -262,7 +286,9 @@ fn test_validate_help() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Validate a RUNE configuration file"));
+        .stdout(predicate::str::contains(
+            "Validate a RUNE configuration file",
+        ));
 }
 
 /// Test benchmark help
@@ -305,8 +331,10 @@ fn test_eval_different_actions() {
     for action in actions {
         let mut cmd = Command::cargo_bin("rune").unwrap();
         cmd.arg("eval")
-            .arg("--action").arg(action)
-            .arg("--resource").arg("/test/resource")
+            .arg("--action")
+            .arg(action)
+            .arg("--resource")
+            .arg("/test/resource")
             .assert()
             .success()
             .stdout(predicate::str::contains("Evaluating request"));
@@ -326,8 +354,10 @@ fn test_eval_different_resources() {
     for resource in resources {
         let mut cmd = Command::cargo_bin("rune").unwrap();
         cmd.arg("eval")
-            .arg("--action").arg("read")
-            .arg("--resource").arg(resource)
+            .arg("--action")
+            .arg("read")
+            .arg("--resource")
+            .arg(resource)
             .assert()
             .success();
     }
@@ -336,19 +366,17 @@ fn test_eval_different_resources() {
 /// Test eval with different principal formats
 #[test]
 fn test_eval_different_principals() {
-    let principals = vec![
-        "user:alice",
-        "agent-1",
-        "service:api",
-        "admin:root",
-    ];
+    let principals = vec!["user:alice", "agent-1", "service:api", "admin:root"];
 
     for principal in principals {
         let mut cmd = Command::cargo_bin("rune").unwrap();
         cmd.arg("eval")
-            .arg("--action").arg("read")
-            .arg("--principal").arg(principal)
-            .arg("--resource").arg("/test")
+            .arg("--action")
+            .arg("read")
+            .arg("--principal")
+            .arg(principal)
+            .arg("--resource")
+            .arg("/test")
             .assert()
             .success();
     }
@@ -362,37 +390,37 @@ fn test_validate_minimal_config() {
     temp_file.flush().unwrap();
 
     let mut cmd = Command::cargo_bin("rune").unwrap();
-    cmd.arg("validate")
-        .arg(temp_file.path())
-        .assert()
-        .success();
+    cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
 /// Test validate with config containing only rules
 #[test]
 fn test_validate_config_with_rules() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, r#"version = "rune/1.0"
+    writeln!(
+        temp_file,
+        r#"version = "rune/1.0"
 
 [rules]
 user(alice).
 admin(alice).
 can_access(U) :- user(U), admin(U).
-"#).unwrap();
+"#
+    )
+    .unwrap();
     temp_file.flush().unwrap();
 
     let mut cmd = Command::cargo_bin("rune").unwrap();
-    cmd.arg("validate")
-        .arg(temp_file.path())
-        .assert()
-        .success();
+    cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
 /// Test validate with config containing only policies
 #[test]
 fn test_validate_config_with_policies() {
     let mut temp_file = NamedTempFile::new().unwrap();
-    writeln!(temp_file, r#"version = "rune/1.0"
+    writeln!(
+        temp_file,
+        r#"version = "rune/1.0"
 
 [policies]
 permit (
@@ -400,14 +428,13 @@ permit (
     action == Action::"read",
     resource
 );
-"#).unwrap();
+"#
+    )
+    .unwrap();
     temp_file.flush().unwrap();
 
     let mut cmd = Command::cargo_bin("rune").unwrap();
-    cmd.arg("validate")
-        .arg(temp_file.path())
-        .assert()
-        .success();
+    cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
 /// Test benchmark with very small number of requests
@@ -415,8 +442,10 @@ permit (
 fn test_benchmark_small() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("benchmark")
-        .arg("--requests").arg("1")
-        .arg("--threads").arg("1")
+        .arg("--requests")
+        .arg("1")
+        .arg("--threads")
+        .arg("1")
         .assert()
         .success();
 }
@@ -426,9 +455,12 @@ fn test_benchmark_small() {
 fn test_eval_text_format() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("read")
-        .arg("--resource").arg("/tmp/file.txt")
-        .arg("--format").arg("text")
+        .arg("--action")
+        .arg("read")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
+        .arg("--format")
+        .arg("text")
         .assert()
         .success()
         .stdout(predicate::str::contains("Authorization Result"));
@@ -439,9 +471,12 @@ fn test_eval_text_format() {
 fn test_eval_invalid_format() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("eval")
-        .arg("--action").arg("read")
-        .arg("--resource").arg("/tmp/file.txt")
-        .arg("--format").arg("xml")
+        .arg("--action")
+        .arg("read")
+        .arg("--resource")
+        .arg("/tmp/file.txt")
+        .arg("--format")
+        .arg("xml")
         .assert()
         .success(); // Still succeeds but might use default format
 }
@@ -452,10 +487,14 @@ fn test_global_and_command_flags() {
     let mut cmd = Command::cargo_bin("rune").unwrap();
     cmd.arg("--verbose")
         .arg("eval")
-        .arg("--action").arg("read")
-        .arg("--principal").arg("user:test")
-        .arg("--resource").arg("/file")
-        .arg("--format").arg("json")
+        .arg("--action")
+        .arg("read")
+        .arg("--principal")
+        .arg("user:test")
+        .arg("--resource")
+        .arg("/file")
+        .arg("--format")
+        .arg("json")
         .assert()
         .success();
 }

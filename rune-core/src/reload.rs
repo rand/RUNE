@@ -353,7 +353,9 @@ mod tests {
         // Try to watch non-existent file
         let result = coordinator.watch_file("/nonexistent/path/file.rune");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), RUNEError::ConfigError(msg) if msg.contains("does not exist")));
+        assert!(
+            matches!(result.unwrap_err(), RUNEError::ConfigError(msg) if msg.contains("does not exist"))
+        );
         assert_eq!(coordinator.watched_files().len(), 0);
     }
 
@@ -414,7 +416,10 @@ mod tests {
             ReloadResult::Skipped("reason".to_string())
         );
 
-        assert_ne!(ReloadResult::Success, ReloadResult::Failed("error".to_string()));
+        assert_ne!(
+            ReloadResult::Success,
+            ReloadResult::Failed("error".to_string())
+        );
         assert_ne!(
             ReloadResult::Failed("error1".to_string()),
             ReloadResult::Failed("error2".to_string())
@@ -442,13 +447,17 @@ mod tests {
 
         // Create temp file with Datalog rules
         let mut temp_file = NamedTempFile::new().unwrap();
-        writeln!(temp_file, r#"version = "rune/1.0"
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
 
 [rules]
 user(alice).
 admin(alice).
 can_access(U) :- user(U), admin(U).
-"#).unwrap();
+"#
+        )
+        .unwrap();
         temp_file.flush().unwrap();
 
         // Reload should succeed
@@ -463,7 +472,9 @@ can_access(U) :- user(U), admin(U).
 
         // Create temp file with Cedar policies
         let mut temp_file = NamedTempFile::new().unwrap();
-        writeln!(temp_file, r#"version = "rune/1.0"
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
 
 [policies]
 permit (
@@ -471,7 +482,9 @@ permit (
     action == Action::"read",
     resource
 );
-"#).unwrap();
+"#
+        )
+        .unwrap();
         temp_file.flush().unwrap();
 
         // Reload should succeed
@@ -486,7 +499,9 @@ permit (
 
         // Create temp file with both rules and policies
         let mut temp_file = NamedTempFile::new().unwrap();
-        writeln!(temp_file, r#"version = "rune/1.0"
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
 
 [rules]
 user(alice).
@@ -497,7 +512,9 @@ permit (
     action == Action::"read",
     resource
 );
-"#).unwrap();
+"#
+        )
+        .unwrap();
         temp_file.flush().unwrap();
 
         // Reload should succeed
@@ -527,12 +544,16 @@ permit (
 
         // Create temp file with invalid TOML
         let mut temp_file = NamedTempFile::new().unwrap();
-        writeln!(temp_file, r#"version = "rune/1.0"
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
 
 [data]
 invalid toml here
 key = no quotes
-"#).unwrap();
+"#
+        )
+        .unwrap();
         temp_file.flush().unwrap();
 
         // Reload should fail
@@ -563,7 +584,9 @@ key = no quotes
         let coordinator = ReloadCoordinator::new(engine).unwrap();
 
         // Try to reload non-existent file
-        let result = coordinator.manual_reload(Path::new("/nonexistent/file.rune")).await;
+        let result = coordinator
+            .manual_reload(Path::new("/nonexistent/file.rune"))
+            .await;
         assert!(matches!(result, ReloadResult::Failed(msg) if msg.contains("Failed to read file")));
     }
 

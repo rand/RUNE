@@ -453,7 +453,6 @@ mod tests {
         assert_eq!(applied, Term::Constant(Value::Integer(42)));
     }
 
-
     #[test]
     fn test_term_display() {
         // Test Display implementations for coverage
@@ -521,7 +520,10 @@ mod tests {
         let atom2 = Atom::new("edge", vec![Term::var("X"), Term::var("Y")]);
         assert_eq!(atom2.arity(), 2);
 
-        let atom3 = Atom::new("triple", vec![Term::var("X"), Term::var("Y"), Term::var("Z")]);
+        let atom3 = Atom::new(
+            "triple",
+            vec![Term::var("X"), Term::var("Y"), Term::var("Z")],
+        );
         assert_eq!(atom3.arity(), 3);
     }
 

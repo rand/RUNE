@@ -427,7 +427,9 @@ user(alice).
 "#;
         let result = parse_rune_file(input);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), RUNEError::ParseError(msg) if msg.contains("Missing version")));
+        assert!(
+            matches!(result.unwrap_err(), RUNEError::ParseError(msg) if msg.contains("Missing version"))
+        );
     }
 
     #[test]
@@ -444,7 +446,9 @@ user(alice).
 "#;
         let result = parse_rune_file(input);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), RUNEError::ParseError(msg) if msg.contains("Failed to parse data section")));
+        assert!(
+            matches!(result.unwrap_err(), RUNEError::ParseError(msg) if msg.contains("Failed to parse data section"))
+        );
     }
 
     #[test]
@@ -795,7 +799,10 @@ permit (
     fn test_parse_term_with_large_numbers() {
         // Max i64
         let term = parse_term("9223372036854775807").unwrap();
-        assert!(matches!(term, DatalogTerm::Constant(Value::Integer(9223372036854775807))));
+        assert!(matches!(
+            term,
+            DatalogTerm::Constant(Value::Integer(9223372036854775807))
+        ));
 
         // Number too large for i64 (becomes string)
         let term = parse_term("99999999999999999999").unwrap();

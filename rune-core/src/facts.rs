@@ -393,11 +393,10 @@ mod tests {
         assert_eq!(binary.args[1], Value::string("bob"));
 
         // Test n-ary fact
-        let nary = Fact::new("triple", vec![
-            Value::Integer(1),
-            Value::Integer(2),
-            Value::Integer(3)
-        ]);
+        let nary = Fact::new(
+            "triple",
+            vec![Value::Integer(1), Value::Integer(2), Value::Integer(3)],
+        );
         assert_eq!(nary.predicate.as_ref(), "triple");
         assert_eq!(nary.args.len(), 3);
     }
@@ -411,7 +410,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Constant(Value::string("alice")),
-                PatternArg::Constant(Value::string("bob"))
+                PatternArg::Constant(Value::string("bob")),
             ],
         };
         assert!(fact.matches_pattern(&pattern_exact));
@@ -421,7 +420,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Constant(Value::string("alice")),
-                PatternArg::Constant(Value::string("charlie"))
+                PatternArg::Constant(Value::string("charlie")),
             ],
         };
         assert!(!fact.matches_pattern(&pattern_wrong));
@@ -431,7 +430,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Variable("X".into()),
-                PatternArg::Variable("Y".into())
+                PatternArg::Variable("Y".into()),
             ],
         };
         assert!(fact.matches_pattern(&pattern_vars));
@@ -441,7 +440,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Constant(Value::string("alice")),
-                PatternArg::Variable("X".into())
+                PatternArg::Variable("X".into()),
             ],
         };
         assert!(fact.matches_pattern(&pattern_mixed));
@@ -451,7 +450,7 @@ mod tests {
             predicate: Arc::from("likes"),
             args: vec![
                 PatternArg::Variable("X".into()),
-                PatternArg::Variable("Y".into())
+                PatternArg::Variable("Y".into()),
             ],
         };
         assert!(!fact.matches_pattern(&pattern_wrong_pred));
@@ -568,7 +567,11 @@ mod tests {
         // Add some facts
         store.add_fact(Fact::unary("user", Value::string("alice")));
         store.add_fact(Fact::unary("user", Value::string("bob")));
-        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("bob")));
+        store.add_fact(Fact::binary(
+            "follows",
+            Value::string("alice"),
+            Value::string("bob"),
+        ));
 
         assert_eq!(store.len(), 3);
         assert!(!store.is_empty());
@@ -653,17 +656,33 @@ mod tests {
         let store = FactStore::new();
 
         // Add facts with different patterns
-        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("bob")));
-        store.add_fact(Fact::binary("follows", Value::string("bob"), Value::string("charlie")));
-        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("charlie")));
-        store.add_fact(Fact::binary("likes", Value::string("alice"), Value::string("coding")));
+        store.add_fact(Fact::binary(
+            "follows",
+            Value::string("alice"),
+            Value::string("bob"),
+        ));
+        store.add_fact(Fact::binary(
+            "follows",
+            Value::string("bob"),
+            Value::string("charlie"),
+        ));
+        store.add_fact(Fact::binary(
+            "follows",
+            Value::string("alice"),
+            Value::string("charlie"),
+        ));
+        store.add_fact(Fact::binary(
+            "likes",
+            Value::string("alice"),
+            Value::string("coding"),
+        ));
 
         // Query: Who follows bob?
         let pattern1 = FactPattern {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Variable("X".into()),
-                PatternArg::Constant(Value::string("bob"))
+                PatternArg::Constant(Value::string("bob")),
             ],
         };
         let results = store.query(&pattern1);
@@ -675,7 +694,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Constant(Value::string("alice")),
-                PatternArg::Variable("Y".into())
+                PatternArg::Variable("Y".into()),
             ],
         };
         let results = store.query(&pattern2);
@@ -686,7 +705,7 @@ mod tests {
             predicate: Arc::from("follows"),
             args: vec![
                 PatternArg::Variable("X".into()),
-                PatternArg::Variable("Y".into())
+                PatternArg::Variable("Y".into()),
             ],
         };
         let results = store.query(&pattern3);

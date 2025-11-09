@@ -286,7 +286,10 @@ mod tests {
         let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
 
         assert_eq!(json["error"], "engine_error");
-        assert!(json["message"].as_str().unwrap().contains("Authorization engine error"));
+        assert!(json["message"]
+            .as_str()
+            .unwrap()
+            .contains("Authorization engine error"));
     }
 
     #[tokio::test]
