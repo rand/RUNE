@@ -138,7 +138,7 @@ fn save_section(sections: &mut Sections, section_name: Option<&str>, content: &s
 }
 
 /// Parse Datalog rules
-fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
+pub fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
     let mut rules = Vec::new();
 
     for line in input.lines() {
