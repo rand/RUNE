@@ -314,6 +314,53 @@ mod tests {
     }
 
     #[test]
+    fn test_watch_directory() {
+        let mut watcher = RUNEWatcher::new().unwrap();
+        let temp_dir = TempDir::new().unwrap();
+
+        // Watch directory (should use recursive mode)
+        assert!(watcher.watch(temp_dir.path()).is_ok());
+        assert_eq!(watcher.watched_paths().len(), 1);
+        assert!(watcher.watched_paths().contains(&temp_dir.path().to_path_buf()));
+    }
+
+    #[test]
+    fn test_unwatch() {
+        let mut watcher = RUNEWatcher::new().unwrap();
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("test.rune");
+        fs::write(&file_path, "version = \"1.0\"").unwrap();
+
+        // Watch and then unwatch
+        watcher.watch(&file_path).unwrap();
+        assert_eq!(watcher.watched_paths().len(), 1);
+
+        watcher.unwatch(&file_path).unwrap();
+        assert_eq!(watcher.watched_paths().len(), 0);
+
+        // Unwatching non-existent path should be no-op
+        assert!(watcher.unwatch(&file_path).is_ok());
+    }
+
+    #[test]
+    fn test_clear_watches() {
+        let mut watcher = RUNEWatcher::new().unwrap();
+        let temp_dir = TempDir::new().unwrap();
+        let file1 = temp_dir.path().join("test1.rune");
+        let file2 = temp_dir.path().join("test2.rune");
+
+        fs::write(&file1, "version = \"1.0\"").unwrap();
+        fs::write(&file2, "version = \"2.0\"").unwrap();
+
+        watcher.watch(&file1).unwrap();
+        watcher.watch(&file2).unwrap();
+        assert_eq!(watcher.watched_paths().len(), 2);
+
+        watcher.clear().unwrap();
+        assert_eq!(watcher.watched_paths().len(), 0);
+    }
+
+    #[test]
     fn test_should_watch() {
         let watcher = RUNEWatcher::new().unwrap();
 
@@ -321,6 +368,217 @@ mod tests {
         assert!(watcher.should_watch(Path::new("data.toml")));
         assert!(!watcher.should_watch(Path::new("readme.md")));
         assert!(!watcher.should_watch(Path::new("script.py")));
+        assert!(!watcher.should_watch(Path::new("no_extension")));
+    }
+
+    #[test]
+    fn test_event_sender() {
+        let watcher = RUNEWatcher::new().unwrap();
+        let sender = watcher.event_sender();
+
+        // Send event manually
+        let event = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Modified,
+            timestamp: std::time::Instant::now(),
+        };
+
+        assert!(sender.send(event).is_ok());
+
+        // Should be able to receive it
+        let received = watcher.try_recv();
+        assert!(received.is_some());
+        assert_eq!(received.unwrap().kind, ChangeKind::Modified);
+    }
+
+    #[test]
+    fn test_try_recv_empty() {
+        let watcher = RUNEWatcher::new().unwrap();
+        // Should return None when no events
+        assert!(watcher.try_recv().is_none());
+    }
+
+    #[test]
+    fn test_recv_timeout() {
+        let watcher = RUNEWatcher::new().unwrap();
+
+        // Should timeout when no events
+        let result = watcher.recv_timeout(Duration::from_millis(50));
+        assert!(result.is_none());
+
+        // Send event and receive it
+        let sender = watcher.event_sender();
+        let event = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Created,
+            timestamp: std::time::Instant::now(),
+        };
+        sender.send(event.clone()).unwrap();
+
+        let result = watcher.recv_timeout(Duration::from_millis(100));
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().kind, ChangeKind::Created);
+    }
+
+    #[test]
+    fn test_process_notify_event_create() {
+        use notify::event::{CreateKind, EventKind};
+
+        let event = Event {
+            kind: EventKind::Create(CreateKind::File),
+            paths: vec![PathBuf::from("test.rune")],
+            attrs: Default::default(),
+        };
+
+        let result = process_notify_event(event);
+        assert!(result.is_some());
+        let change_event = result.unwrap();
+        assert_eq!(change_event.kind, ChangeKind::Created);
+        assert_eq!(change_event.path, PathBuf::from("test.rune"));
+    }
+
+    #[test]
+    fn test_process_notify_event_modify_data() {
+        use notify::event::{DataChange, EventKind, ModifyKind};
+
+        let event = Event {
+            kind: EventKind::Modify(ModifyKind::Data(DataChange::Content)),
+            paths: vec![PathBuf::from("test.toml")],
+            attrs: Default::default(),
+        };
+
+        let result = process_notify_event(event);
+        assert!(result.is_some());
+        let change_event = result.unwrap();
+        assert_eq!(change_event.kind, ChangeKind::Modified);
+        assert_eq!(change_event.path, PathBuf::from("test.toml"));
+    }
+
+    #[test]
+    fn test_process_notify_event_modify_any() {
+        use notify::event::{EventKind, ModifyKind};
+
+        let event = Event {
+            kind: EventKind::Modify(ModifyKind::Any),
+            paths: vec![PathBuf::from("test.rune")],
+            attrs: Default::default(),
+        };
+
+        let result = process_notify_event(event);
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().kind, ChangeKind::Modified);
+    }
+
+    #[test]
+    fn test_process_notify_event_metadata_ignored() {
+        use notify::event::{EventKind, MetadataKind, ModifyKind};
+
+        let event = Event {
+            kind: EventKind::Modify(ModifyKind::Metadata(MetadataKind::Permissions)),
+            paths: vec![PathBuf::from("test.rune")],
+            attrs: Default::default(),
+        };
+
+        // Metadata changes should be ignored
+        let result = process_notify_event(event);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_process_notify_event_remove() {
+        use notify::event::{EventKind, RemoveKind};
+
+        let event = Event {
+            kind: EventKind::Remove(RemoveKind::File),
+            paths: vec![PathBuf::from("test.rune")],
+            attrs: Default::default(),
+        };
+
+        let result = process_notify_event(event);
+        assert!(result.is_some());
+        let change_event = result.unwrap();
+        assert_eq!(change_event.kind, ChangeKind::Removed);
+    }
+
+    #[test]
+    fn test_process_notify_event_access_ignored() {
+        use notify::event::{AccessKind, AccessMode, EventKind};
+
+        let event = Event {
+            kind: EventKind::Access(AccessKind::Read(AccessMode::Any)),
+            paths: vec![PathBuf::from("test.rune")],
+            attrs: Default::default(),
+        };
+
+        // Access events should be ignored
+        let result = process_notify_event(event);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_process_notify_event_wrong_extension() {
+        use notify::event::{CreateKind, EventKind};
+
+        let event = Event {
+            kind: EventKind::Create(CreateKind::File),
+            paths: vec![PathBuf::from("test.txt")],
+            attrs: Default::default(),
+        };
+
+        // Non-rune/toml files should be ignored
+        let result = process_notify_event(event);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_process_notify_event_no_extension() {
+        use notify::event::{CreateKind, EventKind};
+
+        let event = Event {
+            kind: EventKind::Create(CreateKind::File),
+            paths: vec![PathBuf::from("no_extension")],
+            attrs: Default::default(),
+        };
+
+        // Files without extension should be ignored
+        let result = process_notify_event(event);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_process_notify_event_empty_paths() {
+        use notify::event::{CreateKind, EventKind};
+
+        let event = Event {
+            kind: EventKind::Create(CreateKind::File),
+            paths: vec![],
+            attrs: Default::default(),
+        };
+
+        // Empty paths should return None
+        let result = process_notify_event(event);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_change_kind_equality() {
+        assert_eq!(ChangeKind::Created, ChangeKind::Created);
+        assert_eq!(ChangeKind::Modified, ChangeKind::Modified);
+        assert_eq!(ChangeKind::Removed, ChangeKind::Removed);
+        assert_ne!(ChangeKind::Created, ChangeKind::Modified);
+    }
+
+    #[test]
+    fn test_file_change_event_clone() {
+        let event = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Modified,
+            timestamp: std::time::Instant::now(),
+        };
+
+        let cloned = event.clone();
+        assert_eq!(event.path, cloned.path);
+        assert_eq!(event.kind, cloned.kind);
     }
 
     #[test]
@@ -347,5 +605,110 @@ mod tests {
 
         // Should be empty now
         assert!(!debouncer.has_pending());
+    }
+
+    #[test]
+    fn test_debouncer_multiple_events() {
+        let mut debouncer = EventDebouncer::new(Duration::from_millis(100));
+
+        let event1 = FileChangeEvent {
+            path: PathBuf::from("test1.rune"),
+            kind: ChangeKind::Modified,
+            timestamp: std::time::Instant::now(),
+        };
+
+        let event2 = FileChangeEvent {
+            path: PathBuf::from("test2.rune"),
+            kind: ChangeKind::Created,
+            timestamp: std::time::Instant::now(),
+        };
+
+        debouncer.add_event(event1);
+        debouncer.add_event(event2);
+        assert!(debouncer.has_pending());
+
+        std::thread::sleep(Duration::from_millis(150));
+        let settled = debouncer.get_settled_events();
+        assert_eq!(settled.len(), 2);
+    }
+
+    #[test]
+    fn test_debouncer_overwrite_event() {
+        let mut debouncer = EventDebouncer::new(Duration::from_millis(100));
+
+        let event1 = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Created,
+            timestamp: std::time::Instant::now(),
+        };
+
+        let event2 = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Modified,
+            timestamp: std::time::Instant::now(),
+        };
+
+        debouncer.add_event(event1);
+        std::thread::sleep(Duration::from_millis(50));
+        debouncer.add_event(event2);  // This should reset the timer
+
+        // Wait for first duration but not second
+        std::thread::sleep(Duration::from_millis(60));
+        assert_eq!(debouncer.get_settled_events().len(), 0); // Not settled yet
+
+        // Wait for second duration
+        std::thread::sleep(Duration::from_millis(50));
+        let settled = debouncer.get_settled_events();
+        assert_eq!(settled.len(), 1);
+        assert_eq!(settled[0].kind, ChangeKind::Modified); // Should have the latest event
+    }
+
+    #[test]
+    fn test_debouncer_clear() {
+        let mut debouncer = EventDebouncer::new(Duration::from_millis(100));
+
+        let event = FileChangeEvent {
+            path: PathBuf::from("test.rune"),
+            kind: ChangeKind::Modified,
+            timestamp: std::time::Instant::now(),
+        };
+
+        debouncer.add_event(event);
+        assert!(debouncer.has_pending());
+
+        debouncer.clear();
+        assert!(!debouncer.has_pending());
+        assert_eq!(debouncer.get_settled_events().len(), 0);
+    }
+
+    #[test]
+    fn test_debouncer_no_pending_initially() {
+        let debouncer = EventDebouncer::new(Duration::from_millis(100));
+        assert!(!debouncer.has_pending());
+        assert_eq!(debouncer.pending.len(), 0);
+        assert_eq!(debouncer.last_event_time.len(), 0);
+    }
+
+    #[test]
+    fn test_watcher_integration() {
+        let mut watcher = RUNEWatcher::new().unwrap();
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("test.rune");
+
+        // Create and watch file
+        fs::write(&file_path, "version = \"1.0\"").unwrap();
+        watcher.watch(&file_path).unwrap();
+
+        // Modify file - this may trigger an event
+        fs::write(&file_path, "version = \"2.0\"").unwrap();
+
+        // Give the watcher a moment to process
+        std::thread::sleep(Duration::from_millis(100));
+
+        // Try to receive event (may or may not be there depending on timing)
+        let _event = watcher.try_recv();
+
+        // Clean up
+        watcher.unwatch(&file_path).unwrap();
     }
 }
