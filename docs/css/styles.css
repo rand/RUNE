@@ -681,10 +681,6 @@ body.dark-theme .diagram-svg {
         font-size: 0.875rem;
     }
 
-    .logo-glyph {
-        display: none;
-    }
-
     .comparison-table {
         font-size: 0.75rem;
         overflow-x: auto;
