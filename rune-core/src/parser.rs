@@ -137,6 +137,32 @@ fn save_section(sections: &mut Sections, section_name: Option<&str>, content: &s
     }
 }
 
+/// Split a string by commas, but only at the top level (not inside parentheses)
+fn split_preserving_parens(input: &str) -> Vec<&str> {
+    let mut parts = Vec::new();
+    let mut current_start = 0;
+    let mut depth = 0;
+
+    for (i, ch) in input.char_indices() {
+        match ch {
+            '(' => depth += 1,
+            ')' => depth -= 1,
+            ',' if depth == 0 => {
+                parts.push(&input[current_start..i]);
+                current_start = i + 1;
+            }
+            _ => {}
+        }
+    }
+
+    // Add the last part
+    if current_start < input.len() {
+        parts.push(&input[current_start..]);
+    }
+
+    parts
+}
+
 /// Parse Datalog rules
 pub fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
     let mut rules = Vec::new();
@@ -151,8 +177,8 @@ pub fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
         if let Some((head, body)) = line.split_once(":-") {
             // Rule with head and body
             let head_atom = parse_atom(head.trim(), false)?;
-            let body_atoms = body
-                .split(',')
+            let body_atoms = split_preserving_parens(body)
+                .into_iter()
                 .map(|s| {
                     let s = s.trim();
                     // Check for negation
