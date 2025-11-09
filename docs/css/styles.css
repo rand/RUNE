@@ -302,6 +302,12 @@ body.dark-theme .theme-toggle-icon::before {
     color: var(--accent);
 }
 
+.header-glyph {
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-weight: 500;
+}
+
 .paper-subtitle {
     font-size: 1.25rem;
     color: var(--text-secondary);
