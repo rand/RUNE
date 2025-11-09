@@ -153,7 +153,7 @@ RUNE integrates with major AI frameworks:
 - ✅ Basic parser for RUNE files (TOML data section)
 - ✅ Python bindings structure (disabled, awaiting v0.4.0)
 
-### v0.2.0 (In Progress - 75% Complete)
+### v0.2.0 (In Progress - 87.5% Complete)
 - ✅ **Custom Datalog evaluation engine**
   - ✅ Semi-naive bottom-up evaluation
   - ✅ Stratified negation support
@@ -167,7 +167,12 @@ RUNE integrates with major AI frameworks:
   - ✅ UnionFindBackend foundation (future optimization)
   - ✅ TrieBackend foundation (future optimization)
   - ✅ Automatic backend selection heuristics
-- 🚧 Datalog rule parser (syntax designed, parser pending)
+- ✅ **Datalog rule parser**
+  - ✅ Parse facts: `user(alice).`
+  - ✅ Parse rules: `can_access(U) :- user(U), admin(U).`
+  - ✅ Parse negation: `allowed(X) :- user(X), not blocked(X).`
+  - ✅ Type inference: integers, booleans, strings, variables
+  - ✅ 8 passing parser tests
 - 🚧 Cedar entity to Datalog fact bridge
 
 ### v0.3.0 (Planned)
