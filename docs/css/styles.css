@@ -22,6 +22,11 @@
     --gradient-4: #4A148C;  /* darker purple */
     --gradient-5: #7B1FA2;  /* purple accent */
     --gradient-6: #AB47BC;  /* light purple */
+    /* Semantic colors */
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-info: #3b82f6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,6 +46,11 @@
         --gradient-4: #BA68C8;
         --gradient-5: #9C27B0;
         --gradient-6: #CE93D8;
+        /* Semantic colors for dark mode */
+        --color-success: #34d399;
+        --color-error: #f87171;
+        --color-warning: #fbbf24;
+        --color-info: #60a5fa;
     }
 }
 
@@ -60,6 +70,10 @@ body.light-theme {
     --gradient-4: #4A148C;
     --gradient-5: #7B1FA2;
     --gradient-6: #AB47BC;
+    --color-success: #10b981;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-info: #3b82f6;
 }
 
 body.dark-theme {
@@ -77,6 +91,10 @@ body.dark-theme {
     --gradient-4: #BA68C8;
     --gradient-5: #9C27B0;
     --gradient-6: #CE93D8;
+    --color-success: #34d399;
+    --color-error: #f87171;
+    --color-warning: #fbbf24;
+    --color-info: #60a5fa;
 }
 
 body {
@@ -145,10 +163,15 @@ body.dark-theme .navbar {
     font-size: 1.25rem;
     line-height: 1;
     color: var(--accent);
+    transition: transform 0.2s ease;
 }
 
 .logo-glyph::before {
     content: "∮";  /* Closed contour integral */
+}
+
+.nav-brand:hover .logo-glyph {
+    transform: rotate(180deg);
 }
 
 .theme-toggle {
@@ -225,7 +248,7 @@ body.dark-theme .theme-toggle-icon::before {
 .container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 2rem;
 }
 
 /* Sidebar */
@@ -238,7 +261,7 @@ body.dark-theme .theme-toggle-icon::before {
     background: var(--background-subtle);
     border: 1px solid var(--border);
     border-radius: 8px;
-    opacity: 0.85;
+    opacity: 0.95;
     transition: opacity 0.2s ease;
     z-index: 50;
 }
@@ -280,7 +303,7 @@ body.dark-theme .theme-toggle-icon::before {
 }
 
 .status-glyph::before {
-    content: "";  /* Info icon */
+    content: "ℹ";  /* Info icon */
     color: var(--accent);
     font-size: 1rem;
 }
@@ -291,31 +314,53 @@ body.dark-theme .theme-toggle-icon::before {
 
 /* Paper Header */
 .paper-header {
-    padding: 4rem 0 2.5rem;
+    padding: 5rem 0 3rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 3rem;
+    position: relative;
+}
+
+.paper-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -2rem;
+    right: -2rem;
+    height: 200px;
+    background: linear-gradient(180deg, var(--background-subtle) 0%, transparent 100%);
+    z-index: -1;
+    opacity: 0.5;
 }
 
 .paper-header h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-3) 50%, var(--gradient-5) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .paper-subtitle {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     color: var(--text-secondary);
     font-weight: 400;
-    margin-bottom: 1rem;
-    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    max-width: 70ch;
 }
 
 .paper-meta {
     color: var(--text-secondary);
     font-size: 0.875rem;
     font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .paper-meta a {
@@ -325,7 +370,46 @@ body.dark-theme .theme-toggle-icon::before {
 }
 
 .paper-meta a:hover {
-    opacity: 0.8;
+    opacity: 0.7;
+}
+
+.version-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+/* Status icon styling for emojis replacement */
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em;
+    height: 1.25em;
+    font-size: inherit;
+}
+
+.status-success {
+    color: var(--color-success);
+}
+
+.status-error {
+    color: var(--color-error);
+}
+
+.status-warning {
+    color: var(--color-warning);
+}
+
+.status-info {
+    color: var(--color-info);
 }
 
 /* Sections */
@@ -399,7 +483,7 @@ body.dark-theme .theme-toggle-icon::before {
 
 /* Code */
 code {
-    font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-family: 'JetBrains Mono', 'Geist Mono', 'SF Mono', Monaco, monospace;
     font-size: 0.875em;
     background: var(--code-bg);
     padding: 0.2em 0.4em;
@@ -414,6 +498,7 @@ pre {
     border: 1px solid var(--code-border);
     border-radius: 8px;
     overflow-x: auto;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 pre code {
@@ -435,6 +520,7 @@ table {
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 table th,

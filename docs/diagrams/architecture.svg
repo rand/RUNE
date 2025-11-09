@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 600" width="700" height="600">
+  <defs>
+    <style>
+      .box { fill: #f5f5f5; stroke: #333; stroke-width: 2; }
+      .box-accent { fill: #f5f5f5; stroke: #7B1FA2; stroke-width: 2; }
+      .box-inner { fill: #fafafa; stroke: #666; stroke-width: 1; stroke-dasharray: 4,4; }
+      .text { font-family: 'JetBrains Mono', monospace; font-size: 13px; fill: #000; }
+      .text-small { font-family: 'Geist', sans-serif; font-size: 11px; fill: #666; }
+      .title { font-family: 'Geist', sans-serif; font-size: 14px; fill: #000; font-weight: 600; }
+      .arrow { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      @media (prefers-color-scheme: dark) {
+        .box { fill: #1a1a1a; stroke: #555; }
+        .box-accent { fill: #1a1a1a; stroke: #9C27B0; }
+        .box-inner { fill: #111; stroke: #444; }
+        .text { fill: #ededed; }
+        .text-small { fill: #888; }
+        .title { fill: #ededed; }
+        .arrow { stroke: #888; }
+      }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text class="title" x="10" y="20">RUNE System Architecture</text>
+
+  <!-- Client Layer -->
+  <rect class="box" x="50" y="40" width="600" height="60" rx="6"/>
+  <text class="text" x="350" y="75" text-anchor="middle">Client (Python/Rust)</text>
+
+  <!-- Arrow -->
+  <path class="arrow" d="M 350 100 L 350 130"/>
+
+  <!-- RUNE Engine Core -->
+  <rect class="box-accent" x="50" y="130" width="600" height="420" rx="6"/>
+  <text class="title" x="60" y="155">RUNE Engine (Core)</text>
+
+  <!-- Request Cache -->
+  <rect class="box-inner" x="70" y="170" width="560" height="40" rx="4"/>
+  <text class="text-small" x="350" y="195" text-anchor="middle">Request Cache (DashMap&lt;Key, Decision&gt;)</text>
+
+  <!-- Fact Store -->
+  <rect class="box-inner" x="70" y="220" width="560" height="60" rx="4"/>
+  <text class="text" x="350" y="245" text-anchor="middle">Fact Store (Lock-Free)</text>
+  <text class="text-small" x="350" y="265" text-anchor="middle">Arc&lt;SkipMap&lt;FactKey, FactValue&gt;&gt;</text>
+
+  <!-- Parallel Execution Layer -->
+  <rect class="box" x="70" y="300" width="270" height="230" rx="6"/>
+  <text class="title" x="85" y="325">Datalog Engine</text>
+
+  <rect class="box-inner" x="90" y="335" width="230" height="50" rx="4"/>
+  <text class="text-small" x="205" y="355" text-anchor="middle">Rule Parser</text>
+  <text class="text-small" x="205" y="370" text-anchor="middle">(Pest Grammar)</text>
+
+  <rect class="box-inner" x="90" y="395" width="230" height="50" rx="4"/>
+  <text class="text-small" x="205" y="415" text-anchor="middle">Evaluator</text>
+  <text class="text-small" x="205" y="430" text-anchor="middle">(Parallel Rayon)</text>
+
+  <rect class="box-inner" x="90" y="455" width="230" height="50" rx="4"/>
+  <text class="text-small" x="205" y="475" text-anchor="middle">Result Cache</text>
+  <text class="text-small" x="205" y="490" text-anchor="middle">(DashMap)</text>
+
+  <rect class="box" x="360" y="300" width="270" height="230" rx="6"/>
+  <text class="title" x="375" y="325">Cedar Engine</text>
+
+  <rect class="box-inner" x="380" y="335" width="230" height="50" rx="4"/>
+  <text class="text-small" x="495" y="355" text-anchor="middle">Policy Store</text>
+  <text class="text-small" x="495" y="370" text-anchor="middle">(Cedar AST)</text>
+
+  <rect class="box-inner" x="380" y="395" width="230" height="50" rx="4"/>
+  <text class="text-small" x="495" y="415" text-anchor="middle">Evaluator</text>
+  <text class="text-small" x="495" y="430" text-anchor="middle">(Native Cedar)</text>
+
+  <rect class="box-inner" x="380" y="455" width="230" height="50" rx="4"/>
+  <text class="text-small" x="495" y="475" text-anchor="middle">Authorization</text>
+  <text class="text-small" x="495" y="490" text-anchor="middle">(Allow/Deny)</text>
+
+  <!-- Storage Layer -->
+  <rect class="box" x="50" y="560" width="285" height="30" rx="4"/>
+  <text class="text-small" x="192" y="580" text-anchor="middle">Memory-Mapped Storage</text>
+
+  <rect class="box" x="365" y="560" width="285" height="30" rx="4"/>
+  <text class="text-small" x="507" y="580" text-anchor="middle">Hot-Reload (RCU Pattern)</text>
+</svg>

@@ -44,8 +44,8 @@
             <h1>Agent Integration Guide</h1>
             <p class="paper-subtitle">Efficient, comprehensive guidance for working with RUNE</p>
             <p class="paper-meta">
-                <span>Version 0.1.0</span> ·
-                <span>November 2025</span> ·
+                <span class="version-badge">v0.1.0</span>
+                <span>November 2025</span>
                 <span>For agentic systems</span>
             </p>
         </header>
@@ -354,16 +354,16 @@ git push origin v0.2.0
 </ol>
 <h3 id="tidying-guidelines">Tidying Guidelines</h3>
 <p><strong>DO</strong>:
-- ✅ Use <code>git mv</code> to preserve history when moving files
-- ✅ Update all documentation cross-references after moves
-- ✅ Group related files in logical directories
-- ✅ Remove generated artifacts (covered by .gitignore)
-- ✅ Clean up commented-out code in favor of git history</p>
+- <i class="fa-solid fa-circle-check status-success"></i> Use <code>git mv</code> to preserve history when moving files
+- <i class="fa-solid fa-circle-check status-success"></i> Update all documentation cross-references after moves
+- <i class="fa-solid fa-circle-check status-success"></i> Group related files in logical directories
+- <i class="fa-solid fa-circle-check status-success"></i> Remove generated artifacts (covered by .gitignore)
+- <i class="fa-solid fa-circle-check status-success"></i> Clean up commented-out code in favor of git history</p>
 <p><strong>DON'T</strong>:
-- ❌ Delete files without checking for references
-- ❌ Rename files without updating imports/documentation
-- ❌ Move files between commits (do it as separate commit)
-- ❌ Restructure without updating AGENT_GUIDE.md</p>
+- <i class="fa-solid fa-circle-xmark status-error"></i> Delete files without checking for references
+- <i class="fa-solid fa-circle-xmark status-error"></i> Rename files without updating imports/documentation
+- <i class="fa-solid fa-circle-xmark status-error"></i> Move files between commits (do it as separate commit)
+- <i class="fa-solid fa-circle-xmark status-error"></i> Restructure without updating AGENT_GUIDE.md</p>
 <p><strong>Example Tidy Workflow</strong>:</p>
 <pre><code class="language-bash"># Move file with history preservation
 git mv old/path/file.rs new/path/file.rs
@@ -537,18 +537,18 @@ cargo bench
 </table>
 <h3 id="performance-patterns">Performance Patterns</h3>
 <p><strong>DO</strong>:
-- ✅ Use Arc for zero-copy sharing
-- ✅ Use crossbeam for lock-free data structures
-- ✅ Use rayon for data parallelism
-- ✅ Use DashMap for concurrent caching
-- ✅ Minimize allocations in hot paths
-- ✅ Use <code>#[inline]</code> for small, hot functions</p>
+- <i class="fa-solid fa-circle-check status-success"></i> Use Arc for zero-copy sharing
+- <i class="fa-solid fa-circle-check status-success"></i> Use crossbeam for lock-free data structures
+- <i class="fa-solid fa-circle-check status-success"></i> Use rayon for data parallelism
+- <i class="fa-solid fa-circle-check status-success"></i> Use DashMap for concurrent caching
+- <i class="fa-solid fa-circle-check status-success"></i> Minimize allocations in hot paths
+- <i class="fa-solid fa-circle-check status-success"></i> Use <code>#[inline]</code> for small, hot functions</p>
 <p><strong>DON'T</strong>:
-- ❌ Use <code>Mutex</code> or <code>RwLock</code> in hot paths
-- ❌ Clone large structures unnecessarily
-- ❌ Allocate in tight loops
-- ❌ Use async where sync suffices (added overhead)
-- ❌ Ignore <code>clippy::perf</code> warnings</p>
+- <i class="fa-solid fa-circle-xmark status-error"></i> Use <code>Mutex</code> or <code>RwLock</code> in hot paths
+- <i class="fa-solid fa-circle-xmark status-error"></i> Clone large structures unnecessarily
+- <i class="fa-solid fa-circle-xmark status-error"></i> Allocate in tight loops
+- <i class="fa-solid fa-circle-xmark status-error"></i> Use async where sync suffices (added overhead)
+- <i class="fa-solid fa-circle-xmark status-error"></i> Ignore <code>clippy::perf</code> warnings</p>
 <h3 id="benchmarking-new-features">Benchmarking New Features</h3>
 <p>When adding features:</p>
 <ol>

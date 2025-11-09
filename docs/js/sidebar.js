@@ -44,18 +44,32 @@
 
         // Get all sections (both section[id] and h2[id])
         const sections = [...document.querySelectorAll('section[id], h2[id]')];
-        const scrollPosition = window.scrollY + window.innerHeight / 3;
+
+        // Account for navbar height and use a better scroll threshold
+        const navbarHeight = 80; // navbar + some buffer
+        const scrollPosition = window.scrollY + navbarHeight + 100;
+
+        // Build section boundaries by finding distance to next heading
+        const sectionBoundaries = sections.map((element, index) => {
+            const top = element.offsetTop;
+            const nextElement = sections[index + 1];
+            const bottom = nextElement ? nextElement.offsetTop : document.body.scrollHeight;
+
+            return {
+                id: element.id,
+                top: top,
+                bottom: bottom
+            };
+        });
 
         // Find the current section
         let currentSection = null;
-        sections.forEach(element => {
-            const top = element.offsetTop;
-            const bottom = top + element.offsetHeight;
-
-            if (scrollPosition >= top && scrollPosition <= bottom) {
-                currentSection = element.id;
+        for (const section of sectionBoundaries) {
+            if (scrollPosition >= section.top && scrollPosition < section.bottom) {
+                currentSection = section.id;
+                break;
             }
-        });
+        }
 
         // Update sidebar content
         if (currentSection && sectionComments[currentSection]) {
