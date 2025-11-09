@@ -269,3 +269,186 @@ pub async fn health_ready(State(state): State<AppState>) -> ApiResult<Json<Healt
 pub async fn metrics() -> String {
     metrics::get_prometheus_metrics()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_principal_with_type() {
+        let principal = parse_principal("User:alice");
+        assert_eq!(&*principal.entity.entity_type, "User");
+        assert_eq!(&*principal.entity.id, "alice");
+    }
+
+    #[test]
+    fn test_parse_principal_without_type() {
+        let principal = parse_principal("bob");
+        assert_eq!(&*principal.entity.entity_type, "User");
+        assert_eq!(&*principal.entity.id, "bob");
+    }
+
+    #[test]
+    fn test_parse_principal_with_colon_in_id() {
+        let principal = parse_principal("Service:api:v2:production");
+        assert_eq!(&*principal.entity.entity_type, "Service");
+        assert_eq!(&*principal.entity.id, "api:v2:production");
+    }
+
+    #[test]
+    fn test_parse_principal_empty() {
+        let principal = parse_principal("");
+        assert_eq!(&*principal.entity.entity_type, "User");
+        assert_eq!(&*principal.entity.id, "");
+    }
+
+    #[test]
+    fn test_parse_principal_various_types() {
+        let test_cases = vec![
+            ("Admin:root", "Admin", "root"),
+            ("Service:database", "Service", "database"),
+            ("Group:admins", "Group", "admins"),
+            ("Role:viewer", "Role", "viewer"),
+            ("anonymous", "User", "anonymous"),
+        ];
+
+        for (input, expected_type, expected_id) in test_cases {
+            let principal = parse_principal(input);
+            assert_eq!(&*principal.entity.entity_type, expected_type);
+            assert_eq!(&*principal.entity.id, expected_id);
+        }
+    }
+
+    #[test]
+    fn test_parse_resource_with_type() {
+        let resource = parse_resource("File:/tmp/data.txt");
+        assert_eq!(&*resource.entity.entity_type, "File");
+        assert_eq!(&*resource.entity.id, "/tmp/data.txt");
+    }
+
+    #[test]
+    fn test_parse_resource_without_type() {
+        let resource = parse_resource("/var/log/app.log");
+        assert_eq!(&*resource.entity.entity_type, "Resource");
+        assert_eq!(&*resource.entity.id, "/var/log/app.log");
+    }
+
+    #[test]
+    fn test_parse_resource_with_colon_in_path() {
+        let resource = parse_resource("Database:postgres://localhost:5432/mydb");
+        assert_eq!(&*resource.entity.entity_type, "Database");
+        assert_eq!(&*resource.entity.id, "postgres://localhost:5432/mydb");
+    }
+
+    #[test]
+    fn test_parse_resource_empty() {
+        let resource = parse_resource("");
+        assert_eq!(&*resource.entity.entity_type, "Resource");
+        assert_eq!(&*resource.entity.id, "");
+    }
+
+    #[test]
+    fn test_parse_resource_various_types() {
+        let test_cases = vec![
+            ("API:/users/123", "API", "/users/123"),
+            ("S3:bucket/key", "S3", "bucket/key"),
+            ("Document:doc-123", "Document", "doc-123"),
+            ("Queue:messages", "Queue", "messages"),
+            ("simple-resource", "Resource", "simple-resource"),
+        ];
+
+        for (input, expected_type, expected_id) in test_cases {
+            let resource = parse_resource(input);
+            assert_eq!(&*resource.entity.entity_type, expected_type);
+            assert_eq!(&*resource.entity.id, expected_id);
+        }
+    }
+
+    #[test]
+    fn test_debug_params_default() {
+        let json = "{}";
+        let params: DebugParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.debug, false);
+    }
+
+    #[test]
+    fn test_debug_params_true() {
+        let json = r#"{"debug": true}"#;
+        let params: DebugParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.debug, true);
+    }
+
+    #[test]
+    fn test_debug_params_false() {
+        let json = r#"{"debug": false}"#;
+        let params: DebugParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.debug, false);
+    }
+
+    #[test]
+    fn test_debug_params_with_extra_fields() {
+        // Should ignore extra fields
+        let json = r#"{"debug": true, "extra": "field"}"#;
+        let params: DebugParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.debug, true);
+    }
+
+    #[test]
+    fn test_parse_principal_special_characters() {
+        let test_cases = vec![
+            ("User:alice@example.com", "User", "alice@example.com"),
+            ("Service:api/v2", "Service", "api/v2"),
+            ("Group:team-123", "Group", "team-123"),
+            ("Role:read_only", "Role", "read_only"),
+        ];
+
+        for (input, expected_type, expected_id) in test_cases {
+            let principal = parse_principal(input);
+            assert_eq!(&*principal.entity.entity_type, expected_type);
+            assert_eq!(&*principal.entity.id, expected_id);
+        }
+    }
+
+    #[test]
+    fn test_parse_resource_urls() {
+        let test_cases = vec![
+            ("HTTP:https://api.example.com/users", "HTTP", "https://api.example.com/users"),
+            ("FTP:ftp://files.example.com/data", "FTP", "ftp://files.example.com/data"),
+            ("File:file:///home/user/doc.txt", "File", "file:///home/user/doc.txt"),
+        ];
+
+        for (input, expected_type, expected_id) in test_cases {
+            let resource = parse_resource(input);
+            assert_eq!(&*resource.entity.entity_type, expected_type);
+            assert_eq!(&*resource.entity.id, expected_id);
+        }
+    }
+
+    #[test]
+    fn test_parse_principal_with_only_colon() {
+        let principal = parse_principal(":");
+        assert_eq!(&*principal.entity.entity_type, "");
+        assert_eq!(&*principal.entity.id, "");
+    }
+
+    #[test]
+    fn test_parse_resource_with_only_colon() {
+        let resource = parse_resource(":");
+        assert_eq!(&*resource.entity.entity_type, "");
+        assert_eq!(&*resource.entity.id, "");
+    }
+
+    #[test]
+    fn test_parse_principal_with_multiple_colons() {
+        let principal = parse_principal("Type:part1:part2:part3");
+        assert_eq!(&*principal.entity.entity_type, "Type");
+        assert_eq!(&*principal.entity.id, "part1:part2:part3");
+    }
+
+    #[test]
+    fn test_parse_resource_with_windows_path() {
+        let resource = parse_resource("File:C:\\Users\\Documents\\file.txt");
+        assert_eq!(&*resource.entity.entity_type, "File");
+        assert_eq!(&*resource.entity.id, "C:\\Users\\Documents\\file.txt");
+    }
+}
