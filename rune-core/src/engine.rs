@@ -111,10 +111,11 @@ impl RUNEEngine {
 
     /// Create a new engine with specified configuration
     pub fn with_config(config: EngineConfig) -> Self {
+        let facts = Arc::new(FactStore::new());
         RUNEEngine {
-            datalog: Arc::new(RwLock::new(DatalogEngine::new())),
+            datalog: Arc::new(RwLock::new(DatalogEngine::empty(facts.clone()))),
             policies: Arc::new(RwLock::new(PolicySet::new())),
-            facts: Arc::new(FactStore::new()),
+            facts,
             cache: DashMap::new(),
             config: Arc::new(config),
             metrics: Arc::new(EngineMetrics::new()),
