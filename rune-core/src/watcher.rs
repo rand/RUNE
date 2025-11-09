@@ -770,7 +770,10 @@ mod tests {
         // Check for event (may or may not be present depending on OS/timing)
         let event = watcher.try_recv();
         if let Some(e) = event {
-            assert_eq!(e.path, file_path);
+            // Use canonicalize to handle path differences (e.g., /private/var vs /var on macOS)
+            let canonical_file_path = fs::canonicalize(&file_path).unwrap_or(file_path.clone());
+            let canonical_event_path = fs::canonicalize(&e.path).unwrap_or(e.path.clone());
+            assert_eq!(canonical_event_path, canonical_file_path);
         }
 
         watcher.unwatch(&file_path).unwrap();
