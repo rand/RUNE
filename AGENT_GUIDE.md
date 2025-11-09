@@ -13,7 +13,7 @@
 3. [Repository Structure](#repository-structure)
 4. [Development Workflow](#development-workflow)
 5. [Documentation Protocols](#documentation-protocols)
-6. [Documentation Management (Zensical)](#documentation-management-zensical)
+6. [Documentation Management](#documentation-management)
 7. [Release Management](#release-management)
 8. [Repository Organization](#repository-organization)
 9. [Testing Protocols](#testing-protocols)
@@ -255,116 +255,68 @@ uses epoch-based memory reclamation.
 
 ---
 
-## Documentation Management (Zensical)
+## Documentation Management
 
-### Documentation Structure
+### Structure
+
 ```
-docs/
-├── index.md              # Project homepage
-├── whitepaper.md         # Technical deep dive
-├── guide/
-│   └── agent-guide.md    # This guide (symlinked)
-├── assets/               # Images, favicons, diagrams
-├── stylesheets/          # Shared + purple theme CSS
-├── javascripts/          # Theme preference persistence
-└── overrides/            # Ecosystem navigation bar
+docs/                     # Markdown source files
+├── index.md             # Home page
+├── whitepaper.md        # Technical documentation
+├── css/styles.css       # Custom design (project-specific colors)
+├── js/                  # Theme toggle, sidebar behavior
+└── assets/              # Images, diagrams, favicons
+
+templates/               # Jinja2 HTML templates
+├── base.html           # Navbar, sidebar, theme toggle
+├── index.html          # Home page layout
+└── whitepaper.html     # Documentation layout
+
+scripts/build-docs.py   # Python build script
+site/                    # Generated static HTML (ignored by git)
 ```
 
 ### Updating Documentation
 
-**Local workflow**:
-```bash
-# 1. Edit markdown files
-vim docs/index.md
+1. **Edit markdown files** in `docs/` (index.md, whitepaper.md, etc.)
+2. **Test locally** (optional):
+   ```bash
+   python scripts/build-docs.py
+   cd site && python -m http.server 8000
+   ```
+3. **Commit and push** to main
+4. **Verify deployment**: GitHub Actions builds and deploys automatically (~1-2 min)
 
-# 2. Test locally (optional)
-/Users/rand/src/shared-docs-base/.venv/bin/zensical serve
-# Opens http://localhost:8000
+### Design System
 
-# 3. Commit changes
-git add docs/
-git commit -m "Update documentation: <description>"
+**Project-specific**:
+- **Glyph**: ∮ (Closed contour integral) in navbar
+- **Colors**: Accent color in `docs/css/styles.css` (`:root` CSS variables)
+- **Tagline**: "// High-Performance Authorization" in fixed right sidebar
 
-# 4. Push to trigger deployment
-git push origin main
+**Shared features**:
+- Geist font + JetBrains Mono for code
+- Theme toggle (light/dark)
+- Responsive design (sidebar hides <1200px)
+- SVG diagrams with light/dark variants
 
-# 5. Verify deployment (1-2 minutes)
-# https://rand.github.io/RUNE/
-```
+### Build Process
 
-### Shared Infrastructure
-
-- **Location**: `/Users/rand/src/shared-docs-base`
-- **Styles**:
-  - `stylesheets/shared.css` - Common typography, code blocks, tables
-  - `stylesheets/purple.css` - RUNE theme (#7B1FA2, ∮)
-- **Build script**: `scripts/build-site.sh`
-- **Configuration**: `zensical.toml` in project root
-
-### Updating Shared Assets
-
-When modifying shared styles that affect all projects:
-
-```bash
-# Update shared CSS
-cd /Users/rand/src/shared-docs-base
-vim stylesheets/shared.css
-
-# Copy to all projects
-for project in RUNE mnemosyne maze pedantic_raven; do
-  cp stylesheets/*.css /Users/rand/src/${project}/docs/stylesheets/
-done
-
-# Commit in each project
-cd /Users/rand/src/RUNE
-git add docs/stylesheets/
-git commit -m "Update shared documentation styles"
-git push origin main
-```
-
-### Theme Customization
-
-RUNE uses:
-- **Primary color**: Purple (#7B1FA2)
-- **Accent color**: #9C27B0
-- **Glyph**: ∮ (contour integral)
-- **Fonts**: Geist (text), JetBrains Mono (code)
-
-### GitHub Actions Workflow
-
-Documentation deploys automatically via `.github/workflows/docs.yml`:
-
-- **Trigger**: Push to `main` branch
-- **Build**: UV + Zensical → `site/` directory
-- **Deploy**: GitHub Pages (automatic)
-- **Time**: ~1 minute
-- **URL**: https://rand.github.io/RUNE/
+1. Python-Markdown parses `.md` files
+2. YAML front matter stripped automatically
+3. Jinja2 templates apply HTML structure
+4. Static HTML + CSS/JS copied to `site/`
+5. GitHub Actions deploys to GitHub Pages
 
 ### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Build fails | Run `uv run zensical build --clean` locally to see error |
-| Theme not applied | Verify `stylesheets/purple.css` exists in `docs/stylesheets/` |
-| Navigation broken | Check `nav` array in `zensical.toml` |
-| Site not updating | Check GitHub Actions workflow status, wait 1-2min for cache |
-| Images missing | Verify images are in `docs/assets/` and paths are correct |
-
-### Ecosystem Navigation
-
-All documentation sites include cross-project navigation:
-- RUNE (you are here)
-- mnemosyne
-- MAZE
-- pedantic_raven
-
-Located in `docs/overrides/main.html` from shared-docs-base.
-
-### References
-
-- **shared-docs-base**: https://github.com/rand/shared-docs-base
-- **Zensical docs**: https://zensical.org/docs/
-- **Migration details**: `/Users/rand/src/MIGRATION_COMPLETE.md`
+| Build fails | Check Python dependencies: `pip install markdown jinja2 pygments` |
+| Styles missing | Verify `docs/css/styles.css` exists |
+| Theme toggle broken | Check `docs/js/theme.js` loaded |
+| Diagrams missing | Verify SVG files in `docs/assets/diagrams/` |
+| Old content showing | Hard refresh browser (Cmd+Shift+R) |
 
 ---
 
