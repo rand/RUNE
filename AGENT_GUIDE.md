@@ -13,11 +13,12 @@
 3. [Repository Structure](#repository-structure)
 4. [Development Workflow](#development-workflow)
 5. [Documentation Protocols](#documentation-protocols)
-6. [Release Management](#release-management)
-7. [Repository Organization](#repository-organization)
-8. [Testing Protocols](#testing-protocols)
-9. [Performance Requirements](#performance-requirements)
-10. [Common Tasks](#common-tasks)
+6. [Documentation Management (Zensical)](#documentation-management-zensical)
+7. [Release Management](#release-management)
+8. [Repository Organization](#repository-organization)
+9. [Testing Protocols](#testing-protocols)
+10. [Performance Requirements](#performance-requirements)
+11. [Common Tasks](#common-tasks)
 
 ---
 
@@ -251,6 +252,119 @@ uses epoch-based memory reclamation.
 ```
 
 **Format**: `https://github.com/{user}/{repo}/blob/{tag}/{path}#{lines}`
+
+---
+
+## Documentation Management (Zensical)
+
+### Documentation Structure
+```
+docs/
+├── index.md              # Project homepage
+├── whitepaper.md         # Technical deep dive
+├── guide/
+│   └── agent-guide.md    # This guide (symlinked)
+├── assets/               # Images, favicons, diagrams
+├── stylesheets/          # Shared + purple theme CSS
+├── javascripts/          # Theme preference persistence
+└── overrides/            # Ecosystem navigation bar
+```
+
+### Updating Documentation
+
+**Local workflow**:
+```bash
+# 1. Edit markdown files
+vim docs/index.md
+
+# 2. Test locally (optional)
+/Users/rand/src/shared-docs-base/.venv/bin/zensical serve
+# Opens http://localhost:8000
+
+# 3. Commit changes
+git add docs/
+git commit -m "Update documentation: <description>"
+
+# 4. Push to trigger deployment
+git push origin main
+
+# 5. Verify deployment (1-2 minutes)
+# https://rand.github.io/RUNE/
+```
+
+### Shared Infrastructure
+
+- **Location**: `/Users/rand/src/shared-docs-base`
+- **Styles**:
+  - `stylesheets/shared.css` - Common typography, code blocks, tables
+  - `stylesheets/purple.css` - RUNE theme (#7B1FA2, ∮)
+- **Build script**: `scripts/build-site.sh`
+- **Configuration**: `zensical.toml` in project root
+
+### Updating Shared Assets
+
+When modifying shared styles that affect all projects:
+
+```bash
+# Update shared CSS
+cd /Users/rand/src/shared-docs-base
+vim stylesheets/shared.css
+
+# Copy to all projects
+for project in RUNE mnemosyne maze pedantic_raven; do
+  cp stylesheets/*.css /Users/rand/src/${project}/docs/stylesheets/
+done
+
+# Commit in each project
+cd /Users/rand/src/RUNE
+git add docs/stylesheets/
+git commit -m "Update shared documentation styles"
+git push origin main
+```
+
+### Theme Customization
+
+RUNE uses:
+- **Primary color**: Purple (#7B1FA2)
+- **Accent color**: #9C27B0
+- **Glyph**: ∮ (contour integral)
+- **Fonts**: Geist (text), JetBrains Mono (code)
+
+### GitHub Actions Workflow
+
+Documentation deploys automatically via `.github/workflows/docs.yml`:
+
+- **Trigger**: Push to `main` branch
+- **Build**: UV + Zensical → `site/` directory
+- **Deploy**: GitHub Pages (automatic)
+- **Time**: ~1 minute
+- **URL**: https://rand.github.io/RUNE/
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Build fails | Run `uv run zensical build --clean` locally to see error |
+| Theme not applied | Verify `stylesheets/purple.css` exists in `docs/stylesheets/` |
+| Navigation broken | Check `nav` array in `zensical.toml` |
+| Site not updating | Check GitHub Actions workflow status, wait 1-2min for cache |
+| Images missing | Verify images are in `docs/assets/` and paths are correct |
+
+### Ecosystem Navigation
+
+All documentation sites include cross-project navigation:
+- RUNE (you are here)
+- mnemosyne
+- MAZE
+- pedantic_raven
+
+Located in `docs/overrides/main.html` from shared-docs-base.
+
+### References
+
+- **shared-docs-base**: https://github.com/rand/shared-docs-base
+- **Zensical docs**: https://zensical.org/docs/
+- **Migration details**: `/Users/rand/src/MIGRATION_COMPLETE.md`
 
 ---
 
