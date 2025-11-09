@@ -6,8 +6,8 @@ use crate::facts::FactStore;
 use crate::policy::PolicySet;
 use crate::request::Request;
 use crate::types::Value;
+use arc_swap::ArcSwap;
 use dashmap::DashMap;
-use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -89,10 +89,10 @@ struct CacheEntry {
 
 /// Main RUNE engine
 pub struct RUNEEngine {
-    /// Datalog evaluation engine
-    datalog: Arc<RwLock<DatalogEngine>>,
-    /// Cedar policy set
-    policies: Arc<RwLock<PolicySet>>,
+    /// Datalog evaluation engine (lock-free with ArcSwap for hot-reload)
+    datalog: Arc<ArcSwap<DatalogEngine>>,
+    /// Cedar policy set (lock-free with ArcSwap for hot-reload)
+    policies: Arc<ArcSwap<PolicySet>>,
     /// Fact store
     facts: Arc<FactStore>,
     /// Decision cache
@@ -113,8 +113,8 @@ impl RUNEEngine {
     pub fn with_config(config: EngineConfig) -> Self {
         let facts = Arc::new(FactStore::new());
         RUNEEngine {
-            datalog: Arc::new(RwLock::new(DatalogEngine::empty(facts.clone()))),
-            policies: Arc::new(RwLock::new(PolicySet::new())),
+            datalog: Arc::new(ArcSwap::new(Arc::new(DatalogEngine::empty(facts.clone())))),
+            policies: Arc::new(ArcSwap::new(Arc::new(PolicySet::new()))),
             facts,
             cache: DashMap::new(),
             config: Arc::new(config),
@@ -215,11 +215,11 @@ impl RUNEEngine {
         // Use rayon's parallel join for two tasks
         let (datalog_result, cedar_result) = rayon::join(
             || -> Result<AuthorizationResult> {
-                let engine = datalog.read();
+                let engine = datalog.load();
                 engine.evaluate(&req_clone, &facts)
             },
             || -> Result<AuthorizationResult> {
-                let policy_set = policies.read();
+                let policy_set = policies.load();
                 policy_set.evaluate(&req_clone)
             },
         );
@@ -233,12 +233,12 @@ impl RUNEEngine {
         request: &Request,
     ) -> Result<(AuthorizationResult, AuthorizationResult)> {
         let datalog_result = {
-            let engine = self.datalog.read();
+            let engine = self.datalog.load();
             engine.evaluate(request, &self.facts)?
         };
 
         let cedar_result = {
-            let policy_set = self.policies.read();
+            let policy_set = self.policies.load();
             policy_set.evaluate(request)?
         };
 
@@ -273,6 +273,66 @@ impl RUNEEngine {
     /// Get engine metrics
     pub fn metrics(&self) -> Arc<EngineMetrics> {
         self.metrics.clone()
+    }
+
+    /// Hot-reload Datalog rules (zero-downtime atomic swap)
+    ///
+    /// This method atomically replaces the DatalogEngine with a new one containing
+    /// updated rules. Ongoing authorization requests continue using the old engine
+    /// until they complete. The old engine is automatically cleaned up once all
+    /// references are dropped.
+    ///
+    /// # Arguments
+    /// * `rules` - New Datalog rules to evaluate
+    ///
+    /// # Returns
+    /// * `Ok(())` on success
+    /// * `Err(_)` if the new engine cannot be created
+    pub fn reload_datalog_rules(&self, rules: Vec<crate::datalog::types::Rule>) -> Result<()> {
+        // Create new DatalogEngine with updated rules
+        let new_engine = DatalogEngine::new(rules, self.facts.clone());
+
+        // Atomically swap the engine (lock-free!)
+        self.datalog.store(Arc::new(new_engine));
+
+        // Clear cache since old decisions may be based on old rules
+        self.clear_cache();
+
+        trace!("Datalog rules reloaded successfully");
+        Ok(())
+    }
+
+    /// Hot-reload Cedar policies (zero-downtime atomic swap)
+    ///
+    /// This method atomically replaces the PolicySet with a new one containing
+    /// updated policies. Ongoing authorization requests continue using the old
+    /// policy set until they complete.
+    ///
+    /// # Arguments
+    /// * `policies` - New Cedar policies to evaluate
+    ///
+    /// # Returns
+    /// * `Ok(())` on success
+    /// * `Err(_)` if the new policy set cannot be created
+    pub fn reload_policies(&self, policies: PolicySet) -> Result<()> {
+        // Atomically swap the policy set (lock-free!)
+        self.policies.store(Arc::new(policies));
+
+        // Clear cache since old decisions may be based on old policies
+        self.clear_cache();
+
+        trace!("Cedar policies reloaded successfully");
+        Ok(())
+    }
+
+    /// Get current Datalog engine version (for testing/debugging)
+    pub fn datalog_version(&self) -> Arc<DatalogEngine> {
+        self.datalog.load_full()
+    }
+
+    /// Get current PolicySet version (for testing/debugging)
+    pub fn policies_version(&self) -> Arc<PolicySet> {
+        self.policies.load_full()
     }
 }
 
