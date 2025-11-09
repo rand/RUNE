@@ -89,6 +89,50 @@ Benchmark results on Apple M1:
 - **Cache hit rate**: 90%+
 - **Memory usage**: <50MB for 1M facts
 
+### Datalog Engine
+
+RUNE includes a custom-built Datalog evaluation engine designed specifically for high-performance authorization:
+
+**Key Features:**
+- **Semi-naive evaluation**: Efficient fixpoint computation with delta tracking
+- **Stratified negation**: Safe handling of negation in rules
+- **Aggregation support**: count, sum, min, max, mean operations
+- **Lock-free concurrent reads**: Arc-based zero-copy fact access
+- **Hot-reload ready**: Interpreted rules enable runtime policy updates
+
+**Example Rules:**
+```datalog
+// Derive permissions from roles
+user_can(User, Permission) :-
+    has_role(User, Role),
+    role_permission(Role, Permission).
+
+// Transitive closure for hierarchical resources
+has_access(User, Child) :-
+    has_access(User, Parent),
+    parent_resource(Child, Parent).
+
+// Aggregation for rate limiting
+total_calls(User, Count) :-
+    count(Calls, api_call(User, _, Calls)).
+
+// Negation for access control
+allowed(User) :-
+    user(User),
+    not blocked(User),
+    not over_limit(User).
+```
+
+**Why Custom Implementation?**
+
+Existing Rust Datalog crates (datafrog, ascent, crepe) use compile-time code generation which prevents runtime policy updates. RUNE's custom engine provides:
+1. Runtime interpretation for hot-reload capability
+2. Lock-free Arc-based reads for maximum concurrency
+3. Tight integration with Cedar authorization
+4. Sub-millisecond latency guarantees
+
+See `examples/datalog_*.rune` for detailed examples.
+
 ### Integration
 
 RUNE integrates with major AI frameworks:
@@ -99,19 +143,36 @@ RUNE integrates with major AI frameworks:
 
 ## Development Status
 
-### Completed
+### v0.1.0 (Released 2025-11-08)
 - ✅ Rust core engine with lock-free data structures
-- ✅ Request authorization with caching
-- ✅ Cedar policy engine integration
+- ✅ Request authorization with caching (90%+ hit rate)
+- ✅ Cedar policy engine integration (Cedar 3.x)
 - ✅ CLI tool with benchmarking
-- ✅ Basic parser for RUNE files
-- ✅ Python bindings structure
+- ✅ Basic parser for RUNE files (TOML data section)
+- ✅ Python bindings structure (disabled, awaiting v0.4.0)
 
-### In Progress
-- 🚧 Full Datalog evaluation engine
-- 🚧 Hot-reload with RCU
-- 🚧 Comprehensive test suite
-- 🚧 Production observability
+### v0.2.0 (In Progress - 60% Complete)
+- ✅ **Custom Datalog evaluation engine**
+  - ✅ Semi-naive bottom-up evaluation
+  - ✅ Stratified negation support
+  - ✅ Aggregation operations (count, sum, min, max, mean)
+  - ✅ Lock-free concurrent reads
+  - ✅ Hot-reload ready architecture
+  - ✅ 20 passing tests
+- 🚧 BYODS relation backends (Vector, HashMap, UnionFind, TrieMap)
+- 🚧 Datalog rule parser (syntax designed, parser pending)
+- 🚧 Cedar entity to Datalog fact bridge
+
+### v0.3.0 (Planned)
+- 🔜 Hot-reload with RCU pattern
+- 🔜 Zero-downtime configuration updates
+- 🔜 File watching for automatic reload
+
+### v0.4.0 (Planned)
+- 🔜 Python bindings activation
+- 🔜 HTTP server for remote authorization
+- 🔜 Production observability (Prometheus, OpenTelemetry)
+- 🔜 Comprehensive test suite (85%+ coverage)
 
 ## License
 

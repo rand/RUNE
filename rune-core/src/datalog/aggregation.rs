@@ -19,10 +19,7 @@ pub struct AggregationResult {
 }
 
 /// Evaluate an aggregate atom against a set of facts
-pub fn evaluate_aggregate(
-    aggregate: &AggregateAtom,
-    facts: &[Fact],
-) -> Option<AggregationResult> {
+pub fn evaluate_aggregate(aggregate: &AggregateAtom, facts: &[Fact]) -> Option<AggregationResult> {
     // Find all facts that match the body atoms
     let mut matching_values: Vec<Value> = Vec::new();
 
@@ -243,10 +240,7 @@ mod tests {
             AggregateOp::Mean,
             "Score".to_string(),
             "Avg".to_string(),
-            vec![Atom::new(
-                "score",
-                vec![Term::var("_"), Term::var("Score")],
-            )],
+            vec![Atom::new("score", vec![Term::var("_"), Term::var("Score")])],
         );
 
         let result = evaluate_aggregate(&aggregate, &facts).unwrap();

@@ -19,7 +19,7 @@ pub enum RUNEError {
 
     /// Cedar policy error
     #[error("Cedar policy error: {0}")]
-    CedarError(#[from] cedar_policy::PolicySetError),
+    CedarError(#[from] Box<cedar_policy::PolicySetError>),
 
     /// Authorization denied
     #[error("Authorization denied: {reason}")]
