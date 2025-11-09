@@ -244,7 +244,7 @@ fn test_integration_request_authorization_with_rules() {
 
     // 1. Parse authorization rules
     let rules_source = r#"
-        can_read(User, File) :- user_role(User, "admin").
+        can_read(User, File) :- user_role(User, "admin"), resource(File, _).
         can_read(User, File) :- file_owner(File, User).
     "#;
 
