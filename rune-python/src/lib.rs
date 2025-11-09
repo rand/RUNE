@@ -5,7 +5,7 @@ use pyo3::types::{PyDict, PyList};
 use pyo3::exceptions::PyValueError;
 use rune_core::{
     RUNEEngine as CoreEngine,
-    Request, RequestBuilder,
+    RequestBuilder,
     Principal, Action, Resource,
     Value, Decision,
 };
@@ -46,21 +46,25 @@ impl PythonRUNE {
         resource: Option<String>,
         kwargs: Option<&PyDict>,
     ) -> PyResult<bool> {
-        // Build request
-        let principal = Principal::agent(principal.unwrap_or_else(|| "default".to_string()));
-        let action = Action::new(action);
-        let resource = Resource::file(resource.unwrap_or_else(|| "/".to_string()));
-
-        let mut request = Request::new(principal, action, resource);
+        // Build request using RequestBuilder
+        let mut builder = RequestBuilder::new()
+            .principal(Principal::agent(principal.unwrap_or_else(|| "default".to_string())))
+            .action(Action::new(action))
+            .resource(Resource::file(resource.unwrap_or_else(|| "/".to_string())));
 
         // Add context from kwargs
         if let Some(dict) = kwargs {
             for (key, value) in dict.iter() {
                 let key_str = key.extract::<String>()?;
                 let val = python_to_value(value)?;
-                request = request.with_context(key_str, val);
+                builder = builder.context(key_str, val);
             }
         }
+
+        // Build the request
+        let request = builder
+            .build()
+            .map_err(|e| PyValueError::new_err(format!("Invalid request: {}", e)))?;
 
         // Evaluate
         let result = self.engine
@@ -94,11 +98,26 @@ impl PythonRUNE {
                 .transpose()?
                 .unwrap_or_else(|| "/".to_string());
 
-            let request = Request::new(
-                Principal::agent(principal),
-                Action::new(action),
-                Resource::file(resource),
-            );
+            // Build request using RequestBuilder
+            let mut builder = RequestBuilder::new()
+                .principal(Principal::agent(principal))
+                .action(Action::new(action))
+                .resource(Resource::file(resource));
+
+            // Add context if present
+            if let Some(context) = dict.get_item("context")? {
+                if let Ok(context_dict) = context.downcast::<PyDict>() {
+                    for (key, value) in context_dict.iter() {
+                        let key_str = key.extract::<String>()?;
+                        let val = python_to_value(value)?;
+                        builder = builder.context(key_str, val);
+                    }
+                }
+            }
+
+            let request = builder
+                .build()
+                .map_err(|e| PyValueError::new_err(format!("Invalid request: {}", e)))?;
 
             let result = self.engine
                 .authorize(&request)

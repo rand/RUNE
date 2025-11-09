@@ -1,8 +1,9 @@
 [workspace]
 members = [
     "rune-core",
-    "rune-cli", "rune-server",
-    # "rune-python", # Disabled until Python dev environment is configured
+    "rune-cli",
+    "rune-server",
+    # "rune-python",  # Requires Python dev environment (see rune-python/README.md)
 ]
 resolver = "2"
 
