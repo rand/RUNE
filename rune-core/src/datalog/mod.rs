@@ -23,6 +23,7 @@
 
 pub mod aggregation;
 pub mod backends;
+pub mod bridge;
 pub mod evaluation;
 pub mod types;
 pub mod unification;
@@ -32,6 +33,7 @@ pub use aggregation::{evaluate_aggregate, AggregationResult};
 pub use backends::{
     BackendType, HashBackend, RelationBackend, TrieBackend, UnionFindBackend, VecBackend,
 };
+pub use bridge::CedarDatalogBridge;
 pub use evaluation::{EvaluationResult, Evaluator};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
