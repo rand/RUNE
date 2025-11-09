@@ -453,22 +453,294 @@ mod tests {
         assert_eq!(applied, Term::Constant(Value::Integer(42)));
     }
 
+
+    #[test]
+    fn test_term_display() {
+        // Test Display implementations for coverage
+        let var = Term::var("X");
+        assert_eq!(format!("{}", var), "?X");
+
+        let const_int = Term::constant(Value::Integer(42));
+        assert_eq!(format!("{}", const_int), "42");
+
+        let const_str = Term::constant(Value::string("hello"));
+        assert_eq!(format!("{}", const_str), "\"hello\"");
+
+        let const_bool = Term::constant(Value::Bool(true));
+        assert_eq!(format!("{}", const_bool), "true");
+
+        let const_array = Term::constant(Value::array(vec![Value::Integer(1), Value::Integer(2)]));
+        // Arrays are displayed as "<complex>" per the Display implementation
+        assert_eq!(format!("{}", const_array), "<complex>");
+    }
+
+    #[test]
+    fn test_atom_display() {
+        let atom = Atom::new(
+            "edge",
+            vec![Term::var("X"), Term::constant(Value::string("alice"))],
+        );
+        let display = format!("{}", atom);
+        assert!(display.contains("edge"));
+        assert!(display.contains("?X"));
+        assert!(display.contains("alice"));
+    }
+
+    #[test]
+    fn test_rule_display() {
+        let rule = Rule::new(
+            Atom::new("path", vec![Term::var("X"), Term::var("Y")]),
+            vec![Atom::new("edge", vec![Term::var("X"), Term::var("Y")])],
+        );
+        let display = format!("{}", rule);
+        assert!(display.contains("path"));
+        assert!(display.contains("edge"));
+        assert!(display.contains(":-"));
+    }
+
+    #[test]
+    fn test_atom_with_negation() {
+        // Test regular atom
+        let pos_atom = Atom::new("user", vec![Term::var("X")]);
+        assert!(!pos_atom.negated);
+        let pos_display = format!("{}", pos_atom);
+        assert!(!pos_display.starts_with("not "));
+
+        // Test negated atom
+        let neg_atom = Atom::negated("blocked", vec![Term::var("X")]);
+        assert!(neg_atom.negated);
+        let neg_display = format!("{}", neg_atom);
+        assert!(neg_display.starts_with("not "));
+    }
+
+    #[test]
+    fn test_atom_arity() {
+        let atom0 = Atom::new("fact", vec![]);
+        assert_eq!(atom0.arity(), 0);
+
+        let atom2 = Atom::new("edge", vec![Term::var("X"), Term::var("Y")]);
+        assert_eq!(atom2.arity(), 2);
+
+        let atom3 = Atom::new("triple", vec![Term::var("X"), Term::var("Y"), Term::var("Z")]);
+        assert_eq!(atom3.arity(), 3);
+    }
+
+    #[test]
+    fn test_substitution_display() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+        sub.bind("Y".to_string(), Value::string("hello"));
+
+        let display = format!("{}", sub);
+        assert!(display.contains("X"));
+        assert!(display.contains("42"));
+        assert!(display.contains("Y"));
+        assert!(display.contains("hello"));
+    }
+
+    #[test]
+    fn test_atom_apply_substitution() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+
+        let atom = Atom::new("test", vec![Term::var("X"), Term::var("Y")]);
+        let applied = atom.apply_substitution(&sub);
+
+        assert_eq!(applied.terms[0], Term::Constant(Value::Integer(42)));
+        assert_eq!(applied.terms[1], Term::Variable("Y".to_string()));
+    }
+
+    #[test]
+    fn test_rule_is_fact() {
+        let fact_rule = Rule::fact(Atom::new("fact", vec![Term::constant(Value::Integer(1))]));
+        assert!(fact_rule.is_fact());
+
+        let normal_rule = Rule::new(
+            Atom::new("path", vec![Term::var("X"), Term::var("Y")]),
+            vec![Atom::new("edge", vec![Term::var("X"), Term::var("Y")])],
+        );
+        assert!(!normal_rule.is_fact());
+    }
+
+    #[test]
+    fn test_aggregate_atom() {
+        let agg = AggregateAtom::new(
+            AggregateOp::Count,
+            "X".to_string(),
+            "Result".to_string(),
+            vec![Atom::new("edge", vec![Term::var("X"), Term::var("Y")])],
+        );
+
+        assert_eq!(agg.op, AggregateOp::Count);
+        assert_eq!(agg.aggregate_var, "X");
+        assert_eq!(agg.result_var, "Result");
+        assert_eq!(agg.body.len(), 1);
+    }
+
+    #[test]
+    fn test_aggregate_op_display() {
+        assert_eq!(format!("{}", AggregateOp::Count), "count");
+        assert_eq!(format!("{}", AggregateOp::Sum), "sum");
+        assert_eq!(format!("{}", AggregateOp::Min), "min");
+        assert_eq!(format!("{}", AggregateOp::Max), "max");
+        assert_eq!(format!("{}", AggregateOp::Mean), "mean");
+    }
+
+    #[test]
+    fn test_ground_atom() {
+        let ground = Atom::new(
+            "fact",
+            vec![
+                Term::constant(Value::Integer(1)),
+                Term::constant(Value::string("test")),
+            ],
+        );
+        assert!(ground.is_ground());
+        assert_eq!(ground.variables().len(), 0);
+
+        let with_var = Atom::new(
+            "fact",
+            vec![Term::var("X"), Term::constant(Value::Integer(1))],
+        );
+        assert!(!with_var.is_ground());
+        assert_eq!(with_var.variables(), vec!["X"]);
+    }
+
+    #[test]
+    fn test_rule_with_negated_atoms() {
+        // Create a rule with negated atoms in body
+        let rule = Rule::new(
+            Atom::new("result", vec![Term::var("X")]),
+            vec![
+                Atom::new("positive", vec![Term::var("X")]),
+                Atom::negated("negative", vec![Term::var("X")]),
+            ],
+        );
+
+        // Check safety - X appears in positive body
+        assert!(rule.is_safe());
+
+        // Test Display with negation
+        let display = format!("{}", rule);
+        assert!(display.contains("result"));
+        assert!(display.contains("positive"));
+        assert!(display.contains("not"));
+    }
+
+    #[test]
+    fn test_empty_substitution() {
+        let sub = Substitution::new();
+        assert!(sub.is_empty());
+        assert_eq!(sub.len(), 0);
+        assert_eq!(sub.get("X"), None);
+        assert!(!sub.contains("X"));
+
+        // Apply to term should return the same term
+        let term = Term::var("X");
+        assert_eq!(sub.apply_to_term(&term), term);
+    }
+
     #[test]
     fn test_substitution_merge() {
         let mut sub1 = Substitution::new();
         sub1.bind("X".to_string(), Value::Integer(1));
+        sub1.bind("Y".to_string(), Value::Integer(2));
 
         let mut sub2 = Substitution::new();
-        sub2.bind("Y".to_string(), Value::Integer(2));
+        sub2.bind("Y".to_string(), Value::Integer(2)); // Compatible
+        sub2.bind("Z".to_string(), Value::Integer(3));
 
         let merged = sub1.merge(&sub2).unwrap();
         assert_eq!(merged.get("X"), Some(&Value::Integer(1)));
         assert_eq!(merged.get("Y"), Some(&Value::Integer(2)));
+        assert_eq!(merged.get("Z"), Some(&Value::Integer(3)));
 
-        // Incompatible substitutions
+        // Test incompatible merge
         let mut sub3 = Substitution::new();
-        sub3.bind("X".to_string(), Value::Integer(99));
-
+        sub3.bind("Y".to_string(), Value::Integer(99)); // Incompatible value
         assert!(sub1.merge(&sub3).is_none());
+    }
+
+    #[test]
+    fn test_rule_is_recursive() {
+        // Non-recursive rule
+        let non_recursive = Rule::new(
+            Atom::new("path", vec![Term::var("X"), Term::var("Y")]),
+            vec![Atom::new("edge", vec![Term::var("X"), Term::var("Y")])],
+        );
+        assert!(!non_recursive.is_recursive());
+
+        // Recursive rule
+        let recursive = Rule::new(
+            Atom::new("path", vec![Term::var("X"), Term::var("Z")]),
+            vec![
+                Atom::new("edge", vec![Term::var("X"), Term::var("Y")]),
+                Atom::new("path", vec![Term::var("Y"), Term::var("Z")]),
+            ],
+        );
+        assert!(recursive.is_recursive());
+    }
+
+    #[test]
+    fn test_rule_dependencies() {
+        let rule = Rule::new(
+            Atom::new("result", vec![Term::var("X")]),
+            vec![
+                Atom::new("foo", vec![Term::var("X")]),
+                Atom::new("bar", vec![Term::var("X")]),
+                Atom::new("baz", vec![Term::var("X")]),
+            ],
+        );
+
+        let deps = rule.dependencies();
+        assert_eq!(deps.len(), 3);
+        assert!(deps.iter().any(|d| d.as_ref() == "foo"));
+        assert!(deps.iter().any(|d| d.as_ref() == "bar"));
+        assert!(deps.iter().any(|d| d.as_ref() == "baz"));
+    }
+
+    #[test]
+    fn test_rule_variables() {
+        let rule = Rule::new(
+            Atom::new("result", vec![Term::var("X"), Term::var("Y")]),
+            vec![
+                Atom::new("foo", vec![Term::var("X"), Term::var("Z")]),
+                Atom::new("bar", vec![Term::var("Y"), Term::var("W")]),
+            ],
+        );
+
+        let vars = rule.variables();
+        assert_eq!(vars.len(), 4);
+        assert!(vars.contains(&"X".to_string()));
+        assert!(vars.contains(&"Y".to_string()));
+        assert!(vars.contains(&"Z".to_string()));
+        assert!(vars.contains(&"W".to_string()));
+    }
+
+    #[test]
+    fn test_term_as_methods() {
+        let var_term = Term::var("X");
+        assert_eq!(var_term.as_variable(), Some("X"));
+        assert_eq!(var_term.as_constant(), None);
+
+        let const_term = Term::constant(Value::Integer(42));
+        assert_eq!(const_term.as_variable(), None);
+        assert_eq!(const_term.as_constant(), Some(&Value::Integer(42)));
+    }
+
+    #[test]
+    fn test_term_null_display() {
+        let null_term = Term::constant(Value::Null);
+        assert_eq!(format!("{}", null_term), "null");
+    }
+
+    #[test]
+    fn test_term_complex_display() {
+        // Test complex value display (arrays, objects)
+        use std::collections::BTreeMap;
+        let mut map = BTreeMap::new();
+        map.insert("key".to_string(), Value::Integer(1));
+        let complex_term = Term::constant(Value::object(map));
+        assert_eq!(format!("{}", complex_term), "<complex>");
     }
 }
