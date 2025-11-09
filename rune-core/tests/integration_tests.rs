@@ -365,9 +365,6 @@ fn test_complex_hierarchy_with_attributes() {
         .filter(|f| f.predicate.as_ref() == "user_group")
         .collect();
 
-    eprintln!("DEBUG: user_groups = {:?}", user_groups);
-    eprintln!("DEBUG: user_groups.len() = {}", user_groups.len());
-
     // alice should be in: developers, engineering, employees
     assert!(user_groups.len() >= 3);
 
