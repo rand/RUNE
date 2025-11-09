@@ -83,17 +83,27 @@ impl Evaluator {
                 iteration_count += 1;
                 let mut new_delta: HashSet<Fact> = HashSet::new();
 
+                eprintln!("DEBUG eval: iteration {}, delta.len()={}, accumulated.len()={}",
+                         iteration_count, delta.len(), accumulated.len());
+
                 // Apply each non-fact rule in the stratum
                 for rule in &non_fact_rules {
                     let derived = self.apply_rule_semi_naive(rule, &accumulated, &delta);
+                    eprintln!("DEBUG eval: rule {:?} derived {} facts", rule.head.predicate, derived.len());
+                    if !derived.is_empty() {
+                        eprintln!("DEBUG eval:   derived = {:?}", derived);
+                    }
                     new_delta.extend(derived);
                 }
 
                 // Remove facts already in accumulated
                 new_delta.retain(|f| !accumulated.contains(f));
 
+                eprintln!("DEBUG eval: new_delta.len()={}", new_delta.len());
+
                 // Check for fixpoint
                 if new_delta.is_empty() {
+                    eprintln!("DEBUG eval: fixpoint reached");
                     break;
                 }
 
