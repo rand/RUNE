@@ -30,13 +30,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/purple.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="nav-brand">
-                <span class="logo-glyph"></span>
+                <span class="logo-glyph">∮</span>
                 <strong>RUNE</strong> v0.1.0
             </a>
             <div class="nav-links">
@@ -81,6 +86,7 @@
 <li><a href="#repository-structure">Repository Structure</a></li>
 <li><a href="#development-workflow">Development Workflow</a></li>
 <li><a href="#documentation-protocols">Documentation Protocols</a></li>
+<li><a href="#documentation-management">Documentation Management</a></li>
 <li><a href="#release-management">Release Management</a></li>
 <li><a href="#repository-organization">Repository Organization</a></li>
 <li><a href="#testing-protocols">Testing Protocols</a></li>
@@ -336,6 +342,84 @@ uses epoch-based memory reclamation.
 </code></pre></div>
 
 <p><strong>Format</strong>: <code>https://github.com/{user}/{repo}/blob/{tag}/{path}#{lines}</code></p>
+<hr />
+<h2 id="documentation-management">Documentation Management</h2>
+<h3 id="structure">Structure</h3>
+<div class="highlight"><pre><span></span><code>docs/                     # Markdown source files
+├── index.md             # Home page
+├── whitepaper.md        # Technical documentation
+├── css/styles.css       # Custom design (project-specific colors)
+├── js/                  # Theme toggle, sidebar behavior
+└── assets/              # Images, diagrams, favicons
+
+templates/               # Jinja2 HTML templates
+├── base.html           # Navbar, sidebar, theme toggle
+├── index.html          # Home page layout
+└── whitepaper.html     # Documentation layout
+
+scripts/build-docs.py   # Python build script
+site/                    # Generated static HTML (ignored by git)
+</code></pre></div>
+
+<h3 id="updating-documentation">Updating Documentation</h3>
+<ol>
+<li><strong>Edit markdown files</strong> in <code>docs/</code> (index.md, whitepaper.md, etc.)</li>
+<li><strong>Test locally</strong> (optional):
+   <code>bash
+   python scripts/build-docs.py
+   cd site &amp;&amp; python -m http.server 8000</code></li>
+<li><strong>Commit and push</strong> to main</li>
+<li><strong>Verify deployment</strong>: GitHub Actions builds and deploys automatically (~1-2 min)</li>
+</ol>
+<h3 id="design-system">Design System</h3>
+<p><strong>Project-specific</strong>:
+- <strong>Glyph</strong>: ∮ (Closed contour integral) in navbar
+- <strong>Colors</strong>: Accent color in <code>docs/css/styles.css</code> (<code>:root</code> CSS variables)
+- <strong>Tagline</strong>: "// High-Performance Authorization" in fixed right sidebar</p>
+<p><strong>Shared features</strong>:
+- Geist font + JetBrains Mono for code
+- Theme toggle (light/dark)
+- Responsive design (sidebar hides &lt;1200px)
+- SVG diagrams with light/dark variants</p>
+<h3 id="build-process">Build Process</h3>
+<ol>
+<li>Python-Markdown parses <code>.md</code> files</li>
+<li>YAML front matter stripped automatically</li>
+<li>Jinja2 templates apply HTML structure</li>
+<li>Static HTML + CSS/JS copied to <code>site/</code></li>
+<li>GitHub Actions deploys to GitHub Pages</li>
+</ol>
+<h3 id="troubleshooting">Troubleshooting</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build fails</td>
+<td>Check Python dependencies: <code>pip install markdown jinja2 pygments</code></td>
+</tr>
+<tr>
+<td>Styles missing</td>
+<td>Verify <code>docs/css/styles.css</code> exists</td>
+</tr>
+<tr>
+<td>Theme toggle broken</td>
+<td>Check <code>docs/js/theme.js</code> loaded</td>
+</tr>
+<tr>
+<td>Diagrams missing</td>
+<td>Verify SVG files in <code>docs/assets/diagrams/</code></td>
+</tr>
+<tr>
+<td>Old content showing</td>
+<td>Hard refresh browser (Cmd+Shift+R)</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="release-management">Release Management</h2>
 <h3 id="semantic-versioning">Semantic Versioning</h3>
@@ -746,7 +830,7 @@ mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="
 </code></pre></div>
 
 <hr />
-<h2 id="troubleshooting">Troubleshooting</h2>
+<h2 id="troubleshooting_1">Troubleshooting</h2>
 <h3 id="common-build-errors">Common Build Errors</h3>
 <p><strong>Error</strong>: <code>unsafe code is forbidden</code>
 <strong>Fix</strong>: Add <code>#![allow(unsafe_code)]</code> to module using crossbeam/unsafe patterns</p>

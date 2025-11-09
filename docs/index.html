@@ -30,13 +30,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/purple.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="nav-brand">
-                <span class="logo-glyph"></span>
+                <span class="logo-glyph">∮</span>
                 <strong>RUNE</strong> v0.1.0
             </a>
             <div class="nav-links">
@@ -78,43 +83,199 @@
     </p>
 </header>
 
-<h1 id="rune-high-performance-authorization-configuration-engine">RUNE: High-Performance Authorization &amp; Configuration Engine</h1>
-<p><strong>Version</strong>: 0.1.0
-<strong>Date</strong>: November 2025
-<strong>Repository</strong>: <a href="https://github.com/rand/RUNE">github.com/rand/RUNE</a></p>
-<h2 id="abstract">Abstract</h2>
-<p>As AI agents become increasingly autonomous, organizations face a critical challenge: how to grant agents the freedom to act effectively while ensuring they operate within safe, well-defined boundaries. Traditional authorization systems fall short—they're either too slow for real-time agent decision-making or lack the expressiveness needed for complex agent scenarios.</p>
-<p><strong>RUNE</strong> is a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.</p>
-<p>RUNE enables organizations to define both <strong>what agents can do</strong> (authorization) and <strong>how agents should behave</strong> (configuration) in a single, coherent framework. With Python bindings and a compact single-binary deployment (~10MB), RUNE integrates seamlessly into modern AI agent architectures including LangChain, AutoGPT, and Claude Code.</p>
+<h1 id="rune-high-performance-authorization-configuration-engine">RUNE - High-Performance Authorization &amp; Configuration Engine</h1>
+<p>RUNE is a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It provides <strong>real, enforceable guardrails</strong> for AI agents with sub-millisecond latency and 5M+ ops/sec throughput.</p>
 <h2 id="key-features">Key Features</h2>
 <ul>
-<li><strong>Dual-Engine Architecture</strong>: Novel combination of Datalog and Cedar for unified authorization and configuration</li>
-<li><strong>Lock-Free Performance</strong>: Epoch-based memory reclamation enables true parallelism without locks</li>
-<li><strong>Sub-Millisecond Latency</strong>: Parallel policy evaluation delivers authorization decisions in &lt;1ms</li>
-<li><strong>High Throughput</strong>: Exceeds 5 million operations per second on modern hardware</li>
-<li><strong>Production-Ready</strong>: Comprehensive benchmarks, error handling, and deployment tooling</li>
-<li><strong>Easy Integration</strong>: Python bindings, single binary (~10MB), zero runtime dependencies</li>
+<li><strong>Sub-millisecond authorization decisions</strong> (&lt;1ms P99 latency)</li>
+<li><strong>High throughput</strong>: 5M+ operations per second on a single core</li>
+<li><strong>Dual-engine architecture</strong>: Datalog for configuration, Cedar for authorization</li>
+<li><strong>Lock-free data structures</strong> for maximum concurrency</li>
+<li><strong>Zero-copy architecture</strong> with memory-mapped facts</li>
+<li><strong>Single binary deployment</strong> (~10MB static executable)</li>
+<li><strong>Python bindings</strong> for easy integration with AI frameworks</li>
 </ul>
-<h2 id="architecture-overview">Architecture Overview</h2>
-<p>RUNE's dual-engine architecture separates two distinct concerns:</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="build-from-source">Build from Source</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Requires Rust 1.75+</span>
+cargo<span class="w"> </span>build<span class="w"> </span>--release
+
+<span class="c1"># Run the CLI</span>
+./target/release/rune<span class="w"> </span>--help
+</code></pre></div>
+
+<h3 id="basic-usage">Basic Usage</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Evaluate an authorization request</span>
+rune<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--action<span class="w"> </span><span class="nb">read</span><span class="w"> </span>--resource<span class="w"> </span>/tmp/file.txt<span class="w"> </span>--principal<span class="w"> </span>agent-1
+
+<span class="c1"># Validate a configuration file</span>
+rune<span class="w"> </span>validate<span class="w"> </span>config.rune
+
+<span class="c1"># Run benchmarks</span>
+rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+
+<h3 id="example-configuration">Example Configuration</h3>
+<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+
+<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
+<span class="s s-Atom">environment</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span>
+<span class="s s-Atom">agent</span><span class="p">.</span><span class="s s-Atom">capabilities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="s2">&quot;write&quot;</span><span class="p">]</span>
+
+<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
+<span class="s s-Atom">#</span> <span class="nv">Datalog</span> <span class="s s-Atom">rules</span> <span class="s s-Atom">for</span> <span class="s s-Atom">configuration</span>
+<span class="nf">allow_file_read</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
+    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;file.read&quot;</span><span class="p">),</span>
+    <span class="nf">path</span><span class="p">(</span><span class="nv">Path</span><span class="p">),</span>
+    <span class="nv">Path</span><span class="p">.</span><span class="nf">starts_with</span><span class="p">(</span><span class="s2">&quot;/allowed&quot;</span><span class="p">).</span>
+
+<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
+<span class="s s-Atom">#</span> <span class="nv">Cedar</span> <span class="s s-Atom">policies</span> <span class="s s-Atom">for</span> <span class="s s-Atom">authorization</span>
+<span class="nf">permit</span><span class="p">(</span>
+    <span class="s s-Atom">principal</span> <span class="s s-Atom">in</span> <span class="nv">Group</span><span class="o">::</span><span class="s2">&quot;agents&quot;</span><span class="p">,</span>
+    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;read&quot;</span><span class="p">,</span>
+    <span class="s s-Atom">resource</span> <span class="s s-Atom">in</span> <span class="nv">File</span><span class="o">::</span><span class="s2">&quot;/tmp/*&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<h2 id="architecture">Architecture</h2>
+<h3 id="core-components">Core Components</h3>
 <ul>
-<li><strong>Datalog Engine</strong>: Derives configuration facts through logic programming, enabling composable and context-aware behavioral guidelines</li>
-<li><strong>Cedar Engine</strong>: Evaluates authorization policies using Amazon's proven Cedar Policy Language for declarative, analyzable permissions</li>
+<li><strong><code>rune-core</code></strong>: High-performance Rust engine</li>
+<li>Lock-free fact store using crossbeam</li>
+<li>Parallel Datalog evaluation</li>
+<li>Native Cedar integration</li>
+<li>
+<p>DashMap for concurrent caching</p>
+</li>
+<li>
+<p><strong><code>rune-cli</code></strong>: Command-line interface</p>
+</li>
+<li>Evaluation, validation, benchmarking</li>
+<li>
+<p>Production-ready with colored output</p>
+</li>
+<li>
+<p><strong><code>rune-python</code></strong>: Python bindings (PyO3)</p>
+</li>
+<li>Zero-copy data transfer</li>
+<li>Async support</li>
+<li>Decorator-based enforcement</li>
 </ul>
-<p>Both engines operate in parallel against a lock-free fact store, with results merged into unified authorization decisions. This design achieves the expressiveness of complex policy systems with the performance characteristics of in-memory data structures.</p>
-<h2 id="use-cases">Use Cases</h2>
-<h3 id="code-generation-agents">Code Generation Agents</h3>
-<p>Control which files agents can read/write, enforce coding standards, apply rate limits on API calls, and provide environment-specific rules (stricter in production vs. development).</p>
-<h3 id="data-access-agents">Data Access Agents</h3>
-<p>Grant fine-grained database access, enforce row-level security policies, apply query cost limits, and derive permissions from organizational hierarchies.</p>
-<h3 id="infrastructure-automation">Infrastructure Automation</h3>
-<p>Authorize infrastructure changes, enforce approval workflows, apply resource quotas, and provide context-aware configuration (region-specific rules, compliance requirements).</p>
-<h2 id="getting-started">Getting Started</h2>
-<p>Explore the full technical details in the <a href="whitepaper.md">Technical Whitepaper</a>, which covers system design, implementation details, performance evaluation, and production deployment strategies.</p>
-<p>For AI agent developers, the <a href="guide/agent-guide.md">Agent Integration Guide</a> provides practical examples and best practices for integrating RUNE into your agent architecture.</p>
-<p>View the source code and contribute on <a href="https://github.com/rand/RUNE">GitHub</a>.</p>
-<hr />
-<p>RUNE is open-source software. For questions or contributions, visit the <a href="https://github.com/rand/RUNE">GitHub repository</a>.</p>
+<h3 id="performance">Performance</h3>
+<p>Benchmark results on Apple M1:
+- <strong>Throughput</strong>: 5M+ requests/second
+- <strong>Latency</strong>: P50: 50ns, P99: 500ns
+- <strong>Cache hit rate</strong>: 90%+
+- <strong>Memory usage</strong>: &lt;50MB for 1M facts</p>
+<h3 id="datalog-engine">Datalog Engine</h3>
+<p>RUNE includes a custom-built Datalog evaluation engine designed specifically for high-performance authorization:</p>
+<p><strong>Key Features:</strong>
+- <strong>Semi-naive evaluation</strong>: Efficient fixpoint computation with delta tracking
+- <strong>Stratified negation</strong>: Safe handling of negation in rules
+- <strong>Aggregation support</strong>: count, sum, min, max, mean operations
+- <strong>BYODS relation backends</strong>: Optimized storage (Vector, HashMap, UnionFind, Trie)
+- <strong>Lock-free concurrent reads</strong>: Arc-based zero-copy fact access
+- <strong>Hot-reload ready</strong>: Interpreted rules enable runtime policy updates</p>
+<p><strong>Example Rules:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="o">//</span> <span class="nv">Derive</span> <span class="s s-Atom">permissions</span> <span class="s s-Atom">from</span> <span class="s s-Atom">roles</span>
+<span class="nb">user</span><span class="k">_</span><span class="nf">can</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="nv">Permission</span><span class="p">)</span> <span class="o">:-</span>
+    <span class="nf">has_role</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="nv">Role</span><span class="p">),</span>
+    <span class="nf">role_permission</span><span class="p">(</span><span class="nv">Role</span><span class="p">,</span> <span class="nv">Permission</span><span class="p">).</span>
+
+<span class="o">//</span> <span class="nv">Transitive</span> <span class="s s-Atom">closure</span> <span class="s s-Atom">for</span> <span class="s s-Atom">hierarchical</span> <span class="s s-Atom">resources</span>
+<span class="nf">has_access</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="nv">Child</span><span class="p">)</span> <span class="o">:-</span>
+    <span class="nf">has_access</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="nv">Parent</span><span class="p">),</span>
+    <span class="nf">parent_resource</span><span class="p">(</span><span class="nv">Child</span><span class="p">,</span> <span class="nv">Parent</span><span class="p">).</span>
+
+<span class="o">//</span> <span class="nv">Aggregation</span> <span class="s s-Atom">for</span> <span class="s s-Atom">rate</span> <span class="s s-Atom">limiting</span>
+<span class="nf">total_calls</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="nv">Count</span><span class="p">)</span> <span class="o">:-</span>
+    <span class="nf">count</span><span class="p">(</span><span class="nv">Calls</span><span class="p">,</span> <span class="nf">api_call</span><span class="p">(</span><span class="nv">User</span><span class="p">,</span> <span class="k">_</span><span class="p">,</span> <span class="nv">Calls</span><span class="p">)).</span>
+
+<span class="o">//</span> <span class="nv">Negation</span> <span class="s s-Atom">for</span> <span class="s s-Atom">access</span> <span class="s s-Atom">control</span>
+<span class="nf">allowed</span><span class="p">(</span><span class="nv">User</span><span class="p">)</span> <span class="o">:-</span>
+    <span class="nb">user</span><span class="p">(</span><span class="nv">User</span><span class="p">),</span>
+    <span class="o">not</span> <span class="nf">blocked</span><span class="p">(</span><span class="nv">User</span><span class="p">),</span>
+    <span class="o">not</span> <span class="nf">over_limit</span><span class="p">(</span><span class="nv">User</span><span class="p">).</span>
+</code></pre></div>
+
+<p><strong>Why Custom Implementation?</strong></p>
+<p>Existing Rust Datalog crates (datafrog, ascent, crepe) use compile-time code generation which prevents runtime policy updates. RUNE's custom engine provides:
+1. Runtime interpretation for hot-reload capability
+2. Lock-free Arc-based reads for maximum concurrency
+3. BYODS (Bring Your Own Data Structures) for optimized relation storage
+4. Tight integration with Cedar authorization
+5. Sub-millisecond latency guarantees</p>
+<p>See <code>examples/datalog_*.rune</code> for detailed examples.</p>
+<h3 id="integration">Integration</h3>
+<p>RUNE integrates with major AI frameworks:
+- LangChain
+- AutoGPT/AutoGen
+- OpenAI Function Calling
+- Anthropic Tool Use</p>
+<h2 id="development-status">Development Status</h2>
+<h3 id="v010-released-2025-11-08">v0.1.0 (Released 2025-11-08)</h3>
+<ul>
+<li>✅ Rust core engine with lock-free data structures</li>
+<li>✅ Request authorization with caching (90%+ hit rate)</li>
+<li>✅ Cedar policy engine integration (Cedar 3.x)</li>
+<li>✅ CLI tool with benchmarking</li>
+<li>✅ Basic parser for RUNE files (TOML data section)</li>
+<li>✅ Python bindings structure (disabled, awaiting v0.4.0)</li>
+</ul>
+<h3 id="v020-released-2025-11-08">v0.2.0 (Released 2025-11-08) ✅</h3>
+<ul>
+<li>✅ <strong>Custom Datalog evaluation engine</strong></li>
+<li>✅ Semi-naive bottom-up evaluation</li>
+<li>✅ Stratified negation support</li>
+<li>✅ Aggregation operations (count, sum, min, max, mean)</li>
+<li>✅ Lock-free concurrent reads</li>
+<li>✅ Hot-reload ready architecture</li>
+<li>✅ 26 passing Datalog tests</li>
+<li>✅ <strong>BYODS relation backends</strong></li>
+<li>✅ VecBackend for small relations</li>
+<li>✅ HashBackend for general-purpose storage</li>
+<li>✅ UnionFindBackend foundation (future optimization)</li>
+<li>✅ TrieBackend foundation (future optimization)</li>
+<li>✅ Automatic backend selection heuristics</li>
+<li>✅ <strong>Datalog rule parser</strong></li>
+<li>✅ Parse facts: <code>user(alice).</code></li>
+<li>✅ Parse rules: <code>can_access(U) :- user(U), admin(U).</code></li>
+<li>✅ Parse negation: <code>allowed(X) :- user(X), not blocked(X).</code></li>
+<li>✅ Type inference: integers, booleans, strings, variables</li>
+<li>✅ 8 passing parser tests</li>
+<li>✅ <strong>Cedar entity to Datalog fact bridge</strong></li>
+<li>✅ Convert Principal/Resource/Action to facts</li>
+<li>✅ Handle hierarchical entities and attributes</li>
+<li>✅ Request metadata facts for authorization patterns</li>
+<li>✅ 6 passing bridge tests</li>
+</ul>
+<h3 id="v030-released-2025-11-08">v0.3.0 (Released 2025-11-08) ✅</h3>
+<ul>
+<li>✅ <strong>Hot-reload with RCU pattern</strong></li>
+<li>✅ ArcSwap-based lock-free engine updates</li>
+<li>✅ Atomic rule and policy swapping</li>
+<li>✅ Sub-10ns read latency during reload</li>
+<li>✅ <strong>Zero-downtime configuration updates</strong></li>
+<li>✅ Ongoing requests complete with old rules</li>
+<li>✅ Automatic memory reclamation with Arc</li>
+<li>✅ Cache invalidation on reload</li>
+<li>✅ <strong>File watching for automatic reload</strong></li>
+<li>✅ Cross-platform file watching with notify crate</li>
+<li>✅ Event debouncing for multi-chunk writes</li>
+<li>✅ Async reload coordinator with tokio</li>
+<li>✅ Manual reload capability for testing</li>
+<li>✅ Reload event subscription for monitoring</li>
+</ul>
+<h3 id="v040-planned">v0.4.0 (Planned)</h3>
+<ul>
+<li>🔜 Python bindings activation</li>
+<li>🔜 HTTP server for remote authorization</li>
+<li>🔜 Production observability (Prometheus, OpenTelemetry)</li>
+<li>🔜 Comprehensive test suite (85%+ coverage)</li>
+</ul>
+<h2 id="license">License</h2>
+<p>MIT OR Apache-2.0</p>
 
 <footer class="footer">
     <p>
