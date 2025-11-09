@@ -45,8 +45,8 @@ pub enum Decision {
     Permit,
     /// Request is denied
     Deny,
-    /// Unable to determine (error or missing data)
-    Indeterminate,
+    /// Request is explicitly forbidden
+    Forbid,
 }
 
 /// Diagnostic information for debugging
@@ -127,7 +127,7 @@ impl From<rune_core::Decision> for Decision {
         match decision {
             rune_core::Decision::Permit => Decision::Permit,
             rune_core::Decision::Deny => Decision::Deny,
-            rune_core::Decision::Indeterminate => Decision::Indeterminate,
+            rune_core::Decision::Forbid => Decision::Forbid,
         }
     }
 }

@@ -10,11 +10,28 @@ use axum::{
     extract::{Query, State},
     Json,
 };
-use rune_core::{RequestBuilder, RUNEEngine};
+use rune_core::{RequestBuilder, Principal, Action, Resource};
 use serde::Deserialize;
-use std::sync::Arc;
 use std::time::Instant;
 use tracing::{debug, error, info, warn};
+
+/// Parse a principal string (format: "type:id" or just "id")
+fn parse_principal(s: &str) -> Principal {
+    if let Some((typ, id)) = s.split_once(':') {
+        Principal::new(typ, id)
+    } else {
+        Principal::new("User", s)
+    }
+}
+
+/// Parse a resource string (format: "type:id" or "type:path/to/resource")
+fn parse_resource(s: &str) -> Resource {
+    if let Some((typ, id)) = s.split_once(':') {
+        Resource::new(typ, id)
+    } else {
+        Resource::new("Resource", s)
+    }
+}
 
 /// Query parameters for debug mode
 #[derive(Debug, Deserialize)]
@@ -35,9 +52,9 @@ pub async fn authorize(
 
     // Build the request
     let request = RequestBuilder::new()
-        .principal(&req.principal)
-        .action(&req.action)
-        .resource(&req.resource)
+        .principal(parse_principal(&req.principal))
+        .action(Action::new(&req.action))
+        .resource(parse_resource(&req.resource))
         .build()
         .map_err(|e| ApiError::BadRequest(format!("Invalid request: {}", e)))?;
 
@@ -45,7 +62,6 @@ pub async fn authorize(
     let result = state
         .engine
         .authorize(&request)
-        .await
         .map_err(|e| ApiError::Internal(format!("Authorization failed: {}", e)))?;
 
     let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
@@ -56,7 +72,7 @@ pub async fn authorize(
     // Build response
     let mut response = AuthorizeResponse {
         decision,
-        reasons: result.reasons,
+        reasons: vec![result.explanation],
         diagnostics: None,
     };
 
@@ -64,10 +80,10 @@ pub async fn authorize(
     if state.debug || params.debug {
         response.diagnostics = Some(Diagnostics {
             evaluation_time_ms: elapsed_ms,
-            cache_hit: result.cache_hit,
-            rules_evaluated: result.datalog_rules_evaluated,
-            policies_evaluated: result.cedar_policies_evaluated,
-            matched_rules: Vec::new(), // TODO: Track matched rules
+            cache_hit: result.cached,
+            rules_evaluated: result.evaluated_rules.len(),
+            policies_evaluated: 0, // TODO: Track Cedar policies
+            matched_rules: result.evaluated_rules,
             matched_policies: Vec::new(), // TODO: Track matched policies
         });
     }
@@ -105,16 +121,16 @@ pub async fn batch_authorize(
     // Process each request
     for auth_req in req.requests {
         let request = match RequestBuilder::new()
-            .principal(&auth_req.principal)
-            .action(&auth_req.action)
-            .resource(&auth_req.resource)
+            .principal(parse_principal(&auth_req.principal))
+            .action(Action::new(&auth_req.action))
+            .resource(parse_resource(&auth_req.resource))
             .build()
         {
             Ok(r) => r,
             Err(e) => {
                 // Add error response for this request
                 results.push(AuthorizeResponse {
-                    decision: Decision::Indeterminate,
+                    decision: Decision::Forbid,
                     reasons: vec![format!("Invalid request: {}", e)],
                     diagnostics: None,
                 });
@@ -123,11 +139,11 @@ pub async fn batch_authorize(
         };
 
         // Evaluate authorization
-        match state.engine.authorize(&request).await {
+        match state.engine.authorize(&request) {
             Ok(result) => {
                 let mut response = AuthorizeResponse {
                     decision: result.decision.into(),
-                    reasons: result.reasons,
+                    reasons: vec![result.explanation],
                     diagnostics: None,
                 };
 
@@ -135,10 +151,10 @@ pub async fn batch_authorize(
                 if state.debug || params.debug {
                     response.diagnostics = Some(Diagnostics {
                         evaluation_time_ms: 0.0, // Not tracked per-request in batch
-                        cache_hit: result.cache_hit,
-                        rules_evaluated: result.datalog_rules_evaluated,
-                        policies_evaluated: result.cedar_policies_evaluated,
-                        matched_rules: Vec::new(),
+                        cache_hit: result.cached,
+                        rules_evaluated: result.evaluated_rules.len(),
+                        policies_evaluated: 0, // TODO: Track Cedar policies
+                        matched_rules: result.evaluated_rules,
                         matched_policies: Vec::new(),
                     });
                 }
@@ -148,7 +164,7 @@ pub async fn batch_authorize(
             Err(e) => {
                 error!("Batch authorization error: {}", e);
                 results.push(AuthorizeResponse {
-                    decision: Decision::Indeterminate,
+                    decision: Decision::Forbid,
                     reasons: vec![format!("Authorization error: {}", e)],
                     diagnostics: None,
                 });
@@ -182,14 +198,14 @@ pub async fn health_live(State(state): State<AppState>) -> Json<HealthResponse> 
 pub async fn health_ready(State(state): State<AppState>) -> ApiResult<Json<HealthResponse>> {
     // Check if engine is ready by doing a simple authorization
     let test_request = RequestBuilder::new()
-        .principal("health:check")
-        .action("health:check")
-        .resource("health:check")
+        .principal(Principal::new("health", "check"))
+        .action(Action::new("health:check"))
+        .resource(Resource::new("health", "check"))
         .build()
         .map_err(|e| ApiError::Internal(format!("Health check failed: {}", e)))?;
 
     // Try to authorize
-    match state.engine.authorize(&test_request).await {
+    match state.engine.authorize(&test_request) {
         Ok(_) => {
             Ok(Json(HealthResponse {
                 status: HealthStatus::Healthy,
@@ -210,7 +226,9 @@ pub async fn health_ready(State(state): State<AppState>) -> ApiResult<Json<Healt
 
 /// Prometheus metrics endpoint
 pub async fn metrics() -> String {
-    // Use the metrics crate to export prometheus metrics
-    let encoder = metrics_exporter_prometheus::Encoder::new();
-    encoder.encode_to_string().unwrap_or_default()
+    // TODO: Properly collect and format metrics
+    // For now, return a placeholder
+    "# HELP rune_requests_total Total number of authorization requests\n\
+     # TYPE rune_requests_total counter\n\
+     rune_requests_total 0\n".to_string()
 }
