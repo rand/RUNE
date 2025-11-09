@@ -229,4 +229,216 @@ mod tests {
 
         assert!(ground_atom(&atom, &sub).is_none());
     }
+
+    #[test]
+    fn test_unify_atoms_success() {
+        let atom1 = Atom::new(
+            "edge",
+            vec![Term::var("X"), Term::constant(Value::Integer(2))],
+        );
+        let atom2 = Atom::new(
+            "edge",
+            vec![Term::constant(Value::Integer(1)), Term::var("Y")],
+        );
+
+        let sub = unify_atoms(&atom1, &atom2).unwrap();
+        assert_eq!(sub.get("X"), Some(&Value::Integer(1)));
+        assert_eq!(sub.get("Y"), Some(&Value::Integer(2)));
+    }
+
+    #[test]
+    fn test_unify_atoms_different_predicates() {
+        let atom1 = Atom::new("edge", vec![Term::var("X")]);
+        let atom2 = Atom::new("node", vec![Term::var("Y")]);
+
+        assert!(unify_atoms(&atom1, &atom2).is_none());
+    }
+
+    #[test]
+    fn test_unify_atoms_different_arity() {
+        let atom1 = Atom::new("edge", vec![Term::var("X"), Term::var("Y")]);
+        let atom2 = Atom::new("edge", vec![Term::var("Z")]);
+
+        assert!(unify_atoms(&atom1, &atom2).is_none());
+    }
+
+    #[test]
+    fn test_unify_atoms_conflicting_constants() {
+        let atom1 = Atom::new(
+            "edge",
+            vec![Term::constant(Value::Integer(1)), Term::var("Y")],
+        );
+        let atom2 = Atom::new(
+            "edge",
+            vec![Term::constant(Value::Integer(2)), Term::var("Y")],
+        );
+
+        assert!(unify_atoms(&atom1, &atom2).is_none());
+    }
+
+    #[test]
+    fn test_unify_terms_both_variables_already_bound_same() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+        sub.bind("Y".to_string(), Value::Integer(42));
+
+        let v1 = Term::var("X");
+        let v2 = Term::var("Y");
+
+        assert!(unify_terms(&v1, &v2, &mut sub));
+        // Values should remain the same
+        assert_eq!(sub.get("X"), Some(&Value::Integer(42)));
+        assert_eq!(sub.get("Y"), Some(&Value::Integer(42)));
+    }
+
+    #[test]
+    fn test_unify_terms_both_variables_already_bound_different() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+        sub.bind("Y".to_string(), Value::Integer(43));
+
+        let v1 = Term::var("X");
+        let v2 = Term::var("Y");
+
+        assert!(!unify_terms(&v1, &v2, &mut sub));
+    }
+
+    #[test]
+    fn test_unify_terms_one_variable_bound() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+
+        let v1 = Term::var("X");
+        let v2 = Term::var("Y");
+
+        assert!(unify_terms(&v1, &v2, &mut sub));
+        // Y should now be bound to 42
+        assert_eq!(sub.get("Y"), Some(&Value::Integer(42)));
+    }
+
+    #[test]
+    fn test_unify_terms_variable_already_bound_matching() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+
+        let var = Term::var("X");
+        let const_term = Term::Constant(Value::Integer(42));
+
+        assert!(unify_terms(&var, &const_term, &mut sub));
+        assert_eq!(sub.get("X"), Some(&Value::Integer(42)));
+    }
+
+    #[test]
+    fn test_unify_terms_variable_already_bound_conflicting() {
+        let mut sub = Substitution::new();
+        sub.bind("X".to_string(), Value::Integer(42));
+
+        let var = Term::var("X");
+        let const_term = Term::Constant(Value::Integer(43));
+
+        assert!(!unify_terms(&var, &const_term, &mut sub));
+    }
+
+    #[test]
+    fn test_unify_terms_constants_different() {
+        let mut sub = Substitution::new();
+        let t1 = Term::Constant(Value::Integer(42));
+        let t2 = Term::Constant(Value::Integer(43));
+
+        assert!(!unify_terms(&t1, &t2, &mut sub));
+        assert!(sub.is_empty());
+    }
+
+    #[test]
+    fn test_unify_atom_with_fact_different_predicate() {
+        let atom = Atom::new("edge", vec![Term::var("X")]);
+        let fact = Fact::new("node", vec![Value::Integer(1)]);
+
+        assert!(unify_atom_with_fact(&atom, &fact).is_none());
+    }
+
+    #[test]
+    fn test_unify_atom_with_fact_different_arity() {
+        let atom = Atom::new("edge", vec![Term::var("X"), Term::var("Y")]);
+        let fact = Fact::new("edge", vec![Value::Integer(1)]);
+
+        assert!(unify_atom_with_fact(&atom, &fact).is_none());
+    }
+
+    #[test]
+    fn test_unify_atoms_with_multiple_variables() {
+        let atom1 = Atom::new(
+            "relation",
+            vec![Term::var("X"), Term::var("Y"), Term::var("Z")],
+        );
+        let atom2 = Atom::new(
+            "relation",
+            vec![
+                Term::constant(Value::Integer(1)),
+                Term::var("Y"),
+                Term::constant(Value::Integer(3)),
+            ],
+        );
+
+        let sub = unify_atoms(&atom1, &atom2).unwrap();
+        assert_eq!(sub.get("X"), Some(&Value::Integer(1)));
+        assert_eq!(sub.get("Z"), Some(&Value::Integer(3)));
+        // Y should be bound to itself or another variable
+        assert!(sub.get("Y").is_some());
+    }
+
+    #[test]
+    fn test_find_matching_facts_no_matches() {
+        let facts = vec![
+            Fact::binary("edge", Value::Integer(1), Value::Integer(2)),
+            Fact::binary("edge", Value::Integer(2), Value::Integer(3)),
+        ];
+
+        let atom = Atom::new("node", vec![Term::var("X")]);
+
+        let matches = find_matching_facts(&atom, &facts);
+        assert_eq!(matches.len(), 0);
+    }
+
+    #[test]
+    fn test_constant_unification_swapped() {
+        let mut sub = Substitution::new();
+        let const_term = Term::Constant(Value::Integer(42));
+        let var = Term::var("X");
+
+        // Test constant-variable (swapped order)
+        assert!(unify_terms(&const_term, &var, &mut sub));
+        assert_eq!(sub.get("X"), Some(&Value::Integer(42)));
+    }
+
+    #[test]
+    fn test_unify_atoms_all_constants() {
+        let atom1 = Atom::new(
+            "fact",
+            vec![
+                Term::constant(Value::Integer(1)),
+                Term::constant(Value::Integer(2)),
+            ],
+        );
+        let atom2 = Atom::new(
+            "fact",
+            vec![
+                Term::constant(Value::Integer(1)),
+                Term::constant(Value::Integer(2)),
+            ],
+        );
+
+        let sub = unify_atoms(&atom1, &atom2).unwrap();
+        assert!(sub.is_empty()); // No variables to bind
+    }
+
+    #[test]
+    fn test_unify_atoms_all_variables() {
+        let atom1 = Atom::new("rel", vec![Term::var("A"), Term::var("B")]);
+        let atom2 = Atom::new("rel", vec![Term::var("C"), Term::var("D")]);
+
+        let sub = unify_atoms(&atom1, &atom2).unwrap();
+        // Variables should be bound to each other
+        assert!(!sub.is_empty());
+    }
 }
