@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUNE: Real, Enforceable Guardrails for AI Agents</title>
+    <meta name="description" content="A high-performance authorization and configuration engine providing real, enforceable guardrails for AI agents. Sub-millisecond decisions at 5M+ ops/sec.">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo-glyph"></span>
+                <strong>RUNE</strong> v0.1.0
+            </div>
+            <div class="nav-links">
+                <a href="whitepaper.html">Whitepaper</a>
+                <a href="agent-guide.html">Agent Guide</a>
+                <a href="https://github.com/rand/RUNE">GitHub</a>
+                <button class="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-toggle-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-tagline">High-Performance Authorization for AI Agents</div>
+            <div class="sidebar-status">
+                <span class="status-glyph"></span>
+                <span class="status-message">Enforcing guardrails</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="container">
+        <header class="paper-header">
+            <h1>RUNE: Real, Enforceable Guardrails for AI Agents</h1>
+            <p class="paper-meta">
+                <span>Version 0.1.0</span> ·
+                <span>November 2025</span> ·
+                <a href="https://github.com/rand/RUNE">github.com/rand/RUNE</a>
+            </p>
+        </header>
+
+        <section id="abstract" class="section">
+            <h2>Abstract</h2>
+            <p>
+                As AI agents become increasingly autonomous, organizations face a critical challenge: how to grant agents the freedom to act effectively while ensuring they operate within safe, well-defined boundaries. Traditional authorization systems fall short—they're either too slow for real-time agent decision-making or lack the expressiveness needed for complex agent scenarios.
+            </p>
+            <p>
+                We present <strong>RUNE</strong>, a high-performance authorization and configuration engine that provides real, enforceable guardrails for AI agents. RUNE combines a Datalog-based configuration system with Amazon's Cedar Policy Language through a novel dual-engine architecture. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.
+            </p>
+            <p>
+                RUNE enables organizations to define both <strong>what agents can do</strong> (authorization) and <strong>how agents should behave</strong> (configuration) in a single, coherent framework. With Python bindings and a compact single-binary deployment (~10MB), RUNE integrates seamlessly into modern AI agent architectures including LangChain, AutoGPT, and Claude Code.
+            </p>
+        </section>
+
+        <section id="key-features" class="section">
+            <h2>Key Features</h2>
+            <ul>
+                <li><strong>Dual-Engine Architecture</strong>: Novel combination of Datalog and Cedar for unified authorization and configuration</li>
+                <li><strong>Lock-Free Performance</strong>: Epoch-based memory reclamation enables true parallelism without locks</li>
+                <li><strong>Sub-Millisecond Latency</strong>: Parallel policy evaluation delivers authorization decisions in &lt;1ms</li>
+                <li><strong>High Throughput</strong>: Exceeds 5 million operations per second on modern hardware</li>
+                <li><strong>Production-Ready</strong>: Comprehensive benchmarks, error handling, and deployment tooling</li>
+                <li><strong>Easy Integration</strong>: Python bindings, single binary (~10MB), zero runtime dependencies</li>
+            </ul>
+        </section>
+
+        <section id="architecture" class="section">
+            <h2>Architecture Overview</h2>
+            <p>
+                RUNE's dual-engine architecture separates two distinct concerns:
+            </p>
+            <ul>
+                <li><strong>Datalog Engine</strong>: Derives configuration facts through logic programming, enabling composable and context-aware behavioral guidelines</li>
+                <li><strong>Cedar Engine</strong>: Evaluates authorization policies using Amazon's proven Cedar Policy Language for declarative, analyzable permissions</li>
+            </ul>
+            <p>
+                Both engines operate in parallel against a lock-free fact store, with results merged into unified authorization decisions. This design achieves the expressiveness of complex policy systems with the performance characteristics of in-memory data structures.
+            </p>
+        </section>
+
+        <section id="use-cases" class="section">
+            <h2>Use Cases</h2>
+            <h3>Code Generation Agents</h3>
+            <p>
+                Control which files agents can read/write, enforce coding standards, apply rate limits on API calls, and provide environment-specific rules (stricter in production vs. development).
+            </p>
+
+            <h3>Data Access Agents</h3>
+            <p>
+                Grant fine-grained database access, enforce row-level security policies, apply query cost limits, and derive permissions from organizational hierarchies.
+            </p>
+
+            <h3>Infrastructure Automation</h3>
+            <p>
+                Authorize infrastructure changes, enforce approval workflows, apply resource quotas, and provide context-aware configuration (region-specific rules, compliance requirements).
+            </p>
+        </section>
+
+        <section id="getting-started" class="section">
+            <h2>Getting Started</h2>
+            <p>
+                Explore the full technical details in the <a href="whitepaper.html">Technical Whitepaper</a>, which covers system design, implementation details, performance evaluation, and production deployment strategies.
+            </p>
+            <p>
+                For AI agent developers, the <a href="agent-guide.html">Agent Integration Guide</a> provides practical examples and best practices for integrating RUNE into your agent architecture.
+            </p>
+            <p>
+                View the source code and contribute on <a href="https://github.com/rand/RUNE">GitHub</a>.
+            </p>
+        </section>
+
+        <footer class="footer">
+            <p>
+                RUNE is open-source software. For questions or contributions, visit the
+                <a href="https://github.com/rand/RUNE">GitHub repository</a>.
+            </p>
+        </footer>
+    </main>
+
+    <script src="js/theme.js"></script>
+</body>
+</html>
