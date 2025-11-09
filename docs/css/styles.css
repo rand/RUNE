@@ -348,16 +348,23 @@ body.dark-theme .theme-toggle-icon::before {
     max-width: 70ch;
 }
 
-.section ul {
+.section ul,
+.section ol {
     margin: 1.25rem 0;
-    padding-left: 1.5rem;
+    padding-left: 2.5rem;
     max-width: 70ch;
+}
+
+.section ol {
+    list-style-position: outside;
+    list-style-type: decimal;
 }
 
 .section li {
     margin-bottom: 0.75rem;
     color: var(--text-primary);
     line-height: 1.7;
+    padding-left: 0.5rem;
 }
 
 .section li strong {

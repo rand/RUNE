@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RUNE: Real, Enforceable Guardrails for AI Agents</title>
-    <meta name="description" content="A high-performance authorization and configuration engine providing real, enforceable guardrails for AI agents. Sub-millisecond decisions at 5M+ ops/sec.">
+    <title>RUNE: High-Performance Authorization & Configuration Engine</title>
+    <meta name="description" content="A principled authorization and configuration system combining Datalog and Cedar policies. Sub-millisecond decisions at 5M+ ops/sec.">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
@@ -39,7 +39,7 @@
 
     <main class="container">
         <header class="paper-header">
-            <h1>RUNE: Real, Enforceable Guardrails for AI Agents</h1>
+            <h1>RUNE: High-Performance Authorization & Configuration Engine</h1>
             <p class="paper-meta">
                 <span>Version 0.1.0</span> ·
                 <span>November 2025</span> ·
@@ -53,7 +53,7 @@
                 As AI agents become increasingly autonomous, organizations face a critical challenge: how to grant agents the freedom to act effectively while ensuring they operate within safe, well-defined boundaries. Traditional authorization systems fall short—they're either too slow for real-time agent decision-making or lack the expressiveness needed for complex agent scenarios.
             </p>
             <p>
-                We present <strong>RUNE</strong>, a high-performance authorization and configuration engine that provides real, enforceable guardrails for AI agents. RUNE combines a Datalog-based configuration system with Amazon's Cedar Policy Language through a novel dual-engine architecture. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.
+                <strong>RUNE</strong> is a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.
             </p>
             <p>
                 RUNE enables organizations to define both <strong>what agents can do</strong> (authorization) and <strong>how agents should behave</strong> (configuration) in a single, coherent framework. With Python bindings and a compact single-binary deployment (~10MB), RUNE integrates seamlessly into modern AI agent architectures including LangChain, AutoGPT, and Claude Code.
