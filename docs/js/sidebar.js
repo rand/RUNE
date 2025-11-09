@@ -42,12 +42,12 @@
 
         const sectionComments = getSectionComments();
 
-        // Get all sections (both section[id] and h2[id])
-        const sections = [...document.querySelectorAll('section[id], h2[id]')];
+        // Get all sections (section[id], h2[id], and h3[id] for granular detection)
+        const sections = [...document.querySelectorAll('section[id], h2[id], h3[id]')];
 
         // Account for navbar height and use a better scroll threshold
         const navbarHeight = 80; // navbar + some buffer
-        const scrollPosition = window.scrollY + navbarHeight + 100;
+        const scrollPosition = window.scrollY + navbarHeight + 50; // Reduced for more responsive detection
 
         // Build section boundaries by finding distance to next heading
         const sectionBoundaries = sections.map((element, index) => {
