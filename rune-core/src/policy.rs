@@ -1,9 +1,11 @@
 //! Cedar policy integration
 
 use crate::engine::{AuthorizationResult, Decision};
-use crate::error::{Result, RUNEError};
+use crate::error::{RUNEError, Result};
 use crate::request::Request;
-use cedar_policy::{Authorizer, Context, Entities, PolicySet as CedarPolicySet, Request as CedarRequest};
+use cedar_policy::{
+    Authorizer, Context, Entities, PolicySet as CedarPolicySet, Request as CedarRequest,
+};
 use cedar_policy::{Entity as CedarEntity, EntityId, EntityTypeName, EntityUid};
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -26,7 +28,8 @@ impl PolicySet {
 
     /// Load policies from a string
     pub fn load_policies(&mut self, policy_str: &str) -> Result<()> {
-        let policies = policy_str.parse::<CedarPolicySet>()
+        let policies = policy_str
+            .parse::<CedarPolicySet>()
             .map_err(|e| RUNEError::ConfigError(format!("Failed to parse policies: {}", e)))?;
 
         self.cedar_policies = policies;
@@ -43,12 +46,14 @@ impl PolicySet {
 
         // For Cedar 3.x, we need to rebuild the policy set
         let mut new_set = CedarPolicySet::new();
-        new_set.add(policy)
+        new_set
+            .add(policy)
             .map_err(|e| RUNEError::ConfigError(format!("Failed to add policy: {}", e)))?;
 
         // Merge with existing policies
         for p in self.cedar_policies.policies() {
-            new_set.add(p.clone())
+            new_set
+                .add(p.clone())
                 .map_err(|e| RUNEError::ConfigError(format!("Failed to merge policy: {}", e)))?;
         }
 
@@ -67,11 +72,9 @@ impl PolicySet {
         let entities = self.create_entities(request)?;
 
         // Evaluate with Cedar
-        let response = self.authorizer.is_authorized(
-            &cedar_request,
-            &self.cedar_policies,
-            &entities,
-        );
+        let response =
+            self.authorizer
+                .is_authorized(&cedar_request, &self.cedar_policies, &entities);
 
         // Convert Cedar decision to RUNE decision
         let decision = match response.decision() {
@@ -114,8 +117,9 @@ impl PolicySet {
     /// Convert RUNE request to Cedar request
     fn convert_request(&self, request: &Request) -> Result<CedarRequest> {
         // Convert principal
-        let principal_type = EntityTypeName::from_str(request.principal.entity.entity_type.as_ref())
-            .map_err(|e| RUNEError::InvalidRequest(format!("Invalid principal type: {}", e)))?;
+        let principal_type =
+            EntityTypeName::from_str(request.principal.entity.entity_type.as_ref())
+                .map_err(|e| RUNEError::InvalidRequest(format!("Invalid principal type: {}", e)))?;
 
         let principal_id = EntityId::from_str(request.principal.entity.id.as_ref())
             .map_err(|e| RUNEError::InvalidRequest(format!("Invalid principal ID: {}", e)))?;
@@ -143,13 +147,12 @@ impl PolicySet {
         // Create context (simplified for now)
         let context = Context::empty();
 
-        Ok(CedarRequest::new(
-            Some(principal),
-            Some(action),
-            Some(resource),
-            context,
-            None,
-        ).map_err(|e| RUNEError::InvalidRequest(format!("Failed to create Cedar request: {}", e)))?)
+        Ok(
+            CedarRequest::new(Some(principal), Some(action), Some(resource), context, None)
+                .map_err(|e| {
+                    RUNEError::InvalidRequest(format!("Failed to create Cedar request: {}", e))
+                })?,
+        )
     }
 
     /// Create entities for Cedar evaluation
@@ -175,11 +178,11 @@ impl PolicySet {
         let action_uid = EntityUid::from_type_name_and_id(action_type, action_id);
 
         // Create action entity with empty attributes for now
-        let action_entity = CedarEntity::new(
-            action_uid,
-            HashMap::new(),
-            std::collections::HashSet::new(),
-        ).map_err(|e| RUNEError::InvalidRequest(format!("Failed to create action entity: {}", e)))?;
+        let action_entity =
+            CedarEntity::new(action_uid, HashMap::new(), std::collections::HashSet::new())
+                .map_err(|e| {
+                    RUNEError::InvalidRequest(format!("Failed to create action entity: {}", e))
+                })?;
 
         all_entities.push(action_entity);
 

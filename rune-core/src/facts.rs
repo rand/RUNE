@@ -1,13 +1,13 @@
 //! Lock-free fact store for high-performance concurrent access
 
-#![allow(unsafe_code)]  // Required for crossbeam epoch-based memory reclamation
+#![allow(unsafe_code)] // Required for crossbeam epoch-based memory reclamation
 
 use crate::types::Value;
 use crossbeam::epoch::{self, Atomic, Owned};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 
 /// A fact in the system
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -117,27 +117,44 @@ impl FactStore {
             })
             .or_insert_with(|| Arc::new(vec![fact.clone()]));
 
-        // Update all facts using epoch-based reclamation
+        // Update all facts using epoch-based reclamation with CAS loop
         let guard = &epoch::pin();
-        let current = self.all_facts.load(Ordering::Acquire, guard);
 
-        let mut new_facts = if let Some(current_ref) = unsafe { current.as_ref() } {
-            (**current_ref).clone()
-        } else {
-            Vec::new()
-        };
+        loop {
+            let current = self.all_facts.load(Ordering::Acquire, guard);
 
-        new_facts.push(fact);
-        let new_arc = Arc::new(new_facts);
+            let mut new_facts = if let Some(current_ref) = unsafe { current.as_ref() } {
+                (**current_ref).clone()
+            } else {
+                Vec::new()
+            };
 
-        self.all_facts.store(Owned::new(new_arc).into_shared(guard), Ordering::Release);
+            new_facts.push(fact.clone());
+            let new_arc = Arc::new(new_facts);
+            let new_shared = Owned::new(new_arc).into_shared(guard);
 
-        // Increment version
-        self.version.fetch_add(1, Ordering::Release);
-
-        // Clean up old version
-        unsafe {
-            guard.defer_destroy(current);
+            // Try to swap - if it fails, someone else updated, retry
+            match self.all_facts.compare_exchange(
+                current,
+                new_shared,
+                Ordering::Release,
+                Ordering::Acquire,
+                guard,
+            ) {
+                Ok(_) => {
+                    // Success! Increment version and clean up
+                    self.version.fetch_add(1, Ordering::Release);
+                    unsafe {
+                        guard.defer_destroy(current);
+                    }
+                    break;
+                }
+                Err(_) => {
+                    // CAS failed, retry the loop
+                    // The new_shared we created will be dropped
+                    continue;
+                }
+            }
         }
     }
 
@@ -198,7 +215,10 @@ impl FactStore {
 
         let guard = &epoch::pin();
         let current = self.all_facts.load(Ordering::Acquire, guard);
-        self.all_facts.store(Owned::new(Arc::new(Vec::new())).into_shared(guard), Ordering::Release);
+        self.all_facts.store(
+            Owned::new(Arc::new(Vec::new())).into_shared(guard),
+            Ordering::Release,
+        );
 
         unsafe {
             guard.defer_destroy(current);
@@ -284,11 +304,7 @@ mod tests {
             let store = store.clone();
             let handle = thread::spawn(move || {
                 for j in 0..100 {
-                    store.add_fact(Fact::binary(
-                        "edge",
-                        Value::Integer(i),
-                        Value::Integer(j),
-                    ));
+                    store.add_fact(Fact::binary("edge", Value::Integer(i), Value::Integer(j)));
                 }
             });
             handles.push(handle);

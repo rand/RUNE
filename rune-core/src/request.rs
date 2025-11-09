@@ -1,6 +1,6 @@
 //! Request types for authorization
 
-use crate::types::{Principal, Action, Resource, Value};
+use crate::types::{Action, Principal, Resource, Value};
 use ahash::AHasher;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -116,11 +116,14 @@ impl RequestBuilder {
 
     /// Build the request
     pub fn build(self) -> crate::Result<Request> {
-        let principal = self.principal
+        let principal = self
+            .principal
             .ok_or_else(|| crate::error::RUNEError::InvalidRequest("Missing principal".into()))?;
-        let action = self.action
+        let action = self
+            .action
             .ok_or_else(|| crate::error::RUNEError::InvalidRequest("Missing action".into()))?;
-        let resource = self.resource
+        let resource = self
+            .resource
             .ok_or_else(|| crate::error::RUNEError::InvalidRequest("Missing resource".into()))?;
 
         let mut request = Request::new(principal, action, resource);

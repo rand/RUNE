@@ -1,6 +1,6 @@
 //! Parser for RUNE configuration files
 
-use crate::error::{Result, RUNEError};
+use crate::error::{RUNEError, Result};
 use serde::{Deserialize, Serialize};
 
 /// Parsed RUNE configuration
@@ -58,7 +58,8 @@ pub fn parse_rune_file(input: &str) -> Result<RUNEConfig> {
     let sections = split_sections(input)?;
 
     // Parse version
-    let version = sections.version
+    let version = sections
+        .version
         .ok_or_else(|| RUNEError::ParseError("Missing version declaration".into()))?;
 
     // Parse data section as TOML

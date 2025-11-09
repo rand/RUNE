@@ -3,7 +3,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use colored::*;
-use rune_core::{RUNEEngine, Request, RequestBuilder, Principal, Action, Resource};
+use rune_core::{Action, Principal, RUNEEngine, Request, RequestBuilder, Resource};
 use std::fs;
 use std::time::Instant;
 
@@ -86,7 +86,13 @@ async fn main() -> Result<()> {
     }
 
     match cli.command {
-        Commands::Eval { config, action, principal, resource, format } => {
+        Commands::Eval {
+            config,
+            action,
+            principal,
+            resource,
+            format,
+        } => {
             eval_command(config, action, principal, resource, format).await?;
         }
         Commands::Validate { file } => {
@@ -117,7 +123,11 @@ async fn eval_command(
 
     // Load configuration if provided
     if let Some(config_path) = config {
-        println!("{} Loading configuration from {}...", "→".blue(), config_path);
+        println!(
+            "{} Loading configuration from {}...",
+            "→".blue(),
+            config_path
+        );
         // TODO: Implement configuration loading
         // engine.load_configuration(&config_path)?;
     }
@@ -183,8 +193,8 @@ async fn eval_command(
 async fn validate_command(file: String) -> Result<()> {
     println!("{} Validating {}...", "→".blue(), file);
 
-    let contents = fs::read_to_string(&file)
-        .with_context(|| format!("Failed to read file: {}", file))?;
+    let contents =
+        fs::read_to_string(&file).with_context(|| format!("Failed to read file: {}", file))?;
 
     match rune_core::parse_rune_file(&contents) {
         Ok(config) => {
@@ -278,14 +288,14 @@ async fn benchmark_command(requests: usize, threads: usize) -> Result<()> {
 }
 
 async fn serve_command(config: Option<String>, port: u16) -> Result<()> {
-    println!(
-        "{} Starting RUNE server on port {}...",
-        "→".blue(),
-        port
-    );
+    println!("{} Starting RUNE server on port {}...", "→".blue(), port);
 
     if let Some(config_path) = config {
-        println!("{} Loading configuration from {}...", "→".blue(), config_path);
+        println!(
+            "{} Loading configuration from {}...",
+            "→".blue(),
+            config_path
+        );
     }
 
     // TODO: Implement HTTP server

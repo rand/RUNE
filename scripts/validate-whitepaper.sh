@@ -20,20 +20,22 @@ echo -e "${BLUE}===========================${NC}\n"
 
 FAILURES=0
 WARNINGS=0
+PASSES=0
 
 # Helper functions
 fail() {
     echo -e "${RED}✗ FAIL:${NC} $1"
-    ((FAILURES++))
+    FAILURES=$((FAILURES + 1))
 }
 
 warn() {
     echo -e "${YELLOW}⚠ WARN:${NC} $1"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 }
 
 pass() {
     echo -e "${GREEN}✓ PASS:${NC} $1"
+    PASSES=$((PASSES + 1))
 }
 
 info() {
@@ -222,7 +224,7 @@ fi
 echo ""
 echo -e "${BLUE}Validation Summary${NC}"
 echo -e "${BLUE}==================${NC}"
-echo -e "Passed: ${GREEN}$(($(grep -c PASS /tmp/validate-output.txt 2>/dev/null || echo 0)))${NC}"
+echo -e "Passed: ${GREEN}$PASSES${NC}"
 echo -e "Warnings: ${YELLOW}$WARNINGS${NC}"
 echo -e "Failures: ${RED}$FAILURES${NC}"
 echo ""

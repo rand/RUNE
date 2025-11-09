@@ -187,10 +187,13 @@ impl RUNEEngine {
         };
 
         // Cache the result
-        self.cache.insert(cache_key, CacheEntry {
-            result: result.clone(),
-            timestamp: start,
-        });
+        self.cache.insert(
+            cache_key,
+            CacheEntry {
+                result: result.clone(),
+                timestamp: start,
+            },
+        );
 
         // Record metrics
         self.metrics.record_authorization(decision, start.elapsed());
@@ -199,8 +202,10 @@ impl RUNEEngine {
     }
 
     /// Evaluate in parallel using rayon
-    fn evaluate_parallel(&self, request: &Request) -> Result<(AuthorizationResult, AuthorizationResult)> {
-
+    fn evaluate_parallel(
+        &self,
+        request: &Request,
+    ) -> Result<(AuthorizationResult, AuthorizationResult)> {
         let datalog = self.datalog.clone();
         let policies = self.policies.clone();
         let facts = self.facts.clone();
@@ -222,7 +227,10 @@ impl RUNEEngine {
     }
 
     /// Evaluate sequentially
-    fn evaluate_sequential(&self, request: &Request) -> Result<(AuthorizationResult, AuthorizationResult)> {
+    fn evaluate_sequential(
+        &self,
+        request: &Request,
+    ) -> Result<(AuthorizationResult, AuthorizationResult)> {
         let datalog_result = {
             let engine = self.datalog.read();
             engine.evaluate(request, &self.facts)?
@@ -244,7 +252,8 @@ impl RUNEEngine {
 
     /// Add a fact to the engine
     pub fn add_fact(&self, predicate: impl Into<String>, args: Vec<Value>) {
-        self.facts.add_fact(crate::facts::Fact::new(predicate, args));
+        self.facts
+            .add_fact(crate::facts::Fact::new(predicate, args));
     }
 
     /// Clear the decision cache
@@ -345,7 +354,7 @@ impl EngineMetrics {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{Principal, Action, Resource};
+    use crate::types::{Action, Principal, Resource};
 
     #[test]
     fn test_engine_creation() {
