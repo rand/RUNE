@@ -501,16 +501,16 @@ mod tests {
     }
 
     #[test]
-    fn test_process_notify_event_access_ignored() {
-        use notify::event::{AccessKind, AccessMode, EventKind};
+    fn test_process_notify_event_other_ignored() {
+        use notify::event::EventKind;
 
         let event = Event {
-            kind: EventKind::Access(AccessKind::Read(AccessMode::Any)),
+            kind: EventKind::Other,
             paths: vec![PathBuf::from("test.rune")],
             attrs: Default::default(),
         };
 
-        // Access events should be ignored
+        // Other events should be ignored
         let result = process_notify_event(event);
         assert!(result.is_none());
     }
