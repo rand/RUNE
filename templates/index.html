@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="paper-header">
+    <h1>{{ project_name }}: High-Performance Authorization & Configuration Engine</h1>
+    <p class="paper-meta">
+        <span class="version-badge">{{ project_version }}</span>
+        <span>November 2025</span>
+        <a href="{{ github_url }}">github.com/rand/{{ project_name }}</a>
+    </p>
+</header>
+
+{{ content }}
+
+<footer class="footer">
+    <p>
+        {{ project_name }} is open-source software. For questions or contributions, visit the
+        <a href="{{ github_url }}">GitHub repository</a>.
+    </p>
+</footer>
+{% endblock %}
