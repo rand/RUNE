@@ -335,4 +335,459 @@ mod tests {
         // Check we have all facts
         assert_eq!(store.len(), 1000);
     }
+
+    // ========== Edge Case Tests ==========
+
+    #[test]
+    fn test_fact_equality_ignores_timestamp() {
+        // Facts with same predicate and args should be equal regardless of timestamp
+        let fact1 = Fact::new("user", vec![Value::string("alice")]);
+        std::thread::sleep(std::time::Duration::from_millis(1));
+        let fact2 = Fact::new("user", vec![Value::string("alice")]);
+
+        assert_ne!(fact1.timestamp, fact2.timestamp);
+        assert_eq!(fact1, fact2);
+
+        // Different predicate
+        let fact3 = Fact::new("admin", vec![Value::string("alice")]);
+        assert_ne!(fact1, fact3);
+
+        // Different args
+        let fact4 = Fact::new("user", vec![Value::string("bob")]);
+        assert_ne!(fact1, fact4);
+    }
+
+    #[test]
+    fn test_fact_hash_ignores_timestamp() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let fact1 = Fact::new("user", vec![Value::string("alice")]);
+        std::thread::sleep(std::time::Duration::from_millis(1));
+        let fact2 = Fact::new("user", vec![Value::string("alice")]);
+
+        let mut hasher1 = DefaultHasher::new();
+        fact1.hash(&mut hasher1);
+        let hash1 = hasher1.finish();
+
+        let mut hasher2 = DefaultHasher::new();
+        fact2.hash(&mut hasher2);
+        let hash2 = hasher2.finish();
+
+        assert_eq!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_fact_constructors() {
+        // Test unary fact
+        let unary = Fact::unary("user", Value::string("alice"));
+        assert_eq!(unary.predicate.as_ref(), "user");
+        assert_eq!(unary.args.len(), 1);
+        assert_eq!(unary.args[0], Value::string("alice"));
+
+        // Test binary fact
+        let binary = Fact::binary("follows", Value::string("alice"), Value::string("bob"));
+        assert_eq!(binary.predicate.as_ref(), "follows");
+        assert_eq!(binary.args.len(), 2);
+        assert_eq!(binary.args[0], Value::string("alice"));
+        assert_eq!(binary.args[1], Value::string("bob"));
+
+        // Test n-ary fact
+        let nary = Fact::new("triple", vec![
+            Value::Integer(1),
+            Value::Integer(2),
+            Value::Integer(3)
+        ]);
+        assert_eq!(nary.predicate.as_ref(), "triple");
+        assert_eq!(nary.args.len(), 3);
+    }
+
+    #[test]
+    fn test_pattern_matching_edge_cases() {
+        // Test exact match with constants
+        let fact = Fact::binary("follows", Value::string("alice"), Value::string("bob"));
+
+        let pattern_exact = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Constant(Value::string("alice")),
+                PatternArg::Constant(Value::string("bob"))
+            ],
+        };
+        assert!(fact.matches_pattern(&pattern_exact));
+
+        // Test mismatch with wrong constant
+        let pattern_wrong = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Constant(Value::string("alice")),
+                PatternArg::Constant(Value::string("charlie"))
+            ],
+        };
+        assert!(!fact.matches_pattern(&pattern_wrong));
+
+        // Test with all variables
+        let pattern_vars = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Variable("X".into()),
+                PatternArg::Variable("Y".into())
+            ],
+        };
+        assert!(fact.matches_pattern(&pattern_vars));
+
+        // Test mixed constants and variables
+        let pattern_mixed = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Constant(Value::string("alice")),
+                PatternArg::Variable("X".into())
+            ],
+        };
+        assert!(fact.matches_pattern(&pattern_mixed));
+
+        // Test wrong predicate
+        let pattern_wrong_pred = FactPattern {
+            predicate: Arc::from("likes"),
+            args: vec![
+                PatternArg::Variable("X".into()),
+                PatternArg::Variable("Y".into())
+            ],
+        };
+        assert!(!fact.matches_pattern(&pattern_wrong_pred));
+
+        // Test wrong arity
+        let pattern_wrong_arity = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+        assert!(!fact.matches_pattern(&pattern_wrong_arity));
+    }
+
+    #[test]
+    fn test_fact_store_empty_operations() {
+        let store = FactStore::new();
+
+        // Test empty store
+        assert!(store.is_empty());
+        assert_eq!(store.len(), 0);
+        assert_eq!(store.version(), 0);
+        assert_eq!(store.all_facts().len(), 0);
+
+        // Query on empty store
+        let pattern = FactPattern {
+            predicate: Arc::from("user"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+        assert_eq!(store.query(&pattern).len(), 0);
+
+        // Get by predicate on empty store
+        assert_eq!(store.get_by_predicate("user").len(), 0);
+    }
+
+    #[test]
+    fn test_fact_store_add_and_query() {
+        let store = FactStore::new();
+
+        // Add multiple facts with same predicate
+        store.add_fact(Fact::unary("user", Value::string("alice")));
+        store.add_fact(Fact::unary("user", Value::string("bob")));
+        store.add_fact(Fact::unary("user", Value::string("charlie")));
+
+        // Query with variable
+        let pattern_var = FactPattern {
+            predicate: Arc::from("user"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+        let results = store.query(&pattern_var);
+        assert_eq!(results.len(), 3);
+
+        // Query with constant
+        let pattern_const = FactPattern {
+            predicate: Arc::from("user"),
+            args: vec![PatternArg::Constant(Value::string("alice"))],
+        };
+        let results = store.query(&pattern_const);
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].args[0], Value::string("alice"));
+
+        // Get all by predicate
+        let all_users = store.get_by_predicate("user");
+        assert_eq!(all_users.len(), 3);
+    }
+
+    #[test]
+    fn test_fact_store_add_facts_batch() {
+        let store = FactStore::new();
+
+        let facts = vec![
+            Fact::unary("user", Value::string("alice")),
+            Fact::unary("user", Value::string("bob")),
+            Fact::binary("follows", Value::string("alice"), Value::string("bob")),
+        ];
+
+        store.add_facts(facts);
+
+        assert_eq!(store.len(), 3);
+        assert_eq!(store.get_by_predicate("user").len(), 2);
+        assert_eq!(store.get_by_predicate("follows").len(), 1);
+    }
+
+    #[test]
+    fn test_fact_store_version_tracking() {
+        let store = FactStore::new();
+
+        let initial_version = store.version();
+        assert_eq!(initial_version, 0);
+        assert!(!store.has_changed_since(0));
+
+        // Add a fact should increment version
+        store.add_fact(Fact::unary("user", Value::string("alice")));
+        let v1 = store.version();
+        assert!(v1 > initial_version);
+        assert!(store.has_changed_since(initial_version));
+
+        // Add another fact
+        store.add_fact(Fact::unary("user", Value::string("bob")));
+        let v2 = store.version();
+        assert!(v2 > v1);
+        assert!(store.has_changed_since(v1));
+
+        // Clear should increment version
+        store.clear();
+        let v3 = store.version();
+        assert!(v3 > v2);
+        assert!(store.has_changed_since(v2));
+        assert_eq!(store.len(), 0);
+    }
+
+    #[test]
+    fn test_fact_store_clear() {
+        let store = FactStore::new();
+
+        // Add some facts
+        store.add_fact(Fact::unary("user", Value::string("alice")));
+        store.add_fact(Fact::unary("user", Value::string("bob")));
+        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("bob")));
+
+        assert_eq!(store.len(), 3);
+        assert!(!store.is_empty());
+
+        // Clear the store
+        store.clear();
+
+        assert_eq!(store.len(), 0);
+        assert!(store.is_empty());
+        assert_eq!(store.all_facts().len(), 0);
+        assert_eq!(store.get_by_predicate("user").len(), 0);
+        assert_eq!(store.get_by_predicate("follows").len(), 0);
+    }
+
+    #[test]
+    fn test_fact_snapshot() {
+        let store = FactStore::new();
+
+        // Add initial facts
+        store.add_fact(Fact::unary("user", Value::string("alice")));
+        store.add_fact(Fact::unary("user", Value::string("bob")));
+
+        let initial_version = store.version();
+
+        // Create snapshot
+        let snapshot = FactSnapshot::from_store(&store);
+        assert_eq!(snapshot.facts().len(), 2);
+        assert_eq!(snapshot.version(), initial_version);
+
+        // Add more facts after snapshot
+        store.add_fact(Fact::unary("user", Value::string("charlie")));
+
+        // Snapshot should still have only 2 facts
+        assert_eq!(snapshot.facts().len(), 2);
+        assert_eq!(snapshot.version(), initial_version);
+
+        // Store should have 3 facts with new version
+        assert_eq!(store.len(), 3);
+        assert!(store.version() > initial_version);
+    }
+
+    #[test]
+    fn test_fact_snapshot_consistency() {
+        let store = FactStore::new();
+
+        // Add facts
+        let facts = vec![
+            Fact::unary("user", Value::string("alice")),
+            Fact::unary("admin", Value::string("bob")),
+            Fact::binary("follows", Value::string("alice"), Value::string("bob")),
+        ];
+
+        for fact in &facts {
+            store.add_fact(fact.clone());
+        }
+
+        // Create multiple snapshots
+        let snapshot1 = FactSnapshot::from_store(&store);
+        let snapshot2 = FactSnapshot::from_store(&store);
+
+        // Both snapshots should be identical
+        assert_eq!(snapshot1.facts().len(), snapshot2.facts().len());
+        assert_eq!(snapshot1.version(), snapshot2.version());
+
+        // Verify all facts are present in snapshots
+        for fact in &facts {
+            assert!(snapshot1.facts().iter().any(|f| f == fact));
+            assert!(snapshot2.facts().iter().any(|f| f == fact));
+        }
+    }
+
+    #[test]
+    fn test_fact_store_default() {
+        let store = FactStore::default();
+        assert!(store.is_empty());
+        assert_eq!(store.len(), 0);
+        assert_eq!(store.version(), 0);
+    }
+
+    #[test]
+    fn test_fact_store_complex_queries() {
+        let store = FactStore::new();
+
+        // Add facts with different patterns
+        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("bob")));
+        store.add_fact(Fact::binary("follows", Value::string("bob"), Value::string("charlie")));
+        store.add_fact(Fact::binary("follows", Value::string("alice"), Value::string("charlie")));
+        store.add_fact(Fact::binary("likes", Value::string("alice"), Value::string("coding")));
+
+        // Query: Who follows bob?
+        let pattern1 = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Variable("X".into()),
+                PatternArg::Constant(Value::string("bob"))
+            ],
+        };
+        let results = store.query(&pattern1);
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].args[0], Value::string("alice"));
+
+        // Query: Who does alice follow?
+        let pattern2 = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Constant(Value::string("alice")),
+                PatternArg::Variable("Y".into())
+            ],
+        };
+        let results = store.query(&pattern2);
+        assert_eq!(results.len(), 2); // alice follows bob and charlie
+
+        // Query: All follows relationships
+        let pattern3 = FactPattern {
+            predicate: Arc::from("follows"),
+            args: vec![
+                PatternArg::Variable("X".into()),
+                PatternArg::Variable("Y".into())
+            ],
+        };
+        let results = store.query(&pattern3);
+        assert_eq!(results.len(), 3);
+    }
+
+    #[test]
+    fn test_pattern_arg_equality() {
+        // Test Variable equality
+        let var1 = PatternArg::Variable("X".into());
+        let var2 = PatternArg::Variable("X".into());
+        let var3 = PatternArg::Variable("Y".into());
+
+        assert_eq!(var1, var2);
+        assert_ne!(var1, var3);
+
+        // Test Constant equality
+        let const1 = PatternArg::Constant(Value::string("alice"));
+        let const2 = PatternArg::Constant(Value::string("alice"));
+        let const3 = PatternArg::Constant(Value::string("bob"));
+
+        assert_eq!(const1, const2);
+        assert_ne!(const1, const3);
+
+        // Variable vs Constant
+        assert_ne!(var1, const1);
+    }
+
+    #[test]
+    fn test_fact_pattern_equality() {
+        let pattern1 = FactPattern {
+            predicate: Arc::from("user"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+
+        let pattern2 = FactPattern {
+            predicate: Arc::from("user"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+
+        let pattern3 = FactPattern {
+            predicate: Arc::from("admin"),
+            args: vec![PatternArg::Variable("X".into())],
+        };
+
+        assert_eq!(pattern1, pattern2);
+        assert_ne!(pattern1, pattern3);
+    }
+
+    #[test]
+    fn test_timestamp_ordering() {
+        // Facts should have monotonically increasing timestamps
+        let fact1 = Fact::unary("user", Value::string("alice"));
+        let fact2 = Fact::unary("user", Value::string("bob"));
+        let fact3 = Fact::unary("user", Value::string("charlie"));
+
+        assert!(fact2.timestamp > fact1.timestamp);
+        assert!(fact3.timestamp > fact2.timestamp);
+    }
+
+    #[test]
+    fn test_concurrent_snapshots() {
+        use std::thread;
+
+        let store = Arc::new(FactStore::new());
+
+        // Add initial facts
+        store.add_fact(Fact::unary("initial", Value::Integer(0)));
+
+        let mut handles = vec![];
+
+        // Thread adding facts
+        let store_add = store.clone();
+        handles.push(thread::spawn(move || {
+            for i in 1..=100 {
+                store_add.add_fact(Fact::unary("concurrent", Value::Integer(i)));
+            }
+        }));
+
+        // Thread taking snapshots
+        let store_snap = store.clone();
+        handles.push(thread::spawn(move || {
+            let mut snapshots = vec![];
+            for _ in 0..10 {
+                snapshots.push(FactSnapshot::from_store(&store_snap));
+                thread::sleep(std::time::Duration::from_millis(1));
+            }
+
+            // All snapshots should be valid
+            for snapshot in snapshots {
+                assert!(snapshot.facts().len() >= 1); // At least initial fact
+                assert!(snapshot.version() >= 0);
+            }
+        }));
+
+        // Wait for all threads
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        // Final state should have all facts
+        assert_eq!(store.len(), 101); // 1 initial + 100 concurrent
+    }
 }
