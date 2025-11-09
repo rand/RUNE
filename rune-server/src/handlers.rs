@@ -42,6 +42,17 @@ pub struct DebugParams {
 }
 
 /// Handle authorization request
+#[tracing::instrument(
+    name = "authorize",
+    skip(state, params),
+    fields(
+        principal = %req.principal,
+        action = %req.action,
+        resource = %req.resource,
+        decision = tracing::field::Empty,
+        latency_ms = tracing::field::Empty,
+    )
+)]
 pub async fn authorize(
     State(state): State<AppState>,
     Query(params): Query<DebugParams>,
@@ -51,26 +62,30 @@ pub async fn authorize(
 
     debug!("Authorization request: {:?}", req);
 
-    // Build the request
-    let request = RequestBuilder::new()
-        .principal(parse_principal(&req.principal))
-        .action(Action::new(&req.action))
-        .resource(parse_resource(&req.resource))
-        .build()
-        .map_err(|e| ApiError::BadRequest(format!("Invalid request: {}", e)))?;
+    // Build the request with tracing
+    let request = crate::tracing::trace_parse_request(|| {
+        RequestBuilder::new()
+            .principal(parse_principal(&req.principal))
+            .action(Action::new(&req.action))
+            .resource(parse_resource(&req.resource))
+            .build()
+            .map_err(|e| ApiError::BadRequest(format!("Invalid request: {}", e)))
+    })?;
 
-    // Evaluate authorization
-    let result = state
-        .engine
-        .authorize(&request)
-        .map_err(|e| ApiError::Internal(format!("Authorization failed: {}", e)))?;
+    // Evaluate authorization with tracing
+    let result = crate::tracing::trace_datalog_evaluation(0, || {
+        state
+            .engine
+            .authorize(&request)
+            .map_err(|e| ApiError::Internal(format!("Authorization failed: {}", e)))
+    })?;
 
     let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
 
     // Convert decision
     let decision = result.decision.into();
 
-    // Record metrics
+    // Record metrics and tracing
     let decision_str = match decision {
         Decision::Permit => "permit",
         Decision::Deny => "deny",
@@ -79,12 +94,15 @@ pub async fn authorize(
     metrics::record_authorization(decision_str, elapsed_ms / 1000.0, result.cached);
     metrics::record_rule_evaluations(result.evaluated_rules.len());
 
-    // Build response
-    let mut response = AuthorizeResponse {
+    // Record decision in trace
+    crate::tracing::record_decision(decision_str, elapsed_ms);
+
+    // Build response with tracing
+    let mut response = crate::tracing::trace_format_response(|| AuthorizeResponse {
         decision,
         reasons: vec![result.explanation],
         diagnostics: None,
-    };
+    });
 
     // Add diagnostics if in debug mode
     if state.debug || params.debug {
@@ -107,6 +125,14 @@ pub async fn authorize(
 }
 
 /// Handle batch authorization request
+#[tracing::instrument(
+    name = "batch_authorize",
+    skip(state, params),
+    fields(
+        batch_size = req.requests.len(),
+        latency_ms = tracing::field::Empty,
+    )
+)]
 pub async fn batch_authorize(
     State(state): State<AppState>,
     Query(params): Query<DebugParams>,
@@ -184,8 +210,9 @@ pub async fn batch_authorize(
 
     let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
 
-    // Record batch metrics
+    // Record batch metrics and tracing
     metrics::record_batch_authorization(results.len(), elapsed_ms / 1000.0);
+    tracing::Span::current().record("latency_ms", elapsed_ms);
 
     info!(
         "Batch authorization: {} requests processed in {:.2}ms",

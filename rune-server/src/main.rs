@@ -13,21 +13,31 @@ use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
-use tracing::{info, Level};
-use tracing_subscriber::{EnvFilter, FmtSubscriber};
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Initialize tracing
-    let subscriber = FmtSubscriber::builder()
-        .with_env_filter(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| EnvFilter::new("info,rune=debug")),
-        )
-        .with_max_level(Level::DEBUG)
-        .finish();
+    // Initialize OpenTelemetry tracing
+    let enable_otel = std::env::var("OTEL_ENABLED")
+        .unwrap_or_else(|_| "false".to_string())
+        .parse::<bool>()
+        .unwrap_or(false);
 
-    tracing::subscriber::set_global_default(subscriber)?;
+    if enable_otel {
+        rune_server::tracing::init_tracing_stack("rune-server")?;
+        info!("OpenTelemetry tracing enabled");
+    } else {
+        // Fallback to simple console logging
+        use tracing_subscriber::{EnvFilter, FmtSubscriber};
+        let subscriber = FmtSubscriber::builder()
+            .with_env_filter(
+                EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| EnvFilter::new("info,rune=debug")),
+            )
+            .finish();
+        tracing::subscriber::set_global_default(subscriber)?;
+        info!("Console logging enabled (set OTEL_ENABLED=true for OpenTelemetry)");
+    }
 
     info!("Starting RUNE HTTP Server v{}", env!("CARGO_PKG_VERSION"));
 
@@ -79,10 +89,29 @@ async fn main() -> anyhow::Result<()> {
     // Create the server
     let listener = tokio::net::TcpListener::bind(&addr).await?;
 
-    // Run the server
-    axum::serve(listener, app)
+    // Run the server with graceful shutdown
+    let server = axum::serve(listener, app);
+
+    // Set up shutdown signal handler
+    let shutdown_signal = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install CTRL+C signal handler");
+        info!("Received shutdown signal, shutting down gracefully...");
+    };
+
+    // Run server with graceful shutdown
+    server
+        .with_graceful_shutdown(shutdown_signal)
         .await
         .map_err(|e| anyhow::anyhow!("Server error: {}", e))?;
 
+    // Cleanup OpenTelemetry on shutdown
+    if enable_otel {
+        info!("Flushing OpenTelemetry traces...");
+        rune_server::tracing::shutdown_telemetry();
+    }
+
+    info!("Server shutdown complete");
     Ok(())
 }

@@ -51,9 +51,15 @@ hyper = "1.0"
 
 # Tracing and metrics
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 metrics = "0.21"
 metrics-exporter-prometheus = "0.13"
+
+# OpenTelemetry
+opentelemetry = "0.21"
+opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.14", features = ["tonic", "metrics", "trace"] }
+tracing-opentelemetry = "0.22"
 
 # Testing
 criterion = "0.5"
