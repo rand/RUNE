@@ -528,8 +528,8 @@ mod tests {
             Action::new("read"),
             Resource::file("/data/public.txt"),
         )
-        .with_context("ip_address", Value::String("192.168.1.1".to_string()))
-        .with_context("time", Value::String("2024-01-01T12:00:00Z".to_string()));
+        .with_context("ip_address", Value::string("192.168.1.1"))
+        .with_context("time", Value::string("2024-01-01T12:00:00Z"));
 
         let result = engine.authorize(&request).expect("Authorization failed");
         assert!(!result.cached);
@@ -659,13 +659,10 @@ mod tests {
     #[test]
     fn test_add_fact() {
         let engine = RUNEEngine::new();
-        engine.add_fact("user", vec![Value::String("alice".to_string())]);
+        engine.add_fact("user", vec![Value::string("alice")]);
         engine.add_fact(
             "role",
-            vec![
-                Value::String("alice".to_string()),
-                Value::String("admin".to_string()),
-            ],
+            vec![Value::string("alice"), Value::string("admin")],
         );
 
         // Facts should be in the store (we can't easily verify without exposing the fact store)
@@ -719,7 +716,7 @@ mod tests {
         let engine = RUNEEngine::new();
 
         // Add some facts
-        engine.add_fact("user", vec![Value::String("alice".to_string())]);
+        engine.add_fact("user", vec![Value::string("alice")]);
 
         // Create new rules (empty for this test)
         let new_rules: Vec<Rule> = vec![];
@@ -924,20 +921,8 @@ mod tests {
         let engine = RUNEEngine::new();
 
         // Add some facts
-        engine.add_fact(
-            "has_role",
-            vec![
-                Value::String("alice".to_string()),
-                Value::String("admin".to_string()),
-            ],
-        );
-        engine.add_fact(
-            "has_role",
-            vec![
-                Value::String("bob".to_string()),
-                Value::String("user".to_string()),
-            ],
-        );
+        engine.add_fact("has_role", vec![Value::string("alice"), Value::string("admin")]);
+        engine.add_fact("has_role", vec![Value::string("bob"), Value::string("user")]);
 
         // Authorize a request
         let request = Request::new(
@@ -955,7 +940,7 @@ mod tests {
         let engine = RUNEEngine::new();
 
         // Add facts to trigger permit (Datalog will return non-empty facts)
-        engine.add_fact("allow", vec![Value::String("test".to_string())]);
+        engine.add_fact("allow", vec![Value::string("test")]);
 
         let request = Request::new(
             Principal::agent("test"),
