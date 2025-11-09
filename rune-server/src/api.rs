@@ -91,7 +91,7 @@ pub struct BatchAuthorizeResponse {
 }
 
 /// Health check response
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HealthResponse {
     /// Service status
@@ -111,7 +111,7 @@ pub struct HealthResponse {
 }
 
 /// Health status
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
     /// Service is healthy
