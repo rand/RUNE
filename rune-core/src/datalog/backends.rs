@@ -557,4 +557,249 @@ mod tests {
         test_backend(UnionFindBackend::new());
         test_backend(TrieBackend::new());
     }
+
+    #[test]
+    fn test_vec_backend_with_capacity() {
+        let backend = VecBackend::with_capacity(100);
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_vec_backend_default() {
+        let backend = VecBackend::default();
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_hash_backend_with_capacity() {
+        let mut backend = HashBackend::with_capacity(100);
+        backend.insert(test_fact("test", 1));
+        assert_eq!(backend.len(), 1);
+    }
+
+    #[test]
+    fn test_hash_backend_from_set() {
+        use std::collections::HashSet;
+        let mut set = HashSet::new();
+        set.insert(test_fact("edge", 1));
+        set.insert(test_fact("edge", 2));
+
+        let backend = HashBackend::from_set(set);
+        assert_eq!(backend.len(), 2);
+        assert!(backend.contains(&test_fact("edge", 1)));
+        assert!(backend.contains(&test_fact("edge", 2)));
+    }
+
+    #[test]
+    fn test_hash_backend_default() {
+        let backend = HashBackend::default();
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_unionfind_backend_with_capacity() {
+        let backend = UnionFindBackend::with_capacity(100);
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_unionfind_backend_default() {
+        let backend = UnionFindBackend::default();
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_trie_backend_with_capacity() {
+        let backend = TrieBackend::with_capacity(100);
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_trie_backend_default() {
+        let backend = TrieBackend::default();
+        assert_eq!(backend.len(), 0);
+        assert!(backend.is_empty());
+    }
+
+    #[test]
+    fn test_backend_extend() {
+        let mut backend1 = VecBackend::new();
+        backend1.insert(test_fact("test", 1));
+        backend1.insert(test_fact("test", 2));
+
+        let mut backend2 = VecBackend::new();
+        backend2.insert(test_fact("test", 3));
+        backend2.insert(test_fact("test", 4));
+
+        backend1.extend(&backend2);
+        assert_eq!(backend1.len(), 4);
+        assert!(backend1.contains(&test_fact("test", 3)));
+        assert!(backend1.contains(&test_fact("test", 4)));
+    }
+
+    #[test]
+    fn test_backend_extend_with_duplicates() {
+        let mut backend1 = HashBackend::new();
+        backend1.insert(test_fact("test", 1));
+        backend1.insert(test_fact("test", 2));
+
+        let mut backend2 = HashBackend::new();
+        backend2.insert(test_fact("test", 2)); // Duplicate
+        backend2.insert(test_fact("test", 3));
+
+        backend1.extend(&backend2);
+        assert_eq!(backend1.len(), 3); // Should not add duplicate
+    }
+
+    #[test]
+    fn test_filter_by_predicate_empty() {
+        let backend = VecBackend::new();
+        let facts = backend.filter_by_predicate("nonexistent");
+        assert!(facts.is_empty());
+    }
+
+    #[test]
+    fn test_filter_by_predicate_multiple() {
+        let mut backend = HashBackend::new();
+        backend.insert(test_fact("edge", 1));
+        backend.insert(test_fact("edge", 2));
+        backend.insert(test_fact("node", 3));
+        backend.insert(test_fact("node", 4));
+        backend.insert(test_fact("path", 5));
+
+        let edges = backend.filter_by_predicate("edge");
+        assert_eq!(edges.len(), 2);
+
+        let nodes = backend.filter_by_predicate("node");
+        assert_eq!(nodes.len(), 2);
+
+        let paths = backend.filter_by_predicate("path");
+        assert_eq!(paths.len(), 1);
+    }
+
+    #[test]
+    fn test_trie_backend_predicate_filtering() {
+        let mut backend = TrieBackend::new();
+
+        // Insert facts with different predicates
+        for i in 0..5 {
+            backend.insert(test_fact("pred_a", i));
+        }
+        for i in 5..10 {
+            backend.insert(test_fact("pred_b", i));
+        }
+
+        assert_eq!(backend.len(), 10);
+
+        let pred_a_facts = backend.filter_by_predicate("pred_a");
+        assert_eq!(pred_a_facts.len(), 5);
+
+        let pred_b_facts = backend.filter_by_predicate("pred_b");
+        assert_eq!(pred_b_facts.len(), 5);
+
+        let nonexistent = backend.filter_by_predicate("pred_c");
+        assert_eq!(nonexistent.len(), 0);
+    }
+
+    #[test]
+    fn test_clear_operations() {
+        // Test clear on all backend types
+        let mut vec_backend = VecBackend::new();
+        vec_backend.insert(test_fact("test", 1));
+        vec_backend.clear();
+        assert_eq!(vec_backend.len(), 0);
+
+        let mut hash_backend = HashBackend::new();
+        hash_backend.insert(test_fact("test", 1));
+        hash_backend.clear();
+        assert_eq!(hash_backend.len(), 0);
+
+        let mut unionfind_backend = UnionFindBackend::new();
+        unionfind_backend.insert(test_fact("test", 1));
+        unionfind_backend.clear();
+        assert_eq!(unionfind_backend.len(), 0);
+
+        let mut trie_backend = TrieBackend::new();
+        trie_backend.insert(test_fact("test", 1));
+        trie_backend.clear();
+        assert_eq!(trie_backend.len(), 0);
+    }
+
+    #[test]
+    fn test_backend_selection_edge_cases() {
+        // Test backend selection with various edge cases
+        let backend_type = BackendType::select_for_relation("", 50);
+        assert!(matches!(backend_type, BackendType::Vec));
+
+        let backend_type = BackendType::select_for_relation("complex_path_relation", 10000);
+        assert!(matches!(backend_type, BackendType::UnionFind));
+
+        let backend_type = BackendType::select_for_relation("parent_child_tree", 5000);
+        assert!(matches!(backend_type, BackendType::Trie));
+
+        let backend_type = BackendType::select_for_relation("descendant", 1000);
+        assert!(matches!(backend_type, BackendType::UnionFind));
+
+        let backend_type = BackendType::select_for_relation("prefix_search", 1000);
+        assert!(matches!(backend_type, BackendType::Trie));
+
+        let backend_type = BackendType::select_for_relation("resource_hierarchy", 1000);
+        assert!(matches!(backend_type, BackendType::Trie));
+    }
+
+    #[test]
+    fn test_large_dataset() {
+        // Test with larger dataset to ensure performance
+        let mut backend = HashBackend::new();
+
+        // Insert 1000 facts
+        for i in 0..1000 {
+            backend.insert(test_fact("large", i));
+        }
+
+        assert_eq!(backend.len(), 1000);
+
+        // Test contains on various facts
+        assert!(backend.contains(&test_fact("large", 0)));
+        assert!(backend.contains(&test_fact("large", 500)));
+        assert!(backend.contains(&test_fact("large", 999)));
+        assert!(!backend.contains(&test_fact("large", 1000)));
+    }
+
+    #[test]
+    fn test_vec_backend_iteration_order() {
+        let mut backend = VecBackend::new();
+
+        // Insert facts in specific order
+        backend.insert(test_fact("test", 3));
+        backend.insert(test_fact("test", 1));
+        backend.insert(test_fact("test", 2));
+
+        let facts = backend.iter();
+        assert_eq!(facts.len(), 3);
+        // VecBackend should preserve insertion order
+        assert_eq!(facts[0], test_fact("test", 3));
+        assert_eq!(facts[1], test_fact("test", 1));
+        assert_eq!(facts[2], test_fact("test", 2));
+    }
+
+    #[test]
+    fn test_clone_backends() {
+        // Test that cloning works correctly for all backends
+        let mut original = VecBackend::new();
+        original.insert(test_fact("test", 1));
+
+        let mut cloned = original.clone();
+        cloned.insert(test_fact("test", 2));
+
+        // Original should not be affected
+        assert_eq!(original.len(), 1);
+        assert_eq!(cloned.len(), 2);
+    }
 }
