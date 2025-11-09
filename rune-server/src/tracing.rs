@@ -181,3 +181,252 @@ where
 {
     f()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+    use std::sync::Mutex;
+    use tracing::subscriber::with_default;
+    use tracing_subscriber::layer::SubscriberExt;
+    use tracing_subscriber::Registry;
+
+    #[test]
+    fn test_get_sampler_always_on() {
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "1.0");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOn));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_always_off() {
+        // Clear any existing value first
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "0.0");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOff));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_ratio_based() {
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "0.5");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::TraceIdRatioBased(_)));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_invalid_value() {
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "invalid");
+        let sampler = get_sampler();
+        // Should default to AlwaysOn when parse fails
+        assert!(matches!(sampler, Sampler::AlwaysOn));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_greater_than_one() {
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "2.0");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOn));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_negative() {
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "-0.5");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOff));
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+
+    #[test]
+    fn test_get_sampler_no_env() {
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+        let sampler = get_sampler();
+        // Should default to AlwaysOn (1.0)
+        assert!(matches!(sampler, Sampler::AlwaysOn));
+    }
+
+    #[test]
+    fn test_shutdown_telemetry() {
+        // This should not panic
+        shutdown_telemetry();
+    }
+
+    #[test]
+    fn test_create_authorization_span() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let span = create_authorization_span("user123", "read", "/data/file.txt");
+
+            // Verify span is created with correct name
+            assert_eq!(span.metadata().unwrap().name(), "authorize_request");
+
+            // Enter the span to test it
+            let _guard = span.enter();
+        });
+    }
+
+    #[test]
+    fn test_record_decision() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let span = tracing::info_span!("test_span");
+            let _guard = span.enter();
+
+            // Should not panic
+            record_decision("PERMIT", 12.5);
+        });
+    }
+
+    #[test]
+    fn test_record_error() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let span = tracing::info_span!("test_span");
+            let _guard = span.enter();
+
+            // Should not panic
+            record_error("Authorization failed");
+        });
+    }
+
+    #[test]
+    fn test_trace_datalog_evaluation() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let result = trace_datalog_evaluation(10, || {
+                // Simulate some evaluation
+                42
+            });
+            assert_eq!(result, 42);
+        });
+    }
+
+    #[test]
+    fn test_trace_cedar_evaluation() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let result = trace_cedar_evaluation(5, || {
+                // Simulate some evaluation
+                "allowed"
+            });
+            assert_eq!(result, "allowed");
+        });
+    }
+
+    #[test]
+    fn test_trace_parse_request() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let result = trace_parse_request(|| {
+                // Simulate parsing
+                Ok::<_, &str>("parsed")
+            });
+            assert_eq!(result, Ok("parsed"));
+        });
+    }
+
+    #[test]
+    fn test_trace_format_response() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let result = trace_format_response(|| {
+                // Simulate formatting
+                "{\"status\": \"ok\"}"
+            });
+            assert_eq!(result, "{\"status\": \"ok\"}");
+        });
+    }
+
+    #[tokio::test]
+    async fn test_trace_cache_lookup() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            async {
+                let result = trace_cache_lookup(async {
+                    // Simulate cache lookup
+                    Some("cached_value")
+                }).await;
+                assert_eq!(result, Some("cached_value"));
+            }
+        }).await;
+    }
+
+    #[test]
+    fn test_trace_datalog_evaluation_with_error() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let result = trace_datalog_evaluation(0, || {
+                // Simulate evaluation that returns error
+                Err::<(), _>("no rules")
+            });
+            assert_eq!(result, Err("no rules"));
+        });
+    }
+
+    #[test]
+    fn test_trace_cedar_evaluation_with_policies() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let policies_evaluated = Arc::new(Mutex::new(false));
+            let policies_evaluated_clone = policies_evaluated.clone();
+
+            let result = trace_cedar_evaluation(3, || {
+                *policies_evaluated_clone.lock().unwrap() = true;
+                "decision"
+            });
+
+            assert_eq!(result, "decision");
+            assert!(*policies_evaluated.lock().unwrap());
+        });
+    }
+
+    #[test]
+    fn test_multiple_span_operations() {
+        let subscriber = Registry::default();
+        with_default(subscriber, || {
+            let span = create_authorization_span("admin", "delete", "/users/123");
+            let _guard = span.enter();
+
+            // Record multiple operations
+            record_decision("DENY", 5.2);
+            record_error("Insufficient permissions");
+
+            // Nested trace operations
+            let parse_result = trace_parse_request(|| "parsed");
+            let format_result = trace_format_response(|| "formatted");
+
+            assert_eq!(parse_result, "parsed");
+            assert_eq!(format_result, "formatted");
+        });
+    }
+
+    #[test]
+    fn test_get_sampler_boundary_values() {
+        // Test exact boundary of 0.0
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "0.0");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOff));
+
+        // Test exact boundary of 1.0
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "1.0");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::AlwaysOn));
+
+        // Test just below 1.0
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "0.999");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::TraceIdRatioBased(_)));
+
+        // Test just above 0.0
+        std::env::set_var("OTEL_TRACES_SAMPLER_ARG", "0.001");
+        let sampler = get_sampler();
+        assert!(matches!(sampler, Sampler::TraceIdRatioBased(_)));
+
+        std::env::remove_var("OTEL_TRACES_SAMPLER_ARG");
+    }
+}
