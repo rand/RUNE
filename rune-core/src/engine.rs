@@ -613,27 +613,39 @@ mod tests {
         let engine = RUNEEngine::new();
 
         let request1 = Request::new(
-            Principal::agent("eve"),
+            Principal::agent("eve_metrics"),
             Action::new("read"),
-            Resource::file("/data/file1.txt"),
+            Resource::file("/data/file1_metrics.txt"),
         );
         let request2 = Request::new(
-            Principal::agent("frank"),
+            Principal::agent("frank_metrics"),
             Action::new("read"),
-            Resource::file("/data/file2.txt"),
+            Resource::file("/data/file2_metrics.txt"),
         );
 
         // Perform some authorizations
-        engine.authorize(&request1).expect("Authorization failed");
-        engine.authorize(&request1).expect("Authorization failed"); // Cache hit
-        engine.authorize(&request2).expect("Authorization failed");
+        let result1 = engine.authorize(&request1).expect("Authorization failed");
+        assert!(!result1.cached); // First request should not be cached
 
-        // Check metrics (get fresh metrics reference after authorizations)
+        let result2 = engine.authorize(&request1).expect("Authorization failed");
+        assert!(result2.cached); // Second identical request should be cached
+
+        let result3 = engine.authorize(&request2).expect("Authorization failed");
+        assert!(!result3.cached); // Different request should not be cached
+
+        // Check metrics
         let metrics = engine.metrics();
         use std::sync::atomic::Ordering;
-        assert_eq!(metrics.cache_hits.load(Ordering::Relaxed), 1);
-        assert_eq!(metrics.cache_misses.load(Ordering::Relaxed), 2);
-        assert_eq!(metrics.total_authorizations.load(Ordering::Relaxed), 3);
+
+        // Cache hits and misses
+        let hits = metrics.cache_hits.load(Ordering::Relaxed);
+        let misses = metrics.cache_misses.load(Ordering::Relaxed);
+        assert_eq!(hits, 1, "Expected 1 cache hit");
+        assert_eq!(misses, 2, "Expected 2 cache misses");
+
+        // Total authorizations only counts non-cached evaluations (cache misses)
+        let total = metrics.total_authorizations.load(Ordering::Relaxed);
+        assert_eq!(total, 2, "Expected 2 total authorizations (only cache misses are evaluated)");
     }
 
     #[test]
