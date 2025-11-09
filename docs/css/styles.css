@@ -260,31 +260,6 @@ body.dark-theme .theme-toggle-icon::before {
     line-height: 1.5;
 }
 
-.sidebar-status {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
-}
-
-.status-glyph {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-}
-
-.status-glyph::before {
-    content: "ℹ";  /* Info icon */
-    color: var(--accent);
-    font-size: 1rem;
-}
-
-.status-message {
-    flex: 1;
-}
 
 /* Paper Header */
 .paper-header {
