@@ -195,7 +195,6 @@ impl Evaluator {
                     fact_vec.iter().collect()
                 };
 
-
                 // Positive atom: find all unifications
                 for sub in current_subs {
                     let partial_atom = body_atom.apply_substitution(&sub);
