@@ -120,21 +120,18 @@ body {
 }
 
 .logo-glyph {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 1.5em;
-    height: 1.5em;
-    position: relative;
+    line-height: 1;
 }
 
 .logo-glyph::before {
     content: "ᚱ";  /* Runic letter Raido (R) */
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     line-height: 1;
     color: var(--accent);
-    position: relative;
-    top: 0.05em;  /* Fine-tune vertical alignment */
+    display: block;
 }
 
 .theme-toggle {
