@@ -1,7 +1,7 @@
 // Dynamic sidebar content based on scroll position
 (function() {
-    // Section-specific comments
-    const sectionComments = {
+    // Section-specific comments for index page
+    const indexComments = {
         'abstract': '// Autonomous agents need safe boundaries',
         'key-features': '// <1ms latency • 5M+ ops/sec',
         'architecture': '// Dual-engine: Datalog + Cedar',
@@ -9,28 +9,60 @@
         'getting-started': '// Quick start guide'
     };
 
+    // Section-specific comments for whitepaper
+    const whitepaperComments = {
+        'abstract': '// The agent authorization challenge',
+        'table-of-contents': '// Whitepaper structure',
+        '1-introduction': '// Problem space & RUNE approach',
+        '2-background-and-motivation': '// Why existing solutions fall short',
+        '3-system-design': '// Core concepts & architecture',
+        '4-architecture': '// Dual-engine implementation',
+        '5-implementation': '// Technology stack & details',
+        '6-performance-evaluation': '// Benchmarks: 5M+ ops/sec',
+        '7-workflows-and-use-cases': '// Production scenarios',
+        '8-lessons-learned': '// Design insights & tradeoffs',
+        '9-related-work': '// Comparison to alternatives',
+        '10-future-work': '// Roadmap & planned features',
+        '11-conclusion': '// Summary & next steps'
+    };
+
+    // Detect which page we're on and use appropriate comments
+    function getSectionComments() {
+        if (window.location.pathname.includes('whitepaper')) {
+            return whitepaperComments;
+        } else if (window.location.pathname.includes('agent-guide')) {
+            return {}; // Agent guide uses static message
+        }
+        return indexComments;
+    }
+
     function updateSidebarContent() {
         const sidebar = document.querySelector('.sidebar-tagline');
         if (!sidebar) return;
 
-        // Get all sections
-        const sections = document.querySelectorAll('section[id]');
+        const sectionComments = getSectionComments();
+
+        // Get all sections (both section[id] and h2[id])
+        const sections = [...document.querySelectorAll('section[id], h2[id]')];
         const scrollPosition = window.scrollY + window.innerHeight / 3;
 
         // Find the current section
         let currentSection = null;
-        sections.forEach(section => {
-            const top = section.offsetTop;
-            const bottom = top + section.offsetHeight;
+        sections.forEach(element => {
+            const top = element.offsetTop;
+            const bottom = top + element.offsetHeight;
 
             if (scrollPosition >= top && scrollPosition <= bottom) {
-                currentSection = section.id;
+                currentSection = element.id;
             }
         });
 
         // Update sidebar content
         if (currentSection && sectionComments[currentSection]) {
             sidebar.textContent = sectionComments[currentSection];
+        } else if (Object.keys(sectionComments).length === 0) {
+            // Keep static message for pages without dynamic content
+            return;
         } else {
             sidebar.textContent = '// High-Performance Authorization';
         }
