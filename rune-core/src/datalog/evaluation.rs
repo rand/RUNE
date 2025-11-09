@@ -64,6 +64,10 @@ impl Evaluator {
                 }
             }
 
+            // Add facts from the fact store (base facts for this stratum)
+            let fact_store_facts = self.fact_store.all_facts();
+            accumulated.extend(fact_store_facts.iter().cloned());
+
             // Start with facts as initial delta
             let mut delta: HashSet<Fact> =
                 accumulated.difference(&all_accumulated).cloned().collect();

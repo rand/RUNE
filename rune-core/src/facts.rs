@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 /// A fact in the system
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Fact {
     /// Fact name/predicate
     pub predicate: Arc<str>,
@@ -18,6 +18,23 @@ pub struct Fact {
     pub args: Arc<[Value]>,
     /// Fact timestamp (for temporal reasoning)
     pub timestamp: u64,
+}
+
+// Custom equality that ignores timestamp (facts are logically equal if predicate and args match)
+impl PartialEq for Fact {
+    fn eq(&self, other: &Self) -> bool {
+        self.predicate == other.predicate && self.args == other.args
+    }
+}
+
+impl Eq for Fact {}
+
+// Custom hash that ignores timestamp
+impl std::hash::Hash for Fact {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.predicate.hash(state);
+        self.args.hash(state);
+    }
 }
 
 impl Fact {
