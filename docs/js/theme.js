@@ -16,32 +16,45 @@
 
     // Update SVG diagrams based on theme
     function updateDiagrams(theme) {
+        // Update all img tags that reference SVG diagrams
+        const images = document.querySelectorAll('img[src*=".svg"]');
+        images.forEach(img => {
+            const currentSrc = img.getAttribute('src');
+            if (!currentSrc) return;
+
+            // Extract base path by removing any existing -light or -dark suffix
+            let basePath = currentSrc.replace(/-light\.svg$/, '.svg').replace(/-dark\.svg$/, '.svg');
+
+            // Construct the new themed path
+            const themedPath = basePath.replace(/\.svg$/, theme === 'dark' ? '-dark.svg' : '-light.svg');
+
+            // Only update if the new path is different
+            if (currentSrc !== themedPath) {
+                img.setAttribute('src', themedPath);
+            }
+        });
+
+        // Also handle picture elements if they exist
         const pictures = document.querySelectorAll('picture');
         pictures.forEach(picture => {
             const sources = picture.querySelectorAll('source');
             const img = picture.querySelector('img');
 
+            // Update source elements to match current theme
             sources.forEach(source => {
                 const media = source.getAttribute('media');
-                // Hide/show sources based on theme
-                if (theme === 'dark' && media === '(prefers-color-scheme: dark)') {
-                    source.disabled = false;
-                } else if (theme === 'light' && media === '(prefers-color-scheme: dark)') {
-                    source.disabled = true;
+                if (media && media.includes('prefers-color-scheme')) {
+                    // Disable sources that don't match current theme
+                    const isDarkSource = media.includes('dark');
+                    source.disabled = (theme === 'dark') ? !isDarkSource : isDarkSource;
                 }
             });
 
-            // Update img src directly for theme
-            if (img) {
-                const srcPath = img.src || img.getAttribute('src');
-                if (srcPath) {
-                    const basePath = srcPath.replace(/-light\.svg$/, '.svg').replace(/-dark\.svg$/, '.svg');
-                    const newSrc = basePath.replace(/\.svg$/, theme === 'dark' ? '-dark.svg' : '-light.svg');
-
-                    // Check if themed version exists, otherwise use base
-                    const testSrc = newSrc.includes('-light.svg') || newSrc.includes('-dark.svg') ? newSrc : srcPath;
-                    img.src = testSrc;
-                }
+            // Force picture element to re-evaluate sources
+            if (img && img.src) {
+                const currentSrc = img.src;
+                img.src = '';
+                img.src = currentSrc;
             }
         });
     }
