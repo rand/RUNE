@@ -291,8 +291,14 @@ mod tests {
         let atom = parse_atom("edge(1, 2)", false).unwrap();
         assert_eq!(atom.predicate.as_ref(), "edge");
         assert_eq!(atom.terms.len(), 2);
-        assert!(matches!(atom.terms[0], DatalogTerm::Constant(Value::Integer(1))));
-        assert!(matches!(atom.terms[1], DatalogTerm::Constant(Value::Integer(2))));
+        assert!(matches!(
+            atom.terms[0],
+            DatalogTerm::Constant(Value::Integer(1))
+        ));
+        assert!(matches!(
+            atom.terms[1],
+            DatalogTerm::Constant(Value::Integer(2))
+        ));
     }
 
     #[test]

@@ -497,11 +497,7 @@ mod tests {
         backend.insert(Fact::binary("path", Value::Integer(2), Value::Integer(3)));
 
         assert_eq!(backend.len(), 2);
-        assert!(backend.contains(&Fact::binary(
-            "path",
-            Value::Integer(1),
-            Value::Integer(2)
-        )));
+        assert!(backend.contains(&Fact::binary("path", Value::Integer(1), Value::Integer(2))));
     }
 
     #[test]

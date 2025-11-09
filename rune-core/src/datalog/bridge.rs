@@ -252,9 +252,7 @@ mod tests {
             .with_attribute("role", Value::string("admin"))
             .with_attribute("department", Value::string("engineering"));
 
-        let principal = Principal {
-            entity: principal,
-        };
+        let principal = Principal { entity: principal };
 
         let facts = CedarDatalogBridge::principal_to_facts(&principal);
 
@@ -280,9 +278,7 @@ mod tests {
             .with_attribute("owner", Value::string("alice"))
             .with_attribute("confidential", Value::Bool(true));
 
-        let resource = Resource {
-            entity: resource,
-        };
+        let resource = Resource { entity: resource };
 
         let facts = CedarDatalogBridge::resource_to_facts(&resource);
 
@@ -329,14 +325,11 @@ mod tests {
 
     #[test]
     fn test_hierarchical_entities() {
-        let parent = Entity::new("Group", "admins")
-            .with_attribute("level", Value::Integer(10));
+        let parent = Entity::new("Group", "admins").with_attribute("level", Value::Integer(10));
 
         let principal = Principal::user("alice").entity.with_parent(parent);
 
-        let principal = Principal {
-            entity: principal,
-        };
+        let principal = Principal { entity: principal };
 
         let facts = CedarDatalogBridge::principal_to_facts(&principal);
 
