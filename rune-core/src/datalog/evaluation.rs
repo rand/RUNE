@@ -170,21 +170,15 @@ impl Evaluator {
         for (index, body_atom) in rule.body.iter().enumerate() {
             let mut next_subs = Vec::new();
 
-            // Choose fact source based on whether this is the delta index
-            let fact_source: Vec<_> = if index == delta_index {
-                delta.iter().collect()
-            } else {
-                fact_vec.iter().collect()
-            };
-
             // Handle negation
             if body_atom.negated {
-                // For negated atoms, keep substitutions that DON'T unify
+                // For negated atoms, check against ALL facts (not just delta/accumulated)
+                // This ensures negation is checked against the complete knowledge base
                 for sub in current_subs {
                     let grounded = body_atom.apply_substitution(&sub);
 
                     // Check if any fact unifies with this grounded atom
-                    let has_match = fact_source
+                    let has_match = fact_vec
                         .iter()
                         .any(|fact| unify_atom_with_fact(&grounded, fact).is_some());
 
@@ -194,6 +188,14 @@ impl Evaluator {
                     }
                 }
             } else {
+                // Choose fact source based on whether this is the delta index
+                let fact_source: Vec<_> = if index == delta_index {
+                    delta.iter().collect()
+                } else {
+                    fact_vec.iter().collect()
+                };
+
+
                 // Positive atom: find all unifications
                 for sub in current_subs {
                     let partial_atom = body_atom.apply_substitution(&sub);
