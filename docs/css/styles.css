@@ -129,10 +129,8 @@ body {
 }
 
 .logo-glyph::before {
-    content: "\f6e3";  /* Rune symbol from Font Awesome */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 1.125rem;
+    content: "ᚱ";  /* Runic letter Raido (R) */
+    font-size: 1.25rem;
     line-height: 1;
     background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3), var(--gradient-5));
     -webkit-background-clip: text;
