@@ -97,6 +97,7 @@ RUNE includes a custom-built Datalog evaluation engine designed specifically for
 - **Semi-naive evaluation**: Efficient fixpoint computation with delta tracking
 - **Stratified negation**: Safe handling of negation in rules
 - **Aggregation support**: count, sum, min, max, mean operations
+- **BYODS relation backends**: Optimized storage (Vector, HashMap, UnionFind, Trie)
 - **Lock-free concurrent reads**: Arc-based zero-copy fact access
 - **Hot-reload ready**: Interpreted rules enable runtime policy updates
 
@@ -128,8 +129,9 @@ allowed(User) :-
 Existing Rust Datalog crates (datafrog, ascent, crepe) use compile-time code generation which prevents runtime policy updates. RUNE's custom engine provides:
 1. Runtime interpretation for hot-reload capability
 2. Lock-free Arc-based reads for maximum concurrency
-3. Tight integration with Cedar authorization
-4. Sub-millisecond latency guarantees
+3. BYODS (Bring Your Own Data Structures) for optimized relation storage
+4. Tight integration with Cedar authorization
+5. Sub-millisecond latency guarantees
 
 See `examples/datalog_*.rune` for detailed examples.
 
@@ -151,15 +153,20 @@ RUNE integrates with major AI frameworks:
 - ✅ Basic parser for RUNE files (TOML data section)
 - ✅ Python bindings structure (disabled, awaiting v0.4.0)
 
-### v0.2.0 (In Progress - 60% Complete)
+### v0.2.0 (In Progress - 75% Complete)
 - ✅ **Custom Datalog evaluation engine**
   - ✅ Semi-naive bottom-up evaluation
   - ✅ Stratified negation support
   - ✅ Aggregation operations (count, sum, min, max, mean)
   - ✅ Lock-free concurrent reads
   - ✅ Hot-reload ready architecture
-  - ✅ 20 passing tests
-- 🚧 BYODS relation backends (Vector, HashMap, UnionFind, TrieMap)
+  - ✅ 26 passing Datalog tests
+- ✅ **BYODS relation backends**
+  - ✅ VecBackend for small relations
+  - ✅ HashBackend for general-purpose storage
+  - ✅ UnionFindBackend foundation (future optimization)
+  - ✅ TrieBackend foundation (future optimization)
+  - ✅ Automatic backend selection heuristics
 - 🚧 Datalog rule parser (syntax designed, parser pending)
 - 🚧 Cedar entity to Datalog fact bridge
 
