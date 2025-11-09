@@ -24,6 +24,8 @@ dashmap = "5.5"
 rayon = "1.8"
 parking_lot = "0.12"
 ahash = "0.8"
+arc-swap = "1.7"
+notify = "6.1"
 
 # Cedar integration
 cedar-policy = "3.1"
