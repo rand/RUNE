@@ -18,7 +18,6 @@ fn test_end_to_end_role_based_access() {
 
     let rules = parse_rules(rules_source).expect("Failed to parse rules");
     assert_eq!(rules.len(), 1);
-    eprintln!("DEBUG: Parsed rules: {:?}", rules);
 
     // Create fact store with base facts
     let fact_store = Arc::new(FactStore::new());
@@ -44,18 +43,14 @@ fn test_end_to_end_role_based_access() {
     ));
 
     // Create Datalog engine and derive facts
-    eprintln!("DEBUG: Facts in store: {:?}", fact_store.all_facts());
     let engine = DatalogEngine::new(rules, fact_store);
     let derived = engine.derive_facts().expect("Failed to derive facts");
-    eprintln!("DEBUG: Total derived facts: {}", derived.len());
-    eprintln!("DEBUG: Derived facts: {:?}", derived);
 
     // Should derive user_can facts
     let user_can_facts: Vec<_> = derived
         .iter()
         .filter(|f| f.predicate.as_ref() == "user_can")
         .collect();
-    eprintln!("DEBUG: user_can facts: {}", user_can_facts.len());
 
     // alice should have read and write permissions
     // bob should have read permission
