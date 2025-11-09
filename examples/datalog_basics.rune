@@ -1,0 +1,61 @@
+# Basic Datalog Examples for RUNE
+#
+# This file demonstrates basic Datalog rule syntax and evaluation.
+# Note: Parser integration is pending (RUNE-cpu), so these examples
+# show the intended syntax rather than currently-working code.
+
+[metadata]
+name = "datalog_basics"
+version = "0.1.0"
+description = "Basic Datalog examples demonstrating facts and rules"
+
+# Base facts (data section)
+[data]
+# User facts
+user = [
+    ["alice"],
+    ["bob"],
+    ["charlie"],
+]
+
+# Role assignments
+has_role = [
+    ["alice", "admin"],
+    ["bob", "developer"],
+    ["charlie", "developer"],
+]
+
+# Permission assignments to roles
+role_permission = [
+    ["admin", "read"],
+    ["admin", "write"],
+    ["admin", "delete"],
+    ["developer", "read"],
+    ["developer", "write"],
+]
+
+# Datalog rules (pending parser implementation)
+[rules]
+# Derive user permissions from roles
+# user_can(User, Permission) :- has_role(User, Role), role_permission(Role, Permission).
+
+# Example: alice has admin role
+# admin role has read, write, delete permissions
+# Therefore: alice can read, write, delete
+
+# Transitive closure example
+# ancestor(X, Y) :- parent(X, Y).
+# ancestor(X, Z) :- parent(X, Y), ancestor(Y, Z).
+
+[cedar_policies]
+# Cedar policies work with derived Datalog facts
+permit(
+    principal,
+    action == Action::"file:read",
+    resource
+)
+when {
+    # Would check: user_can(principal, "read")
+    principal.roles.contains("admin") ||
+    principal.roles.contains("developer")
+};

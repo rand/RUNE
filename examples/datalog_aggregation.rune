@@ -1,0 +1,111 @@
+# Aggregation and Negation in Datalog
+#
+# Demonstrates aggregation operations (count, sum, min, max, mean)
+# and stratified negation for complex authorization rules.
+
+[metadata]
+name = "datalog_aggregation"
+version = "0.1.0"
+description = "Aggregation and negation examples"
+
+[data]
+# API usage tracking
+api_call = [
+    ["alice", "2025-01-01", 100],
+    ["alice", "2025-01-02", 150],
+    ["alice", "2025-01-03", 200],
+    ["bob", "2025-01-01", 50],
+    ["bob", "2025-01-02", 75],
+    ["charlie", "2025-01-01", 500],
+    ["charlie", "2025-01-02", 600],
+]
+
+# Rate limits by user tier
+rate_limit = [
+    ["free", 100],
+    ["pro", 500],
+    ["enterprise", 10000],
+]
+
+# User tiers
+user_tier = [
+    ["alice", "free"],
+    ["bob", "free"],
+    ["charlie", "enterprise"],
+]
+
+# Blocked users
+blocked = [
+    ["eve"],
+]
+
+# Datalog rules for aggregation and rate limiting
+[rules]
+# Count total API calls per user
+# total_calls(User, Count) :- count(Calls, api_call(User, _, Calls)).
+
+# Sum total API usage per user
+# total_usage(User, Total) :- sum(Calls, api_call(User, _, Calls)).
+
+# Get user's rate limit
+# user_limit(User, Limit) :-
+#     user_tier(User, Tier),
+#     rate_limit(Tier, Limit).
+
+# Check if user is over limit
+# over_limit(User) :-
+#     total_usage(User, Usage),
+#     user_limit(User, Limit),
+#     Usage > Limit.
+
+# Check if user is allowed (not blocked and not over limit)
+# allowed(User) :-
+#     user(User),
+#     not blocked(User),
+#     not over_limit(User).
+
+# Stratification for negation:
+# Stratum 0: base facts (api_call, rate_limit, user_tier, blocked)
+# Stratum 1: derived facts (total_calls, total_usage, user_limit)
+# Stratum 2: over_limit (depends on stratum 1)
+# Stratum 3: allowed (depends on stratum 0 and 2, uses negation)
+
+# Examples of what would be derived:
+# - alice: total_usage = 450, limit = 100, over_limit = true, allowed = false
+# - bob: total_usage = 125, limit = 100, over_limit = true, allowed = false
+# - charlie: total_usage = 1100, limit = 10000, over_limit = false, allowed = true
+# - eve: blocked = true, allowed = false
+
+[cedar_policies]
+permit(
+    principal,
+    action == Action::"api:call",
+    resource
+)
+when {
+    # Check if user is allowed (derived from Datalog)
+    # allowed(principal.id)
+    context.datalog.allowed.contains([principal.id])
+};
+
+# Deny if user is over limit
+forbid(
+    principal,
+    action == Action::"api:call",
+    resource
+)
+when {
+    # over_limit(principal.id)
+    context.datalog.over_limit.contains([principal.id])
+};
+
+# Deny if user is blocked
+forbid(
+    principal,
+    action,
+    resource
+)
+when {
+    # blocked(principal.id)
+    context.datalog.blocked.contains([principal.id])
+};

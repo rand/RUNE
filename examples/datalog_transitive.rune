@@ -1,0 +1,59 @@
+# Transitive Permissions with Datalog
+#
+# Demonstrates transitive closure for hierarchical permissions
+# and resource ownership chains.
+
+[metadata]
+name = "datalog_transitive"
+version = "0.1.0"
+description = "Transitive permission derivation example"
+
+[data]
+# Direct parent-child relationships in resource hierarchy
+parent_resource = [
+    ["/projects", "/"],
+    ["/projects/alpha", "/projects"],
+    ["/projects/alpha/docs", "/projects/alpha"],
+    ["/projects/alpha/docs/secret.txt", "/projects/alpha/docs"],
+    ["/projects/beta", "/projects"],
+]
+
+# Direct permissions
+can_access = [
+    ["alice", "/projects"],
+    ["bob", "/projects/alpha"],
+    ["charlie", "/projects/beta"],
+]
+
+# Datalog rules for transitive permissions
+[rules]
+# Base case: direct access
+# has_access(User, Resource) :- can_access(User, Resource).
+
+# Recursive case: access to parent grants access to children
+# has_access(User, Child) :-
+#     has_access(User, Parent),
+#     parent_resource(Child, Parent).
+
+# This means:
+# - alice can access /projects
+# - Therefore alice can access /projects/alpha, /projects/beta
+# - Therefore alice can access /projects/alpha/docs
+# - Therefore alice can access /projects/alpha/docs/secret.txt
+#
+# - bob can access /projects/alpha
+# - Therefore bob can access /projects/alpha/docs
+# - Therefore bob can access /projects/alpha/docs/secret.txt
+# - But bob CANNOT access /projects/beta
+
+[cedar_policies]
+permit(
+    principal,
+    action == Action::"read",
+    resource
+)
+when {
+    # Check derived has_access fact
+    # has_access(principal.id, resource.path)
+    context.datalog.has_access.contains([principal.id, resource.path])
+};
