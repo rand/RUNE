@@ -5,7 +5,7 @@
 //! capabilities to update rules and policies without downtime.
 
 use crate::engine::RUNEEngine;
-use crate::error::{Result, RUNEError};
+use crate::error::{RUNEError, Result};
 use crate::parser::parse_rune_file;
 use crate::policy::PolicySet;
 use crate::watcher::{EventDebouncer, RUNEWatcher};

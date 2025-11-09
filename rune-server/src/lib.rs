@@ -11,5 +11,5 @@ pub mod state;
 pub mod tracing;
 
 pub use api::{AuthorizeRequest, AuthorizeResponse, HealthResponse};
-pub use state::AppState;
 pub use error::{ApiError, ApiResult};
+pub use state::AppState;

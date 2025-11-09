@@ -1,32 +1,65 @@
 //! Prometheus metrics collection for RUNE server
 
-use metrics::{counter, gauge, histogram, describe_counter, describe_histogram, describe_gauge};
+use metrics::{counter, describe_counter, describe_gauge, describe_histogram, gauge, histogram};
 use std::time::Instant;
 
 /// Initialize all metric descriptions
 pub fn init_metrics() {
     // Counters
-    describe_counter!("rune_authorization_requests_total", "Total number of authorization requests");
+    describe_counter!(
+        "rune_authorization_requests_total",
+        "Total number of authorization requests"
+    );
     describe_counter!("rune_cache_hits_total", "Total number of cache hits");
     describe_counter!("rune_cache_misses_total", "Total number of cache misses");
-    describe_counter!("rune_rule_evaluations_total", "Total number of rule evaluations");
-    describe_counter!("rune_policy_evaluations_total", "Total number of policy evaluations");
-    describe_counter!("rune_reload_events_total", "Total number of configuration reload events");
+    describe_counter!(
+        "rune_rule_evaluations_total",
+        "Total number of rule evaluations"
+    );
+    describe_counter!(
+        "rune_policy_evaluations_total",
+        "Total number of policy evaluations"
+    );
+    describe_counter!(
+        "rune_reload_events_total",
+        "Total number of configuration reload events"
+    );
     describe_counter!("rune_errors_total", "Total number of errors");
 
     // Histograms
-    describe_histogram!("rune_authorization_latency_seconds", "Authorization request latency in seconds");
-    describe_histogram!("rune_datalog_evaluation_latency_seconds", "Datalog evaluation latency in seconds");
-    describe_histogram!("rune_cedar_evaluation_latency_seconds", "Cedar evaluation latency in seconds");
-    describe_histogram!("rune_cache_lookup_latency_seconds", "Cache lookup latency in seconds");
+    describe_histogram!(
+        "rune_authorization_latency_seconds",
+        "Authorization request latency in seconds"
+    );
+    describe_histogram!(
+        "rune_datalog_evaluation_latency_seconds",
+        "Datalog evaluation latency in seconds"
+    );
+    describe_histogram!(
+        "rune_cedar_evaluation_latency_seconds",
+        "Cedar evaluation latency in seconds"
+    );
+    describe_histogram!(
+        "rune_cache_lookup_latency_seconds",
+        "Cache lookup latency in seconds"
+    );
     describe_histogram!("rune_batch_size", "Batch authorization request size");
 
     // Gauges
     describe_gauge!("rune_loaded_rules_count", "Number of loaded Datalog rules");
-    describe_gauge!("rune_loaded_policies_count", "Number of loaded Cedar policies");
+    describe_gauge!(
+        "rune_loaded_policies_count",
+        "Number of loaded Cedar policies"
+    );
     describe_gauge!("rune_cache_size_bytes", "Cache size in bytes");
-    describe_gauge!("rune_fact_store_entries", "Number of entries in the fact store");
-    describe_gauge!("rune_active_connections", "Number of active HTTP connections");
+    describe_gauge!(
+        "rune_fact_store_entries",
+        "Number of entries in the fact store"
+    );
+    describe_gauge!(
+        "rune_active_connections",
+        "Number of active HTTP connections"
+    );
 }
 
 /// Record an authorization request
@@ -96,7 +129,8 @@ impl LatencyTimer {
 }
 
 /// Storage for Prometheus handle
-static PROMETHEUS_HANDLE: std::sync::OnceLock<metrics_exporter_prometheus::PrometheusHandle> = std::sync::OnceLock::new();
+static PROMETHEUS_HANDLE: std::sync::OnceLock<metrics_exporter_prometheus::PrometheusHandle> =
+    std::sync::OnceLock::new();
 
 /// Initialize Prometheus exporter and return the handle
 pub fn init_prometheus() -> anyhow::Result<()> {

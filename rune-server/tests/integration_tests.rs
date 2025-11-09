@@ -1,15 +1,18 @@
 //! Integration tests for the RUNE HTTP server
 
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use reqwest;
 use rune_core::RUNEEngine;
-use rune_server::{AppState, handlers, api::{*, Decision}};
+use rune_server::{
+    api::{Decision, *},
+    handlers, AppState,
+};
 use serde_json::json;
 use std::sync::Arc;
 use tokio;
-use axum::{
-    Router,
-    routing::{get, post},
-};
 
 use std::sync::Once;
 
@@ -242,7 +245,10 @@ async fn test_metrics_endpoint() {
     // Debug: print body if test fails
     if body.is_empty() || !body.contains("# HELP") {
         eprintln!("Metrics body length: {}", body.len());
-        eprintln!("First 500 chars: {}", &body.chars().take(500).collect::<String>());
+        eprintln!(
+            "First 500 chars: {}",
+            &body.chars().take(500).collect::<String>()
+        );
     }
 
     // TODO: Fix metrics rendering - PrometheusHandle.render() returns empty string
@@ -328,8 +334,11 @@ async fn test_performance_single_request() {
     let body: AuthorizeResponse = response.json().await.expect("Failed to parse response");
     if let Some(diagnostics) = body.diagnostics {
         // Evaluation should be sub-millisecond
-        assert!(diagnostics.evaluation_time_ms < 10.0,
-                "Evaluation took {}ms", diagnostics.evaluation_time_ms);
+        assert!(
+            diagnostics.evaluation_time_ms < 10.0,
+            "Evaluation took {}ms",
+            diagnostics.evaluation_time_ms
+        );
     }
 }
 
@@ -367,7 +376,11 @@ async fn test_performance_batch() {
     assert_eq!(response.status().as_u16(), 200);
 
     // Batch of 50 should complete in less than 200ms
-    assert!(elapsed.as_millis() < 200, "Batch request took {:?}", elapsed);
+    assert!(
+        elapsed.as_millis() < 200,
+        "Batch request took {:?}",
+        elapsed
+    );
 
     let body: BatchAuthorizeResponse = response.json().await.expect("Failed to parse response");
     assert_eq!(body.results.len(), 50);

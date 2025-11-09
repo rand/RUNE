@@ -1,8 +1,8 @@
 //! HTTP request handlers
 
 use crate::api::{
-    AuthorizeRequest, AuthorizeResponse, BatchAuthorizeRequest, BatchAuthorizeResponse,
-    Decision, Diagnostics, HealthResponse, HealthStatus,
+    AuthorizeRequest, AuthorizeResponse, BatchAuthorizeRequest, BatchAuthorizeResponse, Decision,
+    Diagnostics, HealthResponse, HealthStatus,
 };
 use crate::error::{ApiError, ApiResult};
 use crate::metrics;
@@ -11,7 +11,7 @@ use axum::{
     extract::{Query, State},
     Json,
 };
-use rune_core::{RequestBuilder, Principal, Action, Resource};
+use rune_core::{Action, Principal, RequestBuilder, Resource};
 use serde::Deserialize;
 use std::time::Instant;
 use tracing::{debug, error, info, warn};
@@ -140,7 +140,10 @@ pub async fn batch_authorize(
 ) -> ApiResult<Json<BatchAuthorizeResponse>> {
     let start = Instant::now();
 
-    debug!("Batch authorization request: {} requests", req.requests.len());
+    debug!(
+        "Batch authorization request: {} requests",
+        req.requests.len()
+    );
 
     if req.requests.is_empty() {
         return Err(ApiError::BadRequest("No requests provided".to_string()));
@@ -229,7 +232,7 @@ pub async fn health_live(State(state): State<AppState>) -> Json<HealthResponse> 
         status: HealthStatus::Healthy,
         version: env!("CARGO_PKG_VERSION").to_string(),
         uptime_seconds: state.uptime_seconds(),
-        loaded_rules: 0, // TODO: Get from engine
+        loaded_rules: 0,    // TODO: Get from engine
         loaded_policies: 0, // TODO: Get from engine
     })
 }
@@ -251,15 +254,13 @@ pub async fn health_ready(State(state): State<AppState>) -> ApiResult<Json<Healt
                 status: HealthStatus::Healthy,
                 version: env!("CARGO_PKG_VERSION").to_string(),
                 uptime_seconds: state.uptime_seconds(),
-                loaded_rules: 0, // TODO: Get from engine
+                loaded_rules: 0,    // TODO: Get from engine
                 loaded_policies: 0, // TODO: Get from engine
             }))
         }
         Err(e) => {
             warn!("Readiness check failed: {}", e);
-            Err(ApiError::ServiceUnavailable(
-                "Engine not ready".to_string(),
-            ))
+            Err(ApiError::ServiceUnavailable("Engine not ready".to_string()))
         }
     }
 }

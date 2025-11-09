@@ -1,8 +1,8 @@
 //! Application state
 
+use rune_core::RUNEEngine;
 use std::sync::Arc;
 use std::time::Instant;
-use rune_core::RUNEEngine;
 
 /// Application state shared across handlers
 #[derive(Clone)]

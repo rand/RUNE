@@ -3,7 +3,7 @@
 //! This module provides automatic detection of .rune file changes
 //! and triggers configuration reloads without downtime.
 
-use crate::error::{Result, RUNEError};
+use crate::error::{RUNEError, Result};
 use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -55,17 +55,15 @@ impl RUNEWatcher {
 
         // Create notify watcher with custom event handler
         let watcher = RecommendedWatcher::new(
-            move |result: notify::Result<Event>| {
-                match result {
-                    Ok(event) => {
-                        if let Some(change_event) = process_notify_event(event) {
-                            if let Err(e) = tx.send(change_event) {
-                                error!("Failed to send file change event: {}", e);
-                            }
+            move |result: notify::Result<Event>| match result {
+                Ok(event) => {
+                    if let Some(change_event) = process_notify_event(event) {
+                        if let Err(e) = tx.send(change_event) {
+                            error!("Failed to send file change event: {}", e);
                         }
                     }
-                    Err(e) => error!("File watch error: {}", e),
                 }
+                Err(e) => error!("File watch error: {}", e),
             },
             Config::default()
                 .with_poll_interval(Duration::from_secs(1))
@@ -184,11 +182,11 @@ fn process_notify_event(event: Event) -> Option<FileChangeEvent> {
             use notify::event::ModifyKind;
             match modify_kind {
                 ModifyKind::Data(_) | ModifyKind::Any => ChangeKind::Modified,
-                _ => return None,  // Ignore metadata changes
+                _ => return None, // Ignore metadata changes
             }
         }
         EventKind::Remove(_) => ChangeKind::Removed,
-        _ => return None,  // Ignore access and other events
+        _ => return None, // Ignore access and other events
     };
 
     // Get the first path (usually there's only one)
@@ -202,7 +200,7 @@ fn process_notify_event(event: Event) -> Option<FileChangeEvent> {
             return None;
         }
     } else {
-        return None;  // No extension, ignore
+        return None; // No extension, ignore
     }
 
     Some(FileChangeEvent {

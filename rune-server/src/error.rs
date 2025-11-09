@@ -80,24 +80,22 @@ impl From<serde_json::Error> for ApiError {
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let (status, error_type, message, details) = match self {
-            ApiError::BadRequest(msg) => {
-                (StatusCode::BAD_REQUEST, "bad_request", msg, None)
-            }
-            ApiError::Unauthorized(msg) => {
-                (StatusCode::UNAUTHORIZED, "unauthorized", msg, None)
-            }
-            ApiError::Forbidden(msg) => {
-                (StatusCode::FORBIDDEN, "forbidden", msg, None)
-            }
-            ApiError::NotFound(msg) => {
-                (StatusCode::NOT_FOUND, "not_found", msg, None)
-            }
-            ApiError::Internal(msg) => {
-                (StatusCode::INTERNAL_SERVER_ERROR, "internal_error", msg, None)
-            }
-            ApiError::ServiceUnavailable(msg) => {
-                (StatusCode::SERVICE_UNAVAILABLE, "service_unavailable", msg, None)
-            }
+            ApiError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "bad_request", msg, None),
+            ApiError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, "unauthorized", msg, None),
+            ApiError::Forbidden(msg) => (StatusCode::FORBIDDEN, "forbidden", msg, None),
+            ApiError::NotFound(msg) => (StatusCode::NOT_FOUND, "not_found", msg, None),
+            ApiError::Internal(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "internal_error",
+                msg,
+                None,
+            ),
+            ApiError::ServiceUnavailable(msg) => (
+                StatusCode::SERVICE_UNAVAILABLE,
+                "service_unavailable",
+                msg,
+                None,
+            ),
             ApiError::RuneError(e) => {
                 let msg = format!("Authorization engine error: {}", e);
                 (StatusCode::INTERNAL_SERVER_ERROR, "engine_error", msg, None)

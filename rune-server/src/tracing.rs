@@ -74,8 +74,8 @@ pub fn init_tracing_stack(service_name: &str) -> anyhow::Result<()> {
         .with_thread_names(true);
 
     // Create env filter
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,rune=debug"));
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,rune=debug"));
 
     // Combine all layers
     Registry::default()
@@ -104,11 +104,7 @@ pub fn shutdown_telemetry() {
         otel.status_code = tracing::field::Empty,
     )
 )]
-pub fn create_authorization_span(
-    principal: &str,
-    action: &str,
-    resource: &str,
-) -> tracing::Span {
+pub fn create_authorization_span(principal: &str, action: &str, resource: &str) -> tracing::Span {
     tracing::info_span!(
         "authorize_request",
         principal = %principal,
