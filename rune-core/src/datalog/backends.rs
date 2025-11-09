@@ -75,10 +75,12 @@ pub struct VecBackend {
 }
 
 impl VecBackend {
+    /// Create a new empty vector backend
     pub fn new() -> Self {
         VecBackend { facts: Vec::new() }
     }
 
+    /// Create a new vector backend with pre-allocated capacity
     pub fn with_capacity(capacity: usize) -> Self {
         VecBackend {
             facts: Vec::with_capacity(capacity),
@@ -137,12 +139,14 @@ pub struct HashBackend {
 }
 
 impl HashBackend {
+    /// Create a new empty hash backend
     pub fn new() -> Self {
         HashBackend {
             facts: HashSet::new(),
         }
     }
 
+    /// Create a new hash backend with pre-allocated capacity
     pub fn with_capacity(capacity: usize) -> Self {
         HashBackend {
             facts: HashSet::with_capacity(capacity),
@@ -207,12 +211,14 @@ pub struct UnionFindBackend {
 }
 
 impl UnionFindBackend {
+    /// Create a new empty union-find backend
     pub fn new() -> Self {
         UnionFindBackend {
             facts: HashSet::new(),
         }
     }
 
+    /// Create a new union-find backend with pre-allocated capacity
     pub fn with_capacity(capacity: usize) -> Self {
         UnionFindBackend {
             facts: HashSet::with_capacity(capacity),
@@ -275,6 +281,7 @@ pub struct TrieBackend {
 }
 
 impl TrieBackend {
+    /// Create a new empty trie backend
     pub fn new() -> Self {
         TrieBackend {
             facts_by_predicate: HashMap::new(),
@@ -282,6 +289,7 @@ impl TrieBackend {
         }
     }
 
+    /// Create a new trie backend with estimated predicate capacity
     pub fn with_capacity(capacity: usize) -> Self {
         TrieBackend {
             facts_by_predicate: HashMap::with_capacity(capacity / 10), // Estimate predicates
@@ -348,9 +356,13 @@ impl RelationBackend for TrieBackend {
 
 /// Backend selection based on relation characteristics
 pub enum BackendType {
+    /// Vector backend for small relations
     Vec,
+    /// Hash backend for general-purpose relations
     Hash,
+    /// UnionFind backend for transitive closure
     UnionFind,
+    /// Trie backend for hierarchical data
     Trie,
 }
 
@@ -385,7 +397,7 @@ impl BackendType {
         }
     }
 
-    /// Create a backend instance
+    /// Create a hash backend instance
     pub fn create_hash_backend(&self) -> HashBackend {
         match self {
             BackendType::Hash => HashBackend::new(),
@@ -393,6 +405,7 @@ impl BackendType {
         }
     }
 
+    /// Create a vector backend instance
     pub fn create_vec_backend(&self) -> VecBackend {
         match self {
             BackendType::Vec => VecBackend::new(),
@@ -400,6 +413,7 @@ impl BackendType {
         }
     }
 
+    /// Create a union-find backend instance
     pub fn create_unionfind_backend(&self) -> UnionFindBackend {
         match self {
             BackendType::UnionFind => UnionFindBackend::new(),
@@ -407,6 +421,7 @@ impl BackendType {
         }
     }
 
+    /// Create a trie backend instance
     pub fn create_trie_backend(&self) -> TrieBackend {
         match self {
             BackendType::Trie => TrieBackend::new(),
