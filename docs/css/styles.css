@@ -94,7 +94,6 @@ body {
 .navbar {
     position: sticky;
     top: 0;
-    background: var(--background);
     border-bottom: 1px solid var(--border);
     z-index: 100;
     transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -104,6 +103,12 @@ body {
 
 body.dark-theme .navbar {
     background: rgba(0, 0, 0, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+    body:not(.light-theme):not(.dark-theme) .navbar {
+        background: rgba(0, 0, 0, 0.8);
+    }
 }
 
 .navbar .container {
@@ -142,7 +147,7 @@ body.dark-theme .navbar {
 }
 
 .logo-glyph::before {
-    content: "ᚱ";  /* Runic letter Raido (R) */
+    content: "∮";  /* Closed contour integral */
 }
 
 .theme-toggle {
@@ -249,48 +254,38 @@ body.dark-theme .theme-toggle-icon::before {
 
 .sidebar-tagline {
     font-size: 0.875rem;
-    font-weight: 500;
-    font-style: italic;
-    color: var(--accent);
-    letter-spacing: -0.01em;
-    line-height: 1.4;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    letter-spacing: 0;
+    line-height: 1.5;
 }
 
 .sidebar-status {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     font-size: 0.8125rem;
     color: var(--text-secondary);
-    font-family: 'Geist Mono', monospace;
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
 }
 
 .status-glyph {
     display: inline-block;
     width: 1em;
     height: 1em;
-    animation: glyphRotate 3s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 .status-glyph::before {
-    content: "\f0e7";  /* Bolt/lightning icon for RUNE */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
+    content: "";  /* Info icon */
     color: var(--accent);
-}
-
-@keyframes glyphRotate {
-    0%, 100% { transform: rotate(0deg); opacity: 1; }
-    50% { transform: rotate(180deg); opacity: 0.7; }
+    font-size: 1rem;
 }
 
 .status-message {
-    animation: messageFade 4s ease-in-out infinite;
-}
-
-@keyframes messageFade {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+    flex: 1;
 }
 
 /* Paper Header */
