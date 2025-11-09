@@ -4,6 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RUNE Agent Integration Guide</title>
+    <meta name="description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://rand.github.io/RUNE/agent-guide.html">
+    <meta property="og:title" content="RUNE Agent Integration Guide">
+    <meta property="og:description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
+    <meta property="og:image" content="https://rand.github.io/RUNE/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://rand.github.io/RUNE/agent-guide.html">
+    <meta name="twitter:title" content="RUNE Agent Integration Guide">
+    <meta name="twitter:description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
+    <meta name="twitter:image" content="https://rand.github.io/RUNE/og-image.png">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -100,12 +121,10 @@ cargo test
 <li><strong>Integration</strong>: Python bindings for AI frameworks (LangChain, AutoGPT, etc.)</li>
 </ul>
 <h3 id="architecture">Architecture</h3>
-<pre><code>Request → RUNEEngine → [Datalog Engine || Cedar Engine] → Decision
-                            ↓              ↓
-                         FactStore    PolicySet
-                            ↓              ↓
-                      Lock-free       Cached
-</code></pre>
+<div class="diagram-container">
+    <img class="diagram-svg" alt="RUNE Architecture" src="diagrams/architecture.svg" />
+</div>
+<p>RUNE evaluates requests through parallel Datalog and Cedar engines, backed by a lock-free fact store. For detailed architecture, see the <a href="whitepaper.html#4-architecture">Technical Whitepaper</a>.</p>
 <p><strong>Key Design Patterns</strong>:
 - <strong>Lock-free data structures</strong>: Crossbeam epoch-based memory reclamation
 - <strong>Zero-copy architecture</strong>: Arc-wrapped values, memory-mapped facts

@@ -15,18 +15,11 @@
     --accent: #7B1FA2;  /* RUNE purple accent */
     --code-bg: #fafafa;
     --code-border: #eaeaea;
-    /* Purple/Blue gradient colors for RUNE */
-    --gradient-1: #7B1FA2;  /* purple */
-    --gradient-2: #9C27B0;  /* deep purple */
-    --gradient-3: #0277BD;  /* blue */
-    --gradient-4: #4A148C;  /* darker purple */
-    --gradient-5: #7B1FA2;  /* purple accent */
-    --gradient-6: #AB47BC;  /* light purple */
-    /* Semantic colors */
-    --color-success: #10b981;
-    --color-error: #ef4444;
-    --color-warning: #f59e0b;
-    --color-info: #3b82f6;
+    /* Semantic colors - Purple + Gray scale */
+    --color-success: #9C27B0;  /* deep purple - primary */
+    --color-error: #7B1FA2;    /* darker purple - primary */
+    --color-warning: #757575;  /* medium gray - secondary */
+    --color-info: #616161;     /* dark gray - secondary */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,18 +32,11 @@
         --accent: #9C27B0;  /* Brighter purple for dark mode */
         --code-bg: #111;
         --code-border: #333;
-        /* Purple/Blue gradient colors for dark mode */
-        --gradient-1: #9C27B0;
-        --gradient-2: #AB47BC;
-        --gradient-3: #42A5F5;
-        --gradient-4: #BA68C8;
-        --gradient-5: #9C27B0;
-        --gradient-6: #CE93D8;
-        /* Semantic colors for dark mode */
-        --color-success: #34d399;
-        --color-error: #f87171;
-        --color-warning: #fbbf24;
-        --color-info: #60a5fa;
+        /* Semantic colors for dark mode - Purple + Gray scale */
+        --color-success: #AB47BC;  /* lighter purple - primary */
+        --color-error: #BA68C8;    /* light purple - primary */
+        --color-warning: #9E9E9E;  /* light gray - secondary */
+        --color-info: #BDBDBD;     /* lighter gray - secondary */
     }
 }
 
@@ -64,16 +50,10 @@ body.light-theme {
     --accent: #7B1FA2;
     --code-bg: #fafafa;
     --code-border: #eaeaea;
-    --gradient-1: #7B1FA2;
-    --gradient-2: #9C27B0;
-    --gradient-3: #0277BD;
-    --gradient-4: #4A148C;
-    --gradient-5: #7B1FA2;
-    --gradient-6: #AB47BC;
-    --color-success: #10b981;
-    --color-error: #ef4444;
-    --color-warning: #f59e0b;
-    --color-info: #3b82f6;
+    --color-success: #9C27B0;
+    --color-error: #7B1FA2;
+    --color-warning: #757575;
+    --color-info: #616161;
 }
 
 body.dark-theme {
@@ -85,16 +65,10 @@ body.dark-theme {
     --accent: #9C27B0;
     --code-bg: #111;
     --code-border: #333;
-    --gradient-1: #9C27B0;
-    --gradient-2: #AB47BC;
-    --gradient-3: #42A5F5;
-    --gradient-4: #BA68C8;
-    --gradient-5: #9C27B0;
-    --gradient-6: #CE93D8;
-    --color-success: #34d399;
-    --color-error: #f87171;
-    --color-warning: #fbbf24;
-    --color-info: #60a5fa;
+    --color-success: #AB47BC;
+    --color-error: #BA68C8;
+    --color-warning: #9E9E9E;
+    --color-info: #BDBDBD;
 }
 
 body {
@@ -327,7 +301,7 @@ body.dark-theme .theme-toggle-icon::before {
     left: -2rem;
     right: -2rem;
     height: 200px;
-    background: linear-gradient(180deg, var(--background-subtle) 0%, transparent 100%);
+    background: var(--background-subtle);
     z-index: -1;
     opacity: 0.5;
 }
@@ -338,10 +312,7 @@ body.dark-theme .theme-toggle-icon::before {
     line-height: 1.15;
     margin-bottom: 1.25rem;
     letter-spacing: -0.04em;
-    background: linear-gradient(135deg, var(--gradient-1) 0%, var(--gradient-3) 50%, var(--gradient-5) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--accent);
 }
 
 .paper-subtitle {

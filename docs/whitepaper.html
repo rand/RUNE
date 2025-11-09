@@ -4,6 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RUNE Technical Whitepaper</title>
+    <meta name="description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://rand.github.io/RUNE/whitepaper.html">
+    <meta property="og:title" content="RUNE Technical Whitepaper">
+    <meta property="og:description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
+    <meta property="og:image" content="https://rand.github.io/RUNE/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://rand.github.io/RUNE/whitepaper.html">
+    <meta name="twitter:title" content="RUNE Technical Whitepaper">
+    <meta name="twitter:description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
+    <meta name="twitter:image" content="https://rand.github.io/RUNE/og-image.png">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -397,23 +418,9 @@ forbid(
 - <code>[policies]</code>: Cedar policies (Cedar syntax)</p>
 <p>This unified format means a single file fully specifies agent guardrails.</p>
 <h3 id="34-request-flow">3.4 Request Flow</h3>
-<p><img alt="Request Flow Diagram" src="diagrams/request-flow.svg" /></p>
-<pre><code>1. Agent makes request
-   ↓
-2. RUNE Engine receives request
-   ↓
-3. Build context from facts
-   ↓
-4. Parallel evaluation:
-   ├─ Datalog Engine evaluates rules → Derived facts
-   └─ Cedar Engine evaluates policies → Authorization decision
-   ↓
-5. Merge results
-   ↓
-6. Check cache (on hit: skip to 7)
-   ↓
-7. Return unified decision
-</code></pre>
+<div class="diagram-container">
+    <img class="diagram-svg" alt="Request Flow Diagram" src="diagrams/request-flow.svg" />
+</div>
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/engine.rs#L85-L145">Request flow implementation</a></p>
 <h3 id="35-caching-strategy">3.5 Caching Strategy</h3>
 <p>RUNE employs multi-level caching:</p>
@@ -434,34 +441,9 @@ forbid(
 <hr />
 <h2 id="4-architecture">4. Architecture</h2>
 <h3 id="41-system-architecture">4.1 System Architecture</h3>
-<p><img alt="System Architecture" src="diagrams/architecture.svg" /></p>
-<p><strong>Component Hierarchy:</strong></p>
-<pre><code>┌─────────────────────────────────────────────────┐
-│              Client (Python/Rust)               │
-└────────────────────┬────────────────────────────┘
-                     │
-                     ↓
-┌─────────────────────────────────────────────────┐
-│              RUNE Engine (Core)                 │
-│  ┌───────────────────────────────────────────┐  │
-│  │     Request Cache (DashMap&lt;Key, Decision&gt;) │  │
-│  └───────────────────────────────────────────┘  │
-│                     │                            │
-│          ┌──────────┴──────────┐                 │
-│          ↓                     ↓                 │
-│  ┌──────────────┐      ┌──────────────┐         │
-│  │   Datalog    │      │    Cedar     │         │
-│  │   Engine     │      │   Engine     │         │
-│  └──────┬───────┘      └──────┬───────┘         │
-│         │                     │                  │
-│         └──────────┬──────────┘                  │
-│                    ↓                             │
-│         ┌───────────────────────┐                │
-│         │  Lock-Free Fact Store │                │
-│         │  (Crossbeam Epoch)    │                │
-│         └───────────────────────┘                │
-└─────────────────────────────────────────────────┘
-</code></pre>
+<div class="diagram-container">
+    <img class="diagram-svg" alt="System Architecture" src="diagrams/architecture.svg" />
+</div>
 <p><strong>Key Components:</strong></p>
 <ol>
 <li><strong>RUNE Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/engine.rs">engine.rs</a>)</li>

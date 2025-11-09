@@ -9,21 +9,21 @@
         'getting-started': '// Quick start guide'
     };
 
-    // Section-specific comments for whitepaper
+    // Section-specific comments for whitepaper (with dry humor)
     const whitepaperComments = {
-        'abstract': '// The agent authorization challenge',
-        'table-of-contents': '// Whitepaper structure',
-        '1-introduction': '// Problem space & RUNE approach',
-        '2-background-and-motivation': '// Why existing solutions fall short',
-        '3-system-design': '// Core concepts & architecture',
-        '4-architecture': '// Dual-engine implementation',
-        '5-implementation': '// Technology stack & details',
-        '6-performance-evaluation': '// Benchmarks: 5M+ ops/sec',
-        '7-workflows-and-use-cases': '// Production scenarios',
-        '8-lessons-learned': '// Design insights & tradeoffs',
-        '9-related-work': '// Comparison to alternatives',
-        '10-future-work': '// Roadmap & planned features',
-        '11-conclusion': '// Summary & next steps'
+        'abstract': "// Because 'just trust the AI' isn't a security model",
+        'table-of-contents': '// Your roadmap to safe AI autonomy',
+        '1-introduction': '// The problem: agents with root access to your life',
+        '2-background-and-motivation': "// Why your RBAC can't handle AI chaos",
+        '3-system-design': '// Where philosophy meets performance',
+        '4-architecture': '// Two engines, zero regrets',
+        '5-implementation': '// Rust go brrrr (lock-free edition)',
+        '6-performance-evaluation': '// 5M ops/sec or we riot',
+        '7-workflows-and-use-cases': '// Real world > toy examples',
+        '8-lessons-learned': '// What we got wrong (and right)',
+        '9-related-work': '// Standing on the shoulders of giants',
+        '10-future-work': '// TODO: conquer the world',
+        '11-conclusion': '// TL;DR with gravitas'
     };
 
     // Detect which page we're on and use appropriate comments
