@@ -205,8 +205,8 @@ fn parse_atom(input: &str, negated: bool) -> Result<DatalogAtom> {
     if let Some(paren_pos) = input.find('(') {
         let predicate = input[..paren_pos].trim();
         let args_str = input[paren_pos + 1..]
-            .trim_end_matches(')')
-            .trim_end_matches('.');
+            .trim_end_matches('.')
+            .trim_end_matches(')');
 
         let terms: Vec<DatalogTerm> = if args_str.is_empty() {
             Vec::new()
