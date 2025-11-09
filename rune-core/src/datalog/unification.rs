@@ -95,10 +95,7 @@ pub fn unify_atoms(atom1: &Atom, atom2: &Atom) -> Option<Substitution> {
 }
 
 /// Find all facts that unify with an atom
-pub fn find_matching_facts<'a>(
-    atom: &Atom,
-    facts: &'a [Fact],
-) -> Vec<(&'a Fact, Substitution)> {
+pub fn find_matching_facts<'a>(atom: &Atom, facts: &'a [Fact]) -> Vec<(&'a Fact, Substitution)> {
     facts
         .iter()
         .filter(|fact| fact.predicate == atom.predicate)
@@ -165,7 +162,10 @@ mod tests {
 
     #[test]
     fn test_unify_atom_with_fact() {
-        let atom = Atom::new("edge", vec![Term::var("X"), Term::constant(Value::Integer(2))]);
+        let atom = Atom::new(
+            "edge",
+            vec![Term::var("X"), Term::constant(Value::Integer(2))],
+        );
         let fact = Fact::binary("edge", Value::Integer(1), Value::Integer(2));
 
         let sub = unify_atom_with_fact(&atom, &fact).unwrap();
@@ -174,7 +174,10 @@ mod tests {
 
     #[test]
     fn test_unify_atom_with_fact_fail() {
-        let atom = Atom::new("edge", vec![Term::var("X"), Term::constant(Value::Integer(3))]);
+        let atom = Atom::new(
+            "edge",
+            vec![Term::var("X"), Term::constant(Value::Integer(3))],
+        );
         let fact = Fact::binary("edge", Value::Integer(1), Value::Integer(2));
 
         assert!(unify_atom_with_fact(&atom, &fact).is_none());

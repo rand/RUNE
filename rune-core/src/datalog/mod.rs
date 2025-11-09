@@ -84,11 +84,7 @@ impl DatalogEngine {
             result.facts.len()
         );
 
-        let evaluated_rules: Vec<String> = self
-            .rules
-            .iter()
-            .map(|r| format!("{}", r))
-            .collect();
+        let evaluated_rules: Vec<String> = self.rules.iter().map(|r| format!("{}", r)).collect();
 
         let facts_used: Vec<String> = result
             .facts

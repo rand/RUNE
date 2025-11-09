@@ -50,17 +50,37 @@ impl Evaluator {
 
         // Process each stratum in order
         for (_stratum_level, stratum_rules) in strata.iter().enumerate() {
+            // Separate facts from rules
+            let (fact_rules, non_fact_rules): (Vec<_>, Vec<_>) =
+                stratum_rules.iter().partition(|r| r.is_fact());
+
             // Initialize for this stratum
             let mut accumulated: HashSet<Fact> = all_accumulated.clone();
-            let mut delta: HashSet<Fact> = accumulated.clone();
+
+            // Add all ground facts first (they don't need iteration)
+            for rule in &fact_rules {
+                if let Some(fact) = self.atom_to_fact(&rule.head) {
+                    accumulated.insert(fact);
+                }
+            }
+
+            // Start with facts as initial delta
+            let mut delta: HashSet<Fact> =
+                accumulated.difference(&all_accumulated).cloned().collect();
+
+            // If there are no non-fact rules, skip iteration
+            if non_fact_rules.is_empty() {
+                all_accumulated = accumulated;
+                continue;
+            }
 
             // Iterate until fixpoint for this stratum
             loop {
                 iteration_count += 1;
                 let mut new_delta: HashSet<Fact> = HashSet::new();
 
-                // Apply each rule in the stratum
-                for rule in stratum_rules {
+                // Apply each non-fact rule in the stratum
+                for rule in &non_fact_rules {
                     let derived = self.apply_rule_semi_naive(rule, &accumulated, &delta);
                     new_delta.extend(derived);
                 }
@@ -70,6 +90,12 @@ impl Evaluator {
 
                 // Check for fixpoint
                 if new_delta.is_empty() {
+                    break;
+                }
+
+                // Safety check: prevent infinite loops
+                if iteration_count > 10000 {
+                    eprintln!("Warning: Evaluation exceeded 10000 iterations, stopping to prevent infinite loop");
                     break;
                 }
 
@@ -110,12 +136,7 @@ impl Evaluator {
 
         // Try each combination where at least one body atom uses delta
         for delta_index in 0..rule.body.len() {
-            let derived = self.apply_rule_with_delta_at(
-                rule,
-                accumulated,
-                delta,
-                delta_index,
-            );
+            let derived = self.apply_rule_with_delta_at(rule, accumulated, delta, delta_index);
             results.extend(derived);
         }
 

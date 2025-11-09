@@ -113,10 +113,7 @@ impl Atom {
 
     /// Get all variables in this atom
     pub fn variables(&self) -> Vec<&str> {
-        self.terms
-            .iter()
-            .filter_map(|t| t.as_variable())
-            .collect()
+        self.terms.iter().filter_map(|t| t.as_variable()).collect()
     }
 
     /// Check if atom is ground (no variables)
@@ -128,11 +125,7 @@ impl Atom {
     pub fn apply_substitution(&self, sub: &Substitution) -> Atom {
         Atom {
             predicate: self.predicate.clone(),
-            terms: self
-                .terms
-                .iter()
-                .map(|t| sub.apply_to_term(t))
-                .collect(),
+            terms: self.terms.iter().map(|t| sub.apply_to_term(t)).collect(),
             negated: self.negated,
         }
     }
@@ -418,10 +411,7 @@ mod tests {
     fn test_atom_creation() {
         let atom = Atom::new(
             "edge",
-            vec![
-                Term::var("X"),
-                Term::constant(Value::string("alice")),
-            ],
+            vec![Term::var("X"), Term::constant(Value::string("alice"))],
         );
 
         assert_eq!(atom.predicate.as_ref(), "edge");
