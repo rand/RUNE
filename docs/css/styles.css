@@ -304,6 +304,14 @@ body.dark-theme .theme-toggle-icon::before {
     letter-spacing: -0.03em;
 }
 
+.paper-subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
 .paper-meta {
     color: var(--text-secondary);
     font-size: 0.875rem;
