@@ -304,6 +304,7 @@ fn test_complex_hierarchy_with_attributes() {
             user_group(User, Group),
             group_permission(Group, Resource, Permission).
 
+        user_group(User, Group) :- member(User, Group).
         user_group(User, Parent) :-
             user_group(User, Child),
             group_parent(Child, Parent).
@@ -315,7 +316,7 @@ fn test_complex_hierarchy_with_attributes() {
 
     // Direct group membership
     fact_store.add_fact(Fact::new(
-        "user_group".to_string(),
+        "member".to_string(),
         vec![Value::string("alice"), Value::string("developers")],
     ));
 
@@ -363,6 +364,9 @@ fn test_complex_hierarchy_with_attributes() {
         .iter()
         .filter(|f| f.predicate.as_ref() == "user_group")
         .collect();
+
+    eprintln!("DEBUG: user_groups = {:?}", user_groups);
+    eprintln!("DEBUG: user_groups.len() = {}", user_groups.len());
 
     // alice should be in: developers, engineering, employees
     assert!(user_groups.len() >= 3);
