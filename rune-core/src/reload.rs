@@ -672,4 +672,338 @@ key = no quotes
         assert_eq!(config1.retry_delay, config2.retry_delay);
         assert_eq!(config1.auto_reload, config2.auto_reload);
     }
+
+    #[tokio::test]
+    async fn test_reload_with_invalid_cedar_policy() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file with invalid Cedar policy syntax
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
+
+[policies]
+invalid policy syntax here
+permit (
+    no proper structure
+)
+"#
+        )
+        .unwrap();
+        temp_file.flush().unwrap();
+
+        // Reload should fail
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert!(matches!(result, ReloadResult::Failed(msg) if msg.contains("Parse error") || msg.contains("Policy")));
+    }
+
+    #[tokio::test]
+    async fn test_reload_with_invalid_datalog_rules() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file with invalid Datalog syntax
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
+
+[rules]
+invalid rule :--.
+malformed(X) :- no_body
+"#
+        )
+        .unwrap();
+        temp_file.flush().unwrap();
+
+        // Reload should fail
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert!(matches!(result, ReloadResult::Failed(_)));
+    }
+
+    #[tokio::test]
+    async fn test_auto_reload_disabled() {
+        let engine = Arc::new(RUNEEngine::new());
+        let config = ReloadConfig {
+            debounce_duration: Duration::from_millis(10),
+            max_retry_attempts: 3,
+            retry_delay: Duration::from_secs(1),
+            auto_reload: false, // Disabled
+        };
+        let mut coordinator = ReloadCoordinator::with_config(engine, config).unwrap();
+
+        // Create temp file
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, r#"version = "rune/1.0""#).unwrap();
+        temp_file.flush().unwrap();
+
+        // Watch file
+        coordinator.watch_file(temp_file.path()).unwrap();
+
+        // Verify auto_reload is disabled
+        assert!(!coordinator.config.auto_reload);
+    }
+
+    #[tokio::test]
+    async fn test_event_tx_none_case() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // event_tx should be None initially (no subscribers)
+        assert!(coordinator.event_tx.is_none());
+
+        // Manual reload should work without event_tx
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, r#"version = "rune/1.0""#).unwrap();
+        temp_file.flush().unwrap();
+
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert_eq!(result, ReloadResult::Success);
+    }
+
+    #[tokio::test]
+    async fn test_subscribe_multiple_times() {
+        let engine = Arc::new(RUNEEngine::new());
+        let mut coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Subscribe once
+        let _rx1 = coordinator.subscribe();
+        assert!(coordinator.event_tx.is_some());
+
+        // Subscribe again (replaces previous subscription)
+        let _rx2 = coordinator.subscribe();
+        assert!(coordinator.event_tx.is_some());
+    }
+
+    #[tokio::test]
+    async fn test_event_send_with_dropped_receiver() {
+        let engine = Arc::new(RUNEEngine::new());
+        let mut coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Subscribe and immediately drop receiver
+        {
+            let _rx = coordinator.subscribe();
+        } // Receiver dropped here
+
+        // Try to send event through the channel (should log warning but not fail)
+        if let Some(tx) = &coordinator.event_tx {
+            let event = ReloadEvent {
+                path: PathBuf::from("test.rune"),
+                result: ReloadResult::Success,
+                timestamp: std::time::Instant::now(),
+            };
+            // This should return Err because receiver is dropped
+            let send_result = tx.send(event);
+            assert!(send_result.is_err());
+        }
+    }
+
+    #[tokio::test]
+    async fn test_reload_result_debug_formats() {
+        let success = ReloadResult::Success;
+        let failed = ReloadResult::Failed("test error".to_string());
+        let skipped = ReloadResult::Skipped("test skip".to_string());
+
+        assert!(format!("{:?}", success).contains("Success"));
+        assert!(format!("{:?}", failed).contains("Failed"));
+        assert!(format!("{:?}", failed).contains("test error"));
+        assert!(format!("{:?}", skipped).contains("Skipped"));
+        assert!(format!("{:?}", skipped).contains("test skip"));
+    }
+
+    #[test]
+    fn test_reload_config_debug() {
+        let config = ReloadConfig::default();
+        let debug_str = format!("{:?}", config);
+        assert!(debug_str.contains("ReloadConfig"));
+        assert!(debug_str.contains("debounce_duration"));
+        assert!(debug_str.contains("max_retry_attempts"));
+    }
+
+    #[tokio::test]
+    async fn test_watched_files_empty_initially() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        assert_eq!(coordinator.watched_files().len(), 0);
+        assert!(coordinator.watched_files().is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_reload_with_multiple_policies() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file with multiple Cedar policies
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
+
+[policies]
+permit (
+    principal == User::"alice",
+    action == Action::"read",
+    resource
+);
+
+permit (
+    principal == User::"bob",
+    action == Action::"write",
+    resource == Document::"doc1"
+);
+"#
+        )
+        .unwrap();
+        temp_file.flush().unwrap();
+
+        // Reload should succeed
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert_eq!(result, ReloadResult::Success);
+    }
+
+    #[tokio::test]
+    async fn test_reload_with_multiple_datalog_rules() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file with multiple Datalog rules
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
+
+[rules]
+user(alice).
+user(bob).
+admin(alice).
+role(U, admin) :- admin(U).
+can_access(U, R) :- user(U), role(U, admin).
+"#
+        )
+        .unwrap();
+        temp_file.flush().unwrap();
+
+        // Reload should succeed
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert_eq!(result, ReloadResult::Success);
+    }
+
+    #[tokio::test]
+    async fn test_reload_event_path_preservation() {
+        let test_path = PathBuf::from("/test/path/config.rune");
+        let event = ReloadEvent {
+            path: test_path.clone(),
+            result: ReloadResult::Success,
+            timestamp: std::time::Instant::now(),
+        };
+
+        assert_eq!(event.path, test_path);
+        assert_eq!(event.path.to_str().unwrap(), "/test/path/config.rune");
+    }
+
+    #[tokio::test]
+    async fn test_coordinator_stop_with_no_files_watched() {
+        let engine = Arc::new(RUNEEngine::new());
+        let mut coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Stop without watching any files
+        let result = coordinator.stop();
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_watch_same_file_twice() {
+        let engine = Arc::new(RUNEEngine::new());
+        let mut coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, "version = \"1.0\"").unwrap();
+
+        // Watch the same file twice
+        assert!(coordinator.watch_file(temp_file.path()).is_ok());
+        assert!(coordinator.watch_file(temp_file.path()).is_ok());
+
+        // Both watches should be tracked
+        assert_eq!(coordinator.watched_files().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn test_reload_with_whitespace_only() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create temp file with only whitespace
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(temp_file, "   \n\n   \t\t   \n").unwrap();
+        temp_file.flush().unwrap();
+
+        // Reload should fail (no version)
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert!(matches!(result, ReloadResult::Failed(_)));
+    }
+
+    #[tokio::test]
+    async fn test_reload_result_variants_inequality() {
+        // Test different variants are not equal
+        assert_ne!(ReloadResult::Success, ReloadResult::Failed("err".to_string()));
+        assert_ne!(ReloadResult::Success, ReloadResult::Skipped("skip".to_string()));
+        assert_ne!(
+            ReloadResult::Failed("err1".to_string()),
+            ReloadResult::Skipped("skip".to_string())
+        );
+    }
+
+    #[tokio::test]
+    async fn test_coordinator_fields_initialization() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Verify initial state
+        assert!(coordinator.event_tx.is_none());
+        assert_eq!(coordinator.watched_files.len(), 0);
+        assert_eq!(coordinator.config.debounce_duration, Duration::from_millis(500));
+    }
+
+    #[tokio::test]
+    async fn test_manual_reload_success_path() {
+        let engine = Arc::new(RUNEEngine::new());
+        let coordinator = ReloadCoordinator::new(engine).unwrap();
+
+        // Create valid config
+        let mut temp_file = NamedTempFile::new().unwrap();
+        writeln!(
+            temp_file,
+            r#"version = "rune/1.0"
+
+[rules]
+fact(value).
+"#
+        )
+        .unwrap();
+        temp_file.flush().unwrap();
+
+        // Manual reload through public API
+        let result = coordinator.manual_reload(temp_file.path()).await;
+        assert_eq!(result, ReloadResult::Success);
+    }
+
+    #[tokio::test]
+    async fn test_config_all_fields_accessible() {
+        let config = ReloadConfig {
+            debounce_duration: Duration::from_millis(123),
+            max_retry_attempts: 7,
+            retry_delay: Duration::from_millis(456),
+            auto_reload: true,
+        };
+
+        // Verify all fields are accessible
+        assert_eq!(config.debounce_duration, Duration::from_millis(123));
+        assert_eq!(config.max_retry_attempts, 7);
+        assert_eq!(config.retry_delay, Duration::from_millis(456));
+        assert!(config.auto_reload);
+    }
 }
