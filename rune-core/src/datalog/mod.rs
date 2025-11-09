@@ -22,12 +22,16 @@
 //! - BYODS principle for future optimization (from ascent)
 
 pub mod aggregation;
+pub mod backends;
 pub mod evaluation;
 pub mod types;
 pub mod unification;
 
 // Re-export main types
 pub use aggregation::{evaluate_aggregate, AggregationResult};
+pub use backends::{
+    BackendType, HashBackend, RelationBackend, TrieBackend, UnionFindBackend, VecBackend,
+};
 pub use evaluation::{EvaluationResult, Evaluator};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
