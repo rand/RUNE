@@ -182,9 +182,6 @@ impl Evaluator {
                         .iter()
                         .any(|fact| unify_atom_with_fact(&grounded, fact).is_some());
 
-                    eprintln!("DEBUG: Negation check: grounded={:?}, has_match={}, predicate={}",
-                             grounded, has_match, body_atom.predicate);
-
                     if !has_match {
                         // No match found, so negation succeeds
                         next_subs.push(sub);
