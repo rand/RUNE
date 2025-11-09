@@ -179,10 +179,21 @@ RUNE integrates with major AI frameworks:
   - ✅ Request metadata facts for authorization patterns
   - ✅ 6 passing bridge tests
 
-### v0.3.0 (Planned)
-- 🔜 Hot-reload with RCU pattern
-- 🔜 Zero-downtime configuration updates
-- 🔜 File watching for automatic reload
+### v0.3.0 (Released 2025-11-08) ✅
+- ✅ **Hot-reload with RCU pattern**
+  - ✅ ArcSwap-based lock-free engine updates
+  - ✅ Atomic rule and policy swapping
+  - ✅ Sub-10ns read latency during reload
+- ✅ **Zero-downtime configuration updates**
+  - ✅ Ongoing requests complete with old rules
+  - ✅ Automatic memory reclamation with Arc
+  - ✅ Cache invalidation on reload
+- ✅ **File watching for automatic reload**
+  - ✅ Cross-platform file watching with notify crate
+  - ✅ Event debouncing for multi-chunk writes
+  - ✅ Async reload coordinator with tokio
+  - ✅ Manual reload capability for testing
+  - ✅ Reload event subscription for monitoring
 
 ### v0.4.0 (Planned)
 - 🔜 Python bindings activation
