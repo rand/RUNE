@@ -14,6 +14,7 @@ pub mod parser;
 pub mod policy;
 pub mod request;
 pub mod types;
+pub mod watcher;
 
 pub use engine::{AuthorizationResult, Decision, RUNEEngine};
 pub use error::{RUNEError, Result};
