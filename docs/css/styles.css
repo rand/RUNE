@@ -123,19 +123,18 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1em;
-    height: 1em;
+    width: 1.5em;
+    height: 1.5em;
     position: relative;
 }
 
 .logo-glyph::before {
     content: "ᚱ";  /* Runic letter Raido (R) */
-    font-size: 1.25rem;
+    font-size: 1.6rem;
     line-height: 1;
-    background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3), var(--gradient-5));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--accent);
+    position: relative;
+    top: 0.05em;  /* Fine-tune vertical alignment */
 }
 
 .theme-toggle {
@@ -243,7 +242,7 @@ body.dark-theme .theme-toggle-icon::before {
     font-size: 0.875rem;
     font-weight: 500;
     font-style: italic;
-    color: var(--gradient-6);
+    color: var(--accent);
     letter-spacing: -0.01em;
     line-height: 1.4;
 }
@@ -268,10 +267,7 @@ body.dark-theme .theme-toggle-icon::before {
     content: "\f0e7";  /* Bolt/lightning icon for RUNE */
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
-    background: linear-gradient(135deg, var(--gradient-1), var(--gradient-5));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--accent);
 }
 
 @keyframes glyphRotate {
@@ -333,10 +329,7 @@ body.dark-theme .theme-toggle-icon::before {
     font-weight: 600;
     margin-bottom: 1.5rem;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, var(--gradient-1), var(--gradient-3), var(--gradient-5));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
 }
 
 .section h3 {
@@ -389,21 +382,74 @@ code {
     font-family: 'Geist Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
     font-size: 0.875em;
     background: var(--code-bg);
-    padding: 0.125em 0.375em;
+    padding: 0.2em 0.4em;
     border-radius: 4px;
     border: 1px solid var(--code-border);
     font-weight: 400;
 }
 
+pre {
+    margin: 1.5rem 0;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
 pre code {
     display: block;
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
     overflow-x: auto;
     line-height: 1.6;
-    border-radius: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 0;
 }
 
 /* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table th,
+table td {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+}
+
+table th {
+    background: var(--background-subtle);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    letter-spacing: -0.01em;
+    border-bottom: 2px solid var(--border);
+}
+
+table tbody tr:hover {
+    background: var(--background-subtle);
+}
+
+table td {
+    vertical-align: top;
+    color: var(--text-primary);
+}
+
+table strong {
+    font-weight: 600;
+}
+
+table code {
+    font-size: 0.8em;
+}
+
 .comparison-table {
     width: 100%;
     border-collapse: collapse;
