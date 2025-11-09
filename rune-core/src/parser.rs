@@ -7,13 +7,13 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 /// Parsed RUNE configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct RUNEConfig {
     /// Version string
     pub version: String,
     /// Data section (TOML-style)
     pub data: toml::Value,
-    /// Datalog rules
+    /// Datalog rules (not serializable as they're parsed at runtime)
     pub rules: Vec<DatalogRule>,
     /// Cedar policies
     pub policies: Vec<Policy>,
@@ -212,7 +212,7 @@ fn parse_term(input: &str) -> Result<DatalogTerm> {
 
     // Variable: starts with uppercase or underscore
     if input.starts_with(|c: char| c.is_uppercase() || c == '_') {
-        return Ok(DatalogTerm::Variable(Arc::from(input)));
+        return Ok(DatalogTerm::Variable(input.to_string()));
     }
 
     // Constant: try to parse as different types
@@ -223,10 +223,10 @@ fn parse_term(input: &str) -> Result<DatalogTerm> {
 
     // Boolean
     if input == "true" {
-        return Ok(DatalogTerm::Constant(Value::Boolean(true)));
+        return Ok(DatalogTerm::Constant(Value::Bool(true)));
     }
     if input == "false" {
-        return Ok(DatalogTerm::Constant(Value::Boolean(false)));
+        return Ok(DatalogTerm::Constant(Value::Bool(false)));
     }
 
     // String (quoted or unquoted)
@@ -338,7 +338,7 @@ mod tests {
 
         // Boolean
         let term = parse_term("true").unwrap();
-        assert!(matches!(term, DatalogTerm::Constant(Value::Boolean(true))));
+        assert!(matches!(term, DatalogTerm::Constant(Value::Bool(true))));
 
         // String
         let term = parse_term("\"hello\"").unwrap();
