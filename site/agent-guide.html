@@ -63,17 +63,18 @@
     <aside class="sidebar">
         <div class="sidebar-content">
             <div class="sidebar-tagline">// High-Performance Authorization</div>
+            <div class="sidebar-toc"></div>
         </div>
     </aside>
 
     <main class="container">
         
-<h1 id="rune-agent-guide">RUNE Agent Guide<a class="headerlink" href="#rune-agent-guide" title="Permanent link">&para;</a></h1>
+<h1 id="rune-agent-guide">RUNE Agent Guide</h1>
 <p><strong>For</strong>: Agentic systems (Claude Code, mnemosyne, etc.)
 <strong>Purpose</strong>: Efficient, comprehensive guidance for working on RUNE
 <strong>Version</strong>: 0.1.0</p>
 <hr />
-<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<h2 id="table-of-contents">Table of Contents</h2>
 <ol>
 <li><a href="#quick-start">Quick Start</a></li>
 <li><a href="#project-overview">Project Overview</a></li>
@@ -87,7 +88,7 @@
 <li><a href="#common-tasks">Common Tasks</a></li>
 </ol>
 <hr />
-<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h2 id="quick-start">Quick Start</h2>
 <p><strong>Project</strong>: RUNE - High-Performance Authorization &amp; Configuration Engine
 <strong>Stack</strong>: Rust (core), Python bindings, Cedar Policy Language
 <strong>Performance</strong>: Sub-millisecond latency, 5M+ ops/sec
@@ -108,21 +109,21 @@ cargo<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 
 <hr />
-<h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">&para;</a></h2>
-<h3 id="what-is-rune">What is RUNE?<a class="headerlink" href="#what-is-rune" title="Permanent link">&para;</a></h3>
+<h2 id="project-overview">Project Overview</h2>
+<h3 id="what-is-rune">What is RUNE?</h3>
 <p>RUNE provides <strong>real, enforceable guardrails</strong> for AI agents through a dual-engine architecture:</p>
 <ol>
 <li><strong>Datalog Engine</strong>: Configuration rules and logic programming</li>
 <li><strong>Cedar Engine</strong>: Authorization policies (Amazon Cedar Policy Language)</li>
 </ol>
-<h3 id="core-value-proposition">Core Value Proposition<a class="headerlink" href="#core-value-proposition" title="Permanent link">&para;</a></h3>
+<h3 id="core-value-proposition">Core Value Proposition</h3>
 <ul>
 <li><strong>Performance</strong>: Sub-millisecond authorization decisions (&lt;1ms P99)</li>
 <li><strong>Throughput</strong>: 5M+ operations per second on a single core</li>
 <li><strong>Deployment</strong>: Single binary (~10MB static executable)</li>
 <li><strong>Integration</strong>: Python bindings for AI frameworks (LangChain, AutoGPT, etc.)</li>
 </ul>
-<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<h3 id="architecture">Architecture</h3>
 <div class="highlight"><pre><span></span><code>Request → RUNEEngine → [Datalog Engine || Cedar Engine] → Decision
                             ↓              ↓
                          FactStore    PolicySet
@@ -136,7 +137,7 @@ cargo<span class="w"> </span><span class="nb">test</span>
 - <strong>Parallel evaluation</strong>: Rayon for dual-engine concurrency
 - <strong>DashMap caching</strong>: Concurrent hashmap for authorization results</p>
 <hr />
-<h2 id="repository-structure">Repository Structure<a class="headerlink" href="#repository-structure" title="Permanent link">&para;</a></h2>
+<h2 id="repository-structure">Repository Structure</h2>
 <div class="highlight"><pre><span></span><code><span class="nx">RUNE</span><span class="o">/</span>
 <span class="err">├──</span><span class="w"> </span><span class="nx">rune</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Rust</span><span class="w"> </span><span class="nx">core</span><span class="w"> </span><span class="nx">engine</span>
 <span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
@@ -170,7 +171,7 @@ cargo<span class="w"> </span><span class="nb">test</span>
 <span class="err">└──</span><span class="w"> </span><span class="nx">LICENSE</span><span class="o">-</span><span class="nx">APACHE</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Apache</span><span class="w"> </span><span class="m m-Double">2.0</span><span class="w"> </span><span class="nx">license</span>
 </code></pre></div>
 
-<h3 id="key-files">Key Files<a class="headerlink" href="#key-files" title="Permanent link">&para;</a></h3>
+<h3 id="key-files">Key Files</h3>
 <table>
 <thead>
 <tr>
@@ -213,8 +214,8 @@ cargo<span class="w"> </span><span class="nb">test</span>
 </tbody>
 </table>
 <hr />
-<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
-<h3 id="branching-strategy">Branching Strategy<a class="headerlink" href="#branching-strategy" title="Permanent link">&para;</a></h3>
+<h2 id="development-workflow">Development Workflow</h2>
+<h3 id="branching-strategy">Branching Strategy</h3>
 <p><strong>ALWAYS use feature branches</strong>:</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/typed-holes
 git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fix/cache-invalidation
@@ -227,7 +228,7 @@ git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </
 - <code>refactor/</code>: Code restructuring
 - <code>docs/</code>: Documentation updates
 - <code>perf/</code>: Performance improvements</p>
-<h3 id="commit-protocol">Commit Protocol<a class="headerlink" href="#commit-protocol" title="Permanent link">&para;</a></h3>
+<h3 id="commit-protocol">Commit Protocol</h3>
 <p><strong>CRITICAL</strong>: Commit BEFORE testing, never test uncommitted code.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Make changes</span>
 <span class="c1"># 2. Commit changes</span>
@@ -257,7 +258,7 @@ cargo<span class="w"> </span><span class="nb">test</span>
 <span class="n">docs</span><span class="o">:</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">whitepaper</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">performance</span><span class="w"> </span><span class="n">benchmarks</span>
 </code></pre></div>
 
-<h3 id="pull-requests">Pull Requests<a class="headerlink" href="#pull-requests" title="Permanent link">&para;</a></h3>
+<h3 id="pull-requests">Pull Requests</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Push branch</span>
 git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feature/typed-holes
 
@@ -273,8 +274,8 @@ gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </spa
 - [ ] CHANGELOG.md updated if semantic version bump
 - [ ] Code follows Rust best practices (clippy clean)</p>
 <hr />
-<h2 id="documentation-protocols">Documentation Protocols<a class="headerlink" href="#documentation-protocols" title="Permanent link">&para;</a></h2>
-<h3 id="when-to-update-documentation">When to Update Documentation<a class="headerlink" href="#when-to-update-documentation" title="Permanent link">&para;</a></h3>
+<h2 id="documentation-protocols">Documentation Protocols</h2>
+<h3 id="when-to-update-documentation">When to Update Documentation</h3>
 <table>
 <thead>
 <tr>
@@ -309,7 +310,7 @@ gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </spa
 </tr>
 </tbody>
 </table>
-<h3 id="documentation-standards">Documentation Standards<a class="headerlink" href="#documentation-standards" title="Permanent link">&para;</a></h3>
+<h3 id="documentation-standards">Documentation Standards</h3>
 <p><strong>README.md</strong>:
 - Keep quick start up-to-date
 - Update benchmark results when performance changes
@@ -328,7 +329,7 @@ gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </spa
 - Document all public APIs with <code>///</code> comments
 - Provide examples for non-trivial functions
 - Explain safety requirements for unsafe code</p>
-<h3 id="code-reference-format">Code Reference Format<a class="headerlink" href="#code-reference-format" title="Permanent link">&para;</a></h3>
+<h3 id="code-reference-format">Code Reference Format</h3>
 <p>When updating docs, use tagged version links:</p>
 <div class="highlight"><pre><span></span><code>The [<span class="nt">fact store implementation</span>](<span class="na">https://github.com/user/rune/blob/v0.1.0/rune-core/src/facts.rs#L45-L67</span>)
 uses epoch-based memory reclamation.
@@ -336,8 +337,8 @@ uses epoch-based memory reclamation.
 
 <p><strong>Format</strong>: <code>https://github.com/{user}/{repo}/blob/{tag}/{path}#{lines}</code></p>
 <hr />
-<h2 id="release-management">Release Management<a class="headerlink" href="#release-management" title="Permanent link">&para;</a></h2>
-<h3 id="semantic-versioning">Semantic Versioning<a class="headerlink" href="#semantic-versioning" title="Permanent link">&para;</a></h3>
+<h2 id="release-management">Release Management</h2>
+<h3 id="semantic-versioning">Semantic Versioning</h3>
 <p>RUNE follows <a href="https://semver.org/">SemVer 2.0.0</a>:</p>
 <ul>
 <li><strong>0.x.y</strong>: Development releases (pre-1.0, API unstable)</li>
@@ -348,7 +349,7 @@ uses epoch-based memory reclamation.
 <li><strong>x.y.0</strong>: Minor version (new features, backward compatible)</li>
 <li><strong>x.y.z</strong>: Patch version (bug fixes, backward compatible)</li>
 </ul>
-<h3 id="release-process">Release Process<a class="headerlink" href="#release-process" title="Permanent link">&para;</a></h3>
+<h3 id="release-process">Release Process</h3>
 <p><strong>1. Version Bump</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Update version in Cargo.toml (workspace.package.version)</span>
 <span class="c1"># Update CHANGELOG.md with release notes</span>
@@ -373,21 +374,21 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 <span class="w">  </span>target/release/rune#rune-v0.2.0-<span class="k">$(</span>uname<span class="w"> </span>-m<span class="k">)</span>-<span class="k">$(</span>uname<span class="w"> </span>-s<span class="k">)</span>
 </code></pre></div>
 
-<h3 id="special-tags">Special Tags<a class="headerlink" href="#special-tags" title="Permanent link">&para;</a></h3>
+<h3 id="special-tags">Special Tags</h3>
 <ul>
 <li><strong>Validation Tags</strong>: For whitepaper claims validation (e.g., <code>v0.1.0-whitepaper</code>)</li>
 <li><strong>Pre-release Tags</strong>: For testing (e.g., <code>v0.2.0-rc.1</code>)</li>
 </ul>
 <hr />
-<h2 id="repository-organization">Repository Organization<a class="headerlink" href="#repository-organization" title="Permanent link">&para;</a></h2>
-<h3 id="organization-principles">Organization Principles<a class="headerlink" href="#organization-principles" title="Permanent link">&para;</a></h3>
+<h2 id="repository-organization">Repository Organization</h2>
+<h3 id="organization-principles">Organization Principles</h3>
 <ol>
 <li><strong>Non-destructive</strong>: Reorganize without losing references or history</li>
 <li><strong>Reference-preserving</strong>: Maintain links, cross-references, and citations</li>
 <li><strong>Context-efficient</strong>: Keep structure clear and navigable</li>
 <li><strong>Documentation-driven</strong>: Structure reflects documented architecture</li>
 </ol>
-<h3 id="tidying-guidelines">Tidying Guidelines<a class="headerlink" href="#tidying-guidelines" title="Permanent link">&para;</a></h3>
+<h3 id="tidying-guidelines">Tidying Guidelines</h3>
 <p><strong>DO</strong>:
 - ✅ Use <code>git mv</code> to preserve history when moving files
 - ✅ Update all documentation cross-references after moves
@@ -415,7 +416,7 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <span class="s2">- Update AGENT_GUIDE.md repository structure&quot;</span>
 </code></pre></div>
 
-<h3 id="adding-new-components">Adding New Components<a class="headerlink" href="#adding-new-components" title="Permanent link">&para;</a></h3>
+<h3 id="adding-new-components">Adding New Components</h3>
 <p>When adding new crates, modules, or major features:</p>
 <ol>
 <li><strong>Create structure</strong>:</li>
@@ -451,12 +452,12 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 </code></pre></div>
 
 <hr />
-<h2 id="testing-protocols">Testing Protocols<a class="headerlink" href="#testing-protocols" title="Permanent link">&para;</a></h2>
-<h3 id="critical-testing-rules">Critical Testing Rules<a class="headerlink" href="#critical-testing-rules" title="Permanent link">&para;</a></h3>
+<h2 id="testing-protocols">Testing Protocols</h2>
+<h3 id="critical-testing-rules">Critical Testing Rules</h3>
 <p><strong>RULE 1</strong>: Commit BEFORE testing
 <strong>RULE 2</strong>: NEVER test uncommitted code
 <strong>RULE 3</strong>: Kill old test processes before running new tests</p>
-<h3 id="testing-workflow">Testing Workflow<a class="headerlink" href="#testing-workflow" title="Permanent link">&para;</a></h3>
+<h3 id="testing-workflow">Testing Workflow</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Make changes and commit</span>
 git<span class="w"> </span>add<span class="w"> </span>.
 git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Add feature X&quot;</span>
@@ -476,7 +477,7 @@ cargo<span class="w"> </span>bench
 <span class="c1">#    - Re-test (goto step 2)</span>
 </code></pre></div>
 
-<h3 id="test-types">Test Types<a class="headerlink" href="#test-types" title="Permanent link">&para;</a></h3>
+<h3 id="test-types">Test Types</h3>
 <table>
 <thead>
 <tr>
@@ -513,7 +514,7 @@ cargo<span class="w"> </span>bench
 </tr>
 </tbody>
 </table>
-<h3 id="performance-testing">Performance Testing<a class="headerlink" href="#performance-testing" title="Permanent link">&para;</a></h3>
+<h3 id="performance-testing">Performance Testing</h3>
 <p><strong>Critical</strong>: RUNE must maintain sub-millisecond latency.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Run standard benchmark</span>
 ./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">8</span>
@@ -531,15 +532,15 @@ cargo<span class="w"> </span>bench
 3. Optimize hot path
 4. Re-benchmark
 5. Update README.md with new benchmark results</p>
-<h3 id="test-coverage">Test Coverage<a class="headerlink" href="#test-coverage" title="Permanent link">&para;</a></h3>
+<h3 id="test-coverage">Test Coverage</h3>
 <p>Target coverage (when tooling is added):
 - Critical path: 90%+
 - Authorization logic: 95%+
 - Parser: 80%+
 - Overall: 85%+</p>
 <hr />
-<h2 id="performance-requirements">Performance Requirements<a class="headerlink" href="#performance-requirements" title="Permanent link">&para;</a></h2>
-<h3 id="hard-requirements">Hard Requirements<a class="headerlink" href="#hard-requirements" title="Permanent link">&para;</a></h3>
+<h2 id="performance-requirements">Performance Requirements</h2>
+<h3 id="hard-requirements">Hard Requirements</h3>
 <table>
 <thead>
 <tr>
@@ -576,7 +577,7 @@ cargo<span class="w"> </span>bench
 </tr>
 </tbody>
 </table>
-<h3 id="performance-patterns">Performance Patterns<a class="headerlink" href="#performance-patterns" title="Permanent link">&para;</a></h3>
+<h3 id="performance-patterns">Performance Patterns</h3>
 <p><strong>DO</strong>:
 - ✅ Use Arc for zero-copy sharing
 - ✅ Use crossbeam for lock-free data structures
@@ -590,7 +591,7 @@ cargo<span class="w"> </span>bench
 - ❌ Allocate in tight loops
 - ❌ Use async where sync suffices (added overhead)
 - ❌ Ignore <code>clippy::perf</code> warnings</p>
-<h3 id="benchmarking-new-features">Benchmarking New Features<a class="headerlink" href="#benchmarking-new-features" title="Permanent link">&para;</a></h3>
+<h3 id="benchmarking-new-features">Benchmarking New Features</h3>
 <p>When adding features:</p>
 <ol>
 <li><strong>Baseline</strong>:</li>
@@ -618,8 +619,8 @@ cargo<span class="w"> </span>bench
 </li>
 </ol>
 <hr />
-<h2 id="common-tasks">Common Tasks<a class="headerlink" href="#common-tasks" title="Permanent link">&para;</a></h2>
-<h3 id="add-a-new-datalog-rule-type">Add a New Datalog Rule Type<a class="headerlink" href="#add-a-new-datalog-rule-type" title="Permanent link">&para;</a></h3>
+<h2 id="common-tasks">Common Tasks</h2>
+<h3 id="add-a-new-datalog-rule-type">Add a New Datalog Rule Type</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Edit parser</span>
 vim<span class="w"> </span>rune-core/src/parser.rs
 
@@ -641,7 +642,7 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 cargo<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 
-<h3 id="add-a-new-cedar-policy-pattern">Add a New Cedar Policy Pattern<a class="headerlink" href="#add-a-new-cedar-policy-pattern" title="Permanent link">&para;</a></h3>
+<h3 id="add-a-new-cedar-policy-pattern">Add a New Cedar Policy Pattern</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Edit policy integration</span>
 vim<span class="w"> </span>rune-core/src/policy.rs
 
@@ -660,7 +661,7 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 cargo<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 
-<h3 id="update-performance-benchmarks">Update Performance Benchmarks<a class="headerlink" href="#update-performance-benchmarks" title="Permanent link">&para;</a></h3>
+<h3 id="update-performance-benchmarks">Update Performance Benchmarks</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Run benchmarks</span>
 ./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">100000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">16</span>
 
@@ -675,7 +676,7 @@ git<span class="w"> </span>add<span class="w"> </span>README.md<span class="w"> 
 git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: Update benchmark results (10M ops/sec achieved)&quot;</span>
 </code></pre></div>
 
-<h3 id="add-new-documentation">Add New Documentation<a class="headerlink" href="#add-new-documentation" title="Permanent link">&para;</a></h3>
+<h3 id="add-new-documentation">Add New Documentation</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Create doc file</span>
 vim<span class="w"> </span>docs/new-guide.md
 
@@ -690,7 +691,7 @@ git<span class="w"> </span>add<span class="w"> </span>docs/<span class="w"> </sp
 git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: Add advanced Datalog guide&quot;</span>
 </code></pre></div>
 
-<h3 id="create-a-release">Create a Release<a class="headerlink" href="#create-a-release" title="Permanent link">&para;</a></h3>
+<h3 id="create-a-release">Create a Release</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. Update version</span>
 vim<span class="w"> </span>Cargo.toml<span class="w">  </span><span class="c1"># workspace.package.version</span>
 
@@ -721,7 +722,7 @@ gh<span class="w"> </span>release<span class="w"> </span>create<span class="w"> 
 </code></pre></div>
 
 <hr />
-<h2 id="integration-with-mnemosyne">Integration with mnemosyne<a class="headerlink" href="#integration-with-mnemosyne" title="Permanent link">&para;</a></h2>
+<h2 id="integration-with-mnemosyne">Integration with mnemosyne</h2>
 <p>If using mnemosyne for memory and orchestration:</p>
 <p><strong>Store Key Decisions</strong>:</p>
 <div class="highlight"><pre><span></span><code>mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Using Cedar 3.x API with entity ownership pattern&quot;</span><span class="w"> </span><span class="se">\</span>
@@ -745,15 +746,15 @@ mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="
 </code></pre></div>
 
 <hr />
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<h3 id="common-build-errors">Common Build Errors<a class="headerlink" href="#common-build-errors" title="Permanent link">&para;</a></h3>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-build-errors">Common Build Errors</h3>
 <p><strong>Error</strong>: <code>unsafe code is forbidden</code>
 <strong>Fix</strong>: Add <code>#![allow(unsafe_code)]</code> to module using crossbeam/unsafe patterns</p>
 <p><strong>Error</strong>: Cedar API compatibility
 <strong>Fix</strong>: Check Cedar version (must be 3.x), update to latest API patterns</p>
 <p><strong>Error</strong>: Python linker errors
 <strong>Fix</strong>: Ensure Python dev environment configured, or disable rune-python in workspace</p>
-<h3 id="performance-debugging">Performance Debugging<a class="headerlink" href="#performance-debugging" title="Permanent link">&para;</a></h3>
+<h3 id="performance-debugging">Performance Debugging</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Profile with flamegraph</span>
 cargo<span class="w"> </span>flamegraph<span class="w"> </span>--bin<span class="w"> </span>rune<span class="w"> </span>--<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span>
 
@@ -765,7 +766,7 @@ perf<span class="w"> </span>report
 cargo<span class="w"> </span>rustc<span class="w"> </span>--release<span class="w"> </span>--<span class="w"> </span>--emit<span class="w"> </span>asm
 </code></pre></div>
 
-<h3 id="documentation-build">Documentation Build<a class="headerlink" href="#documentation-build" title="Permanent link">&para;</a></h3>
+<h3 id="documentation-build">Documentation Build</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># Build rustdoc</span>
 cargo<span class="w"> </span>doc<span class="w"> </span>--no-deps<span class="w"> </span>--open
 
@@ -776,7 +777,7 @@ bundle<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </code></pre></div>
 
 <hr />
-<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<h2 id="references">References</h2>
 <ul>
 <li><a href="https://docs.cedarpolicy.com/">Cedar Policy Language Docs</a></li>
 <li><a href="https://docs.rs/crossbeam/">Crossbeam Documentation</a></li>
@@ -800,5 +801,6 @@ bundle<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
     <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
+    <script src="js/toc.js"></script>
 </body>
 </html>

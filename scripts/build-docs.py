@@ -49,8 +49,8 @@ def setup_markdown():
                 "linenums": False,
             },
             "toc": {
-                "permalink": True,
-                "permalink_class": "headerlink",
+                "permalink": False,  # Disable permalink symbols
+                "toc_depth": 3,
             },
         },
     )

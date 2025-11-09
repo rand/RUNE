@@ -63,6 +63,7 @@
     <aside class="sidebar">
         <div class="sidebar-content">
             <div class="sidebar-tagline">// High-Performance Authorization</div>
+            <div class="sidebar-toc"></div>
         </div>
     </aside>
 
@@ -77,15 +78,15 @@
     </p>
 </header>
 
-<h1 id="rune-high-performance-authorization-configuration-engine">RUNE: High-Performance Authorization &amp; Configuration Engine<a class="headerlink" href="#rune-high-performance-authorization-configuration-engine" title="Permanent link">&para;</a></h1>
+<h1 id="rune-high-performance-authorization-configuration-engine">RUNE: High-Performance Authorization &amp; Configuration Engine</h1>
 <p><strong>Version</strong>: 0.1.0
 <strong>Date</strong>: November 2025
 <strong>Repository</strong>: <a href="https://github.com/rand/RUNE">github.com/rand/RUNE</a></p>
-<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<h2 id="abstract">Abstract</h2>
 <p>As AI agents become increasingly autonomous, organizations face a critical challenge: how to grant agents the freedom to act effectively while ensuring they operate within safe, well-defined boundaries. Traditional authorization systems fall short—they're either too slow for real-time agent decision-making or lack the expressiveness needed for complex agent scenarios.</p>
 <p><strong>RUNE</strong> is a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.</p>
 <p>RUNE enables organizations to define both <strong>what agents can do</strong> (authorization) and <strong>how agents should behave</strong> (configuration) in a single, coherent framework. With Python bindings and a compact single-binary deployment (~10MB), RUNE integrates seamlessly into modern AI agent architectures including LangChain, AutoGPT, and Claude Code.</p>
-<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<h2 id="key-features">Key Features</h2>
 <ul>
 <li><strong>Dual-Engine Architecture</strong>: Novel combination of Datalog and Cedar for unified authorization and configuration</li>
 <li><strong>Lock-Free Performance</strong>: Epoch-based memory reclamation enables true parallelism without locks</li>
@@ -94,21 +95,21 @@
 <li><strong>Production-Ready</strong>: Comprehensive benchmarks, error handling, and deployment tooling</li>
 <li><strong>Easy Integration</strong>: Python bindings, single binary (~10MB), zero runtime dependencies</li>
 </ul>
-<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<h2 id="architecture-overview">Architecture Overview</h2>
 <p>RUNE's dual-engine architecture separates two distinct concerns:</p>
 <ul>
 <li><strong>Datalog Engine</strong>: Derives configuration facts through logic programming, enabling composable and context-aware behavioral guidelines</li>
 <li><strong>Cedar Engine</strong>: Evaluates authorization policies using Amazon's proven Cedar Policy Language for declarative, analyzable permissions</li>
 </ul>
 <p>Both engines operate in parallel against a lock-free fact store, with results merged into unified authorization decisions. This design achieves the expressiveness of complex policy systems with the performance characteristics of in-memory data structures.</p>
-<h2 id="use-cases">Use Cases<a class="headerlink" href="#use-cases" title="Permanent link">&para;</a></h2>
-<h3 id="code-generation-agents">Code Generation Agents<a class="headerlink" href="#code-generation-agents" title="Permanent link">&para;</a></h3>
+<h2 id="use-cases">Use Cases</h2>
+<h3 id="code-generation-agents">Code Generation Agents</h3>
 <p>Control which files agents can read/write, enforce coding standards, apply rate limits on API calls, and provide environment-specific rules (stricter in production vs. development).</p>
-<h3 id="data-access-agents">Data Access Agents<a class="headerlink" href="#data-access-agents" title="Permanent link">&para;</a></h3>
+<h3 id="data-access-agents">Data Access Agents</h3>
 <p>Grant fine-grained database access, enforce row-level security policies, apply query cost limits, and derive permissions from organizational hierarchies.</p>
-<h3 id="infrastructure-automation">Infrastructure Automation<a class="headerlink" href="#infrastructure-automation" title="Permanent link">&para;</a></h3>
+<h3 id="infrastructure-automation">Infrastructure Automation</h3>
 <p>Authorize infrastructure changes, enforce approval workflows, apply resource quotas, and provide context-aware configuration (region-specific rules, compliance requirements).</p>
-<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h2 id="getting-started">Getting Started</h2>
 <p>Explore the full technical details in the <a href="whitepaper.md">Technical Whitepaper</a>, which covers system design, implementation details, performance evaluation, and production deployment strategies.</p>
 <p>For AI agent developers, the <a href="guide/agent-guide.md">Agent Integration Guide</a> provides practical examples and best practices for integrating RUNE into your agent architecture.</p>
 <p>View the source code and contribute on <a href="https://github.com/rand/RUNE">GitHub</a>.</p>
@@ -126,5 +127,6 @@
 
     <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
+    <script src="js/toc.js"></script>
 </body>
 </html>
