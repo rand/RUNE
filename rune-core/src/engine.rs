@@ -415,7 +415,10 @@ impl EngineMetrics {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::datalog::types::Rule;
     use crate::types::{Action, Principal, Resource};
+    use std::thread;
+    use std::time::Duration;
 
     #[test]
     fn test_engine_creation() {
@@ -424,9 +427,57 @@ mod tests {
     }
 
     #[test]
+    fn test_engine_with_custom_config() {
+        let config = EngineConfig {
+            cache_size: 5000,
+            cache_ttl_secs: 30,
+            parallel_eval: false,
+            timeout_ms: 200,
+        };
+        let engine = RUNEEngine::with_config(config.clone());
+        assert_eq!(engine.config.cache_size, 5000);
+        assert_eq!(engine.config.cache_ttl_secs, 30);
+        assert!(!engine.config.parallel_eval);
+        assert_eq!(engine.config.timeout_ms, 200);
+    }
+
+    #[test]
+    fn test_engine_default() {
+        let engine = RUNEEngine::default();
+        assert_eq!(engine.cache_stats().size, 0);
+    }
+
+    #[test]
+    fn test_config_default() {
+        let config = EngineConfig::default();
+        assert_eq!(config.cache_size, 10_000);
+        assert_eq!(config.cache_ttl_secs, 60);
+        assert!(config.parallel_eval);
+        assert_eq!(config.timeout_ms, 100);
+    }
+
+    #[test]
+    fn test_decision_is_permitted() {
+        assert!(Decision::Permit.is_permitted());
+        assert!(!Decision::Deny.is_permitted());
+        assert!(!Decision::Forbid.is_permitted());
+    }
+
+    #[test]
     fn test_decision_combination() {
+        // Forbid takes priority over everything
         assert_eq!(Decision::Forbid.combine(Decision::Permit), Decision::Forbid);
+        assert_eq!(Decision::Forbid.combine(Decision::Deny), Decision::Forbid);
+        assert_eq!(Decision::Forbid.combine(Decision::Forbid), Decision::Forbid);
+        assert_eq!(Decision::Permit.combine(Decision::Forbid), Decision::Forbid);
+        assert_eq!(Decision::Deny.combine(Decision::Forbid), Decision::Forbid);
+
+        // Deny takes priority over Permit
         assert_eq!(Decision::Deny.combine(Decision::Permit), Decision::Deny);
+        assert_eq!(Decision::Permit.combine(Decision::Deny), Decision::Deny);
+        assert_eq!(Decision::Deny.combine(Decision::Deny), Decision::Deny);
+
+        // Both Permit results in Permit
         assert_eq!(Decision::Permit.combine(Decision::Permit), Decision::Permit);
     }
 
@@ -453,5 +504,468 @@ mod tests {
         );
 
         assert_ne!(request1.cache_key(), request3.cache_key());
+    }
+
+    #[test]
+    fn test_basic_authorization() {
+        let engine = RUNEEngine::new();
+        let request = Request::new(
+            Principal::agent("alice"),
+            Action::new("read"),
+            Resource::file("/data/public.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+        assert!(result.evaluation_time_ns > 0);
+    }
+
+    #[test]
+    fn test_authorization_with_context() {
+        let engine = RUNEEngine::new();
+        let request = Request::new(
+            Principal::agent("alice"),
+            Action::new("read"),
+            Resource::file("/data/public.txt"),
+        )
+        .with_context("ip_address", Value::String("192.168.1.1".to_string()))
+        .with_context("time", Value::String("2024-01-01T12:00:00Z".to_string()));
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+    }
+
+    #[test]
+    fn test_cache_hit() {
+        let engine = RUNEEngine::new();
+        let request = Request::new(
+            Principal::agent("bob"),
+            Action::new("write"),
+            Resource::file("/data/private.txt"),
+        );
+
+        // First authorization - should miss cache
+        let result1 = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result1.cached);
+
+        // Second authorization - should hit cache
+        let result2 = engine.authorize(&request).expect("Authorization failed");
+        assert!(result2.cached);
+
+        // Cache stats should reflect this
+        let stats = engine.cache_stats();
+        assert_eq!(stats.size, 1);
+        assert_eq!(stats.hit_rate, 0.5); // 1 hit out of 2 requests
+    }
+
+    #[test]
+    fn test_cache_ttl_expiry() {
+        let config = EngineConfig {
+            cache_size: 100,
+            cache_ttl_secs: 1, // Very short TTL
+            parallel_eval: true,
+            timeout_ms: 100,
+        };
+        let engine = RUNEEngine::with_config(config);
+
+        let request = Request::new(
+            Principal::agent("charlie"),
+            Action::new("execute"),
+            Resource::file("/bin/script.sh"),
+        );
+
+        // First authorization
+        let result1 = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result1.cached);
+
+        // Wait for TTL to expire
+        thread::sleep(Duration::from_secs(2));
+
+        // Second authorization - cache should be expired
+        let result2 = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result2.cached);
+    }
+
+    #[test]
+    fn test_cache_clear() {
+        let engine = RUNEEngine::new();
+        let request = Request::new(
+            Principal::agent("dave"),
+            Action::new("delete"),
+            Resource::file("/data/temp.txt"),
+        );
+
+        // Populate cache
+        engine.authorize(&request).expect("Authorization failed");
+        assert_eq!(engine.cache_stats().size, 1);
+
+        // Clear cache
+        engine.clear_cache();
+        assert_eq!(engine.cache_stats().size, 0);
+
+        // Next request should miss cache
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+    }
+
+    #[test]
+    fn test_metrics_tracking() {
+        let engine = RUNEEngine::new();
+        let metrics = engine.metrics();
+
+        let request1 = Request::new(
+            Principal::agent("eve"),
+            Action::new("read"),
+            Resource::file("/data/file1.txt"),
+        );
+        let request2 = Request::new(
+            Principal::agent("frank"),
+            Action::new("read"),
+            Resource::file("/data/file2.txt"),
+        );
+
+        // Perform some authorizations
+        engine.authorize(&request1).expect("Authorization failed");
+        engine.authorize(&request1).expect("Authorization failed"); // Cache hit
+        engine.authorize(&request2).expect("Authorization failed");
+
+        // Check metrics
+        use std::sync::atomic::Ordering;
+        assert_eq!(metrics.cache_hits.load(Ordering::Relaxed), 1);
+        assert_eq!(metrics.cache_misses.load(Ordering::Relaxed), 2);
+        assert_eq!(metrics.total_authorizations.load(Ordering::Relaxed), 3);
+    }
+
+    #[test]
+    fn test_cache_hit_rate_zero_requests() {
+        let metrics = EngineMetrics::new();
+        assert_eq!(metrics.cache_hit_rate(), 0.0);
+    }
+
+    #[test]
+    fn test_cache_hit_rate_calculation() {
+        let metrics = EngineMetrics::new();
+
+        // 3 misses, 2 hits = 0.4 hit rate
+        metrics.record_cache_miss();
+        metrics.record_cache_miss();
+        metrics.record_cache_miss();
+        metrics.record_cache_hit();
+        metrics.record_cache_hit();
+
+        assert_eq!(metrics.cache_hit_rate(), 0.4);
+    }
+
+    #[test]
+    fn test_add_fact() {
+        let engine = RUNEEngine::new();
+        engine.add_fact("user", vec![Value::String("alice".to_string())]);
+        engine.add_fact(
+            "role",
+            vec![
+                Value::String("alice".to_string()),
+                Value::String("admin".to_string()),
+            ],
+        );
+
+        // Facts should be in the store (we can't easily verify without exposing the fact store)
+        // but at least ensure it doesn't panic
+    }
+
+    #[test]
+    fn test_sequential_evaluation() {
+        let config = EngineConfig {
+            cache_size: 100,
+            cache_ttl_secs: 60,
+            parallel_eval: false, // Force sequential
+            timeout_ms: 100,
+        };
+        let engine = RUNEEngine::with_config(config);
+
+        let request = Request::new(
+            Principal::agent("grace"),
+            Action::new("read"),
+            Resource::file("/data/sequential.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+        assert!(result.evaluation_time_ns > 0);
+    }
+
+    #[test]
+    fn test_parallel_evaluation() {
+        let config = EngineConfig {
+            cache_size: 100,
+            cache_ttl_secs: 60,
+            parallel_eval: true, // Force parallel
+            timeout_ms: 100,
+        };
+        let engine = RUNEEngine::with_config(config);
+
+        let request = Request::new(
+            Principal::agent("heidi"),
+            Action::new("read"),
+            Resource::file("/data/parallel.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+        assert!(result.evaluation_time_ns > 0);
+    }
+
+    #[test]
+    fn test_reload_datalog_rules() {
+        let engine = RUNEEngine::new();
+
+        // Add some facts
+        engine.add_fact("user", vec![Value::String("alice".to_string())]);
+
+        // Create new rules (empty for this test)
+        let new_rules: Vec<Rule> = vec![];
+
+        // Reload rules
+        engine
+            .reload_datalog_rules(new_rules)
+            .expect("Failed to reload rules");
+
+        // Cache should be cleared
+        assert_eq!(engine.cache_stats().size, 0);
+    }
+
+    #[test]
+    fn test_reload_policies() {
+        let engine = RUNEEngine::new();
+
+        // Populate cache first
+        let request = Request::new(
+            Principal::agent("iris"),
+            Action::new("read"),
+            Resource::file("/data/test.txt"),
+        );
+        engine.authorize(&request).expect("Authorization failed");
+        assert_eq!(engine.cache_stats().size, 1);
+
+        // Reload policies with new set
+        let new_policies = PolicySet::new();
+        engine
+            .reload_policies(new_policies)
+            .expect("Failed to reload policies");
+
+        // Cache should be cleared
+        assert_eq!(engine.cache_stats().size, 0);
+    }
+
+    #[test]
+    fn test_datalog_version() {
+        let engine = RUNEEngine::new();
+        let version = engine.datalog_version();
+        assert_eq!(version.rules().len(), 0); // Empty engine
+    }
+
+    #[test]
+    fn test_policies_version() {
+        let engine = RUNEEngine::new();
+        let version = engine.policies_version();
+        // Just ensure we can get the version
+        let _ = version;
+    }
+
+    #[test]
+    fn test_concurrent_authorizations() {
+        use std::sync::Arc;
+
+        let engine = Arc::new(RUNEEngine::new());
+        let mut handles = vec![];
+
+        // Spawn multiple threads performing authorizations
+        for i in 0..10 {
+            let engine_clone = engine.clone();
+            let handle = thread::spawn(move || {
+                let request = Request::new(
+                    Principal::agent(&format!("user_{}", i)),
+                    Action::new("read"),
+                    Resource::file(&format!("/data/file_{}.txt", i)),
+                );
+                engine_clone
+                    .authorize(&request)
+                    .expect("Authorization failed")
+            });
+            handles.push(handle);
+        }
+
+        // Wait for all threads to complete
+        for handle in handles {
+            handle.join().expect("Thread panicked");
+        }
+
+        // All authorizations should have completed
+        let metrics = engine.metrics();
+        use std::sync::atomic::Ordering;
+        assert_eq!(metrics.total_authorizations.load(Ordering::Relaxed), 10);
+    }
+
+    #[test]
+    fn test_authorization_result_fields() {
+        let engine = RUNEEngine::new();
+        let request = Request::new(
+            Principal::agent("judy"),
+            Action::new("read"),
+            Resource::file("/data/test.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+
+        // Verify all fields are populated
+        assert!(!result.explanation.is_empty());
+        assert!(result.evaluation_time_ns > 0);
+        assert!(!result.cached);
+        // evaluated_rules and facts_used may be empty but should exist
+        let _ = result.evaluated_rules;
+        let _ = result.facts_used;
+    }
+
+    #[test]
+    fn test_decision_serialization() {
+        // Ensure Decision can be serialized/deserialized
+        use serde_json;
+
+        let permit = Decision::Permit;
+        let json = serde_json::to_string(&permit).expect("Failed to serialize");
+        let deserialized: Decision =
+            serde_json::from_str(&json).expect("Failed to deserialize");
+        assert_eq!(permit, deserialized);
+    }
+
+    #[test]
+    fn test_config_serialization() {
+        use serde_json;
+
+        let config = EngineConfig::default();
+        let json = serde_json::to_string(&config).expect("Failed to serialize");
+        let deserialized: EngineConfig =
+            serde_json::from_str(&json).expect("Failed to deserialize");
+        assert_eq!(config.cache_size, deserialized.cache_size);
+    }
+
+    #[test]
+    fn test_cache_stats_serialization() {
+        use serde_json;
+
+        let stats = CacheStats {
+            size: 100,
+            hit_rate: 0.75,
+        };
+        let json = serde_json::to_string(&stats).expect("Failed to serialize");
+        let deserialized: CacheStats =
+            serde_json::from_str(&json).expect("Failed to deserialize");
+        assert_eq!(stats.size, deserialized.size);
+        assert_eq!(stats.hit_rate, deserialized.hit_rate);
+    }
+
+    #[test]
+    fn test_multiple_cache_entries() {
+        let engine = RUNEEngine::new();
+
+        // Create multiple different requests
+        for i in 0..5 {
+            let request = Request::new(
+                Principal::agent(&format!("user_{}", i)),
+                Action::new("read"),
+                Resource::file(&format!("/data/file_{}.txt", i)),
+            );
+            engine.authorize(&request).expect("Authorization failed");
+        }
+
+        // All should be cached
+        assert_eq!(engine.cache_stats().size, 5);
+
+        // Authorizing the same requests again should hit cache
+        for i in 0..5 {
+            let request = Request::new(
+                Principal::agent(&format!("user_{}", i)),
+                Action::new("read"),
+                Resource::file(&format!("/data/file_{}.txt", i)),
+            );
+            let result = engine.authorize(&request).expect("Authorization failed");
+            assert!(result.cached);
+        }
+
+        // Hit rate should be 0.5 (5 hits out of 10 total)
+        assert_eq!(engine.cache_stats().hit_rate, 0.5);
+    }
+
+    #[test]
+    fn test_metrics_decision_counts() {
+        let engine = RUNEEngine::new();
+
+        // Perform authorizations (they will all be Deny since we have no rules)
+        for i in 0..3 {
+            let request = Request::new(
+                Principal::agent(&format!("user_{}", i)),
+                Action::new("read"),
+                Resource::file(&format!("/file_{}.txt", i)),
+            );
+            engine.authorize(&request).expect("Authorization failed");
+        }
+
+        let metrics = engine.metrics();
+        use std::sync::atomic::Ordering;
+
+        // All should be denies (no rules configured)
+        assert_eq!(metrics.total_authorizations.load(Ordering::Relaxed), 3);
+        assert_eq!(metrics.total_denies.load(Ordering::Relaxed), 3);
+        assert_eq!(metrics.total_permits.load(Ordering::Relaxed), 0);
+        assert_eq!(metrics.total_forbids.load(Ordering::Relaxed), 0);
+    }
+
+    #[test]
+    fn test_engine_with_facts() {
+        let engine = RUNEEngine::new();
+
+        // Add some facts
+        engine.add_fact(
+            "has_role",
+            vec![
+                Value::String("alice".to_string()),
+                Value::String("admin".to_string()),
+            ],
+        );
+        engine.add_fact(
+            "has_role",
+            vec![
+                Value::String("bob".to_string()),
+                Value::String("user".to_string()),
+            ],
+        );
+
+        // Authorize a request
+        let request = Request::new(
+            Principal::agent("alice"),
+            Action::new("read"),
+            Resource::file("/admin/config.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        assert!(!result.cached);
+    }
+
+    #[test]
+    fn test_authorization_result_explanation_permit() {
+        let engine = RUNEEngine::new();
+
+        // Add facts to trigger permit (Datalog will return non-empty facts)
+        engine.add_fact("allow", vec![Value::String("test".to_string())]);
+
+        let request = Request::new(
+            Principal::agent("test"),
+            Action::new("read"),
+            Resource::file("/test.txt"),
+        );
+
+        let result = engine.authorize(&request).expect("Authorization failed");
+        // The explanation should contain "Permitted by" for permit decisions
+        // (though with empty rules, actual decision depends on evaluation)
+        assert!(!result.explanation.is_empty());
     }
 }
