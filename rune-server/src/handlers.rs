@@ -5,6 +5,7 @@ use crate::api::{
     Decision, Diagnostics, HealthResponse, HealthStatus,
 };
 use crate::error::{ApiError, ApiResult};
+use crate::metrics;
 use crate::state::AppState;
 use axum::{
     extract::{Query, State},
@@ -68,6 +69,15 @@ pub async fn authorize(
 
     // Convert decision
     let decision = result.decision.into();
+
+    // Record metrics
+    let decision_str = match decision {
+        Decision::Permit => "permit",
+        Decision::Deny => "deny",
+        Decision::Forbid => "forbid",
+    };
+    metrics::record_authorization(decision_str, elapsed_ms / 1000.0, result.cached);
+    metrics::record_rule_evaluations(result.evaluated_rules.len());
 
     // Build response
     let mut response = AuthorizeResponse {
@@ -174,6 +184,9 @@ pub async fn batch_authorize(
 
     let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
 
+    // Record batch metrics
+    metrics::record_batch_authorization(results.len(), elapsed_ms / 1000.0);
+
     info!(
         "Batch authorization: {} requests processed in {:.2}ms",
         results.len(),
@@ -226,9 +239,5 @@ pub async fn health_ready(State(state): State<AppState>) -> ApiResult<Json<Healt
 
 /// Prometheus metrics endpoint
 pub async fn metrics() -> String {
-    // TODO: Properly collect and format metrics
-    // For now, return a placeholder
-    "# HELP rune_requests_total Total number of authorization requests\n\
-     # TYPE rune_requests_total counter\n\
-     rune_requests_total 0\n".to_string()
+    metrics::get_prometheus_metrics()
 }

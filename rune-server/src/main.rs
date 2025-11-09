@@ -32,8 +32,10 @@ async fn main() -> anyhow::Result<()> {
     info!("Starting RUNE HTTP Server v{}", env!("CARGO_PKG_VERSION"));
 
     // Initialize Prometheus metrics
-    let prometheus_builder = metrics_exporter_prometheus::PrometheusBuilder::new();
-    prometheus_builder.install()?;
+    rune_server::metrics::init_prometheus()?;
+
+    // Initialize metric descriptions
+    rune_server::metrics::init_metrics();
 
     // Create RUNE engine
     let engine = Arc::new(RUNEEngine::new());

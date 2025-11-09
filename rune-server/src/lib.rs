@@ -4,9 +4,10 @@
 //! enabling remote authorization queries with sub-10ms latency.
 
 pub mod api;
-pub mod handlers;
-pub mod state;
 pub mod error;
+pub mod handlers;
+pub mod metrics;
+pub mod state;
 
 pub use api::{AuthorizeRequest, AuthorizeResponse, HealthResponse};
 pub use state::AppState;
