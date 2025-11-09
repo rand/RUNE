@@ -611,7 +611,6 @@ mod tests {
     #[test]
     fn test_metrics_tracking() {
         let engine = RUNEEngine::new();
-        let metrics = engine.metrics();
 
         let request1 = Request::new(
             Principal::agent("eve"),
@@ -629,7 +628,8 @@ mod tests {
         engine.authorize(&request1).expect("Authorization failed"); // Cache hit
         engine.authorize(&request2).expect("Authorization failed");
 
-        // Check metrics
+        // Check metrics (get fresh metrics reference after authorizations)
+        let metrics = engine.metrics();
         use std::sync::atomic::Ordering;
         assert_eq!(metrics.cache_hits.load(Ordering::Relaxed), 1);
         assert_eq!(metrics.cache_misses.load(Ordering::Relaxed), 2);
