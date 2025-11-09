@@ -166,6 +166,7 @@ fn split_preserving_parens(input: &str) -> Vec<&str> {
 /// Parse Datalog rules
 pub fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
     let mut rules = Vec::new();
+    let mut current_rule = String::new();
 
     for line in input.lines() {
         let line = line.trim();
@@ -173,26 +174,42 @@ pub fn parse_rules(input: &str) -> Result<Vec<DatalogRule>> {
             continue;
         }
 
-        // Check if this is a fact (no body) or a rule (has :-)
-        if let Some((head, body)) = line.split_once(":-") {
-            // Rule with head and body
-            let head_atom = parse_atom(head.trim(), false)?;
-            let body_atoms = split_preserving_parens(body)
-                .into_iter()
-                .map(|s| {
-                    let s = s.trim();
-                    // Check for negation
-                    let negated = s.starts_with("not ");
-                    let atom_str = if negated { &s[4..] } else { s };
-                    parse_atom(atom_str.trim(), negated)
-                })
-                .collect::<Result<Vec<_>>>()?;
+        // Accumulate lines for the current rule
+        if !current_rule.is_empty() {
+            current_rule.push(' ');
+        }
+        current_rule.push_str(line);
 
-            rules.push(DatalogRule::new(head_atom, body_atoms));
-        } else {
-            // Fact (ground atom with no body)
-            let fact_atom = parse_atom(line.trim_end_matches('.'), false)?;
-            rules.push(DatalogRule::fact(fact_atom));
+        // Check if rule is complete (ends with period)
+        if current_rule.trim_end().ends_with('.') {
+            // Parse the complete rule
+            let rule_str = current_rule.trim();
+
+            // Check if this is a fact (no body) or a rule (has :-)
+            if let Some((head, body)) = rule_str.split_once(":-") {
+                // Rule with head and body
+                let head_atom = parse_atom(head.trim(), false)?;
+                let body_str = body.trim().trim_end_matches('.');
+                let body_atoms = split_preserving_parens(body_str)
+                    .into_iter()
+                    .map(|s| {
+                        let s = s.trim();
+                        // Check for negation
+                        let negated = s.starts_with("not ");
+                        let atom_str = if negated { &s[4..] } else { s };
+                        parse_atom(atom_str.trim(), negated)
+                    })
+                    .collect::<Result<Vec<_>>>()?;
+
+                rules.push(DatalogRule::new(head_atom, body_atoms));
+            } else {
+                // Fact (ground atom with no body)
+                let fact_atom = parse_atom(rule_str.trim_end_matches('.'), false)?;
+                rules.push(DatalogRule::fact(fact_atom));
+            }
+
+            // Reset for next rule
+            current_rule.clear();
         }
     }
 
