@@ -4,7 +4,6 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use reqwest;
 use rune_core::RUNEEngine;
 use rune_server::{
     api::{Decision, *},
@@ -12,7 +11,6 @@ use rune_server::{
 };
 use serde_json::json;
 use std::sync::Arc;
-use tokio;
 
 use std::sync::Once;
 
@@ -59,7 +57,7 @@ async fn setup_test_server() -> (String, tokio::task::JoinHandle<()>) {
 async fn test_health_live() {
     let (base_url, _handle) = setup_test_server().await;
 
-    let response = reqwest::get(&format!("{}/health/live", base_url))
+    let response = reqwest::get(format!("{}/health/live", base_url))
         .await
         .expect("Failed to send request");
 
@@ -83,7 +81,7 @@ async fn test_authorization_deny() {
     });
 
     let response = client
-        .post(&format!("{}/v1/authorize", base_url))
+        .post(format!("{}/v1/authorize", base_url))
         .json(&request_body)
         .send()
         .await
@@ -109,7 +107,7 @@ async fn test_authorization_with_debug() {
     });
 
     let response = client
-        .post(&format!("{}/v1/authorize?debug=true", base_url))
+        .post(format!("{}/v1/authorize?debug=true", base_url))
         .json(&request_body)
         .send()
         .await
@@ -151,7 +149,7 @@ async fn test_batch_authorization() {
     });
 
     let response = client
-        .post(&format!("{}/v1/authorize/batch", base_url))
+        .post(format!("{}/v1/authorize/batch", base_url))
         .json(&request_body)
         .send()
         .await
@@ -178,7 +176,7 @@ async fn test_batch_authorization_empty() {
     });
 
     let response = client
-        .post(&format!("{}/v1/authorize/batch", base_url))
+        .post(format!("{}/v1/authorize/batch", base_url))
         .json(&request_body)
         .send()
         .await
@@ -208,7 +206,7 @@ async fn test_batch_authorization_too_many() {
     });
 
     let response = client
-        .post(&format!("{}/v1/authorize/batch", base_url))
+        .post(format!("{}/v1/authorize/batch", base_url))
         .json(&request_body)
         .send()
         .await
@@ -224,7 +222,7 @@ async fn test_metrics_endpoint() {
     // First make an authorization request to generate some metrics
     let client = reqwest::Client::new();
     let _ = client
-        .post(&format!("{}/v1/authorize", base_url))
+        .post(format!("{}/v1/authorize", base_url))
         .json(&json!({
             "action": "read",
             "principal": "user-123",
@@ -234,7 +232,7 @@ async fn test_metrics_endpoint() {
         .await;
 
     // Now check the metrics endpoint
-    let response = reqwest::get(&format!("{}/metrics", base_url))
+    let response = reqwest::get(format!("{}/metrics", base_url))
         .await
         .expect("Failed to send request");
 
@@ -270,7 +268,7 @@ async fn test_invalid_json() {
     let client = reqwest::Client::new();
 
     let response = client
-        .post(&format!("{}/v1/authorize", base_url))
+        .post(format!("{}/v1/authorize", base_url))
         .header("Content-Type", "application/json")
         .body("{invalid json}")
         .send()
@@ -288,7 +286,7 @@ async fn test_cors_headers() {
 
     // Send a request with an Origin header to trigger CORS
     let response = client
-        .get(&format!("{}/health/live", base_url))
+        .get(format!("{}/health/live", base_url))
         .header("Origin", "http://example.com")
         .send()
         .await
@@ -318,7 +316,7 @@ async fn test_performance_single_request() {
     let start = std::time::Instant::now();
 
     let response = client
-        .post(&format!("{}/v1/authorize?debug=true", base_url))
+        .post(format!("{}/v1/authorize?debug=true", base_url))
         .json(&request_body)
         .send()
         .await
@@ -365,7 +363,7 @@ async fn test_performance_batch() {
     let start = std::time::Instant::now();
 
     let response = client
-        .post(&format!("{}/v1/authorize/batch", base_url))
+        .post(format!("{}/v1/authorize/batch", base_url))
         .json(&request_body)
         .send()
         .await
