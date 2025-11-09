@@ -347,7 +347,10 @@ impl RelationBackend for TrieBackend {
     }
 
     fn filter_by_predicate(&self, predicate: &str) -> Vec<Fact> {
-        self.facts_by_predicate.get(predicate).cloned().unwrap_or_default()
+        self.facts_by_predicate
+            .get(predicate)
+            .cloned()
+            .unwrap_or_default()
     }
 }
 

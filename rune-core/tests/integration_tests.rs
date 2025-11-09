@@ -94,10 +94,7 @@ fn test_end_to_end_transitive_permissions() {
     // Resource hierarchy
     fact_store.add_fact(Fact::new(
         "parent_resource".to_string(),
-        vec![
-            Value::string("/projects/alpha"),
-            Value::string("/projects"),
-        ],
+        vec![Value::string("/projects/alpha"), Value::string("/projects")],
     ));
     fact_store.add_fact(Fact::new(
         "parent_resource".to_string(),
@@ -150,7 +147,10 @@ fn test_end_to_end_negation() {
     // Users
     fact_store.add_fact(Fact::new("user".to_string(), vec![Value::string("alice")]));
     fact_store.add_fact(Fact::new("user".to_string(), vec![Value::string("bob")]));
-    fact_store.add_fact(Fact::new("user".to_string(), vec![Value::string("charlie")]));
+    fact_store.add_fact(Fact::new(
+        "user".to_string(),
+        vec![Value::string("charlie")],
+    ));
 
     // Blocked users
     fact_store.add_fact(Fact::new(
@@ -194,18 +194,14 @@ fn test_cedar_bridge_request_conversion() {
         .with_attribute("role", Value::string("admin"))
         .with_attribute("department", Value::string("engineering"));
 
-    let principal = Principal {
-        entity: principal,
-    };
+    let principal = Principal { entity: principal };
 
     let resource = Resource::file("/tmp/secret.txt")
         .entity
         .with_attribute("owner", Value::string("alice"))
         .with_attribute("confidential", Value::Bool(true));
 
-    let resource = Resource {
-        entity: resource,
-    };
+    let resource = Resource { entity: resource };
 
     let action = Action::new("read").with_parameter("mode", Value::string("readonly"));
 
@@ -235,9 +231,7 @@ fn test_cedar_bridge_request_conversion() {
 
     // Verify action facts
     assert!(facts.iter().any(|f| f.predicate.as_ref() == "action"));
-    assert!(facts
-        .iter()
-        .any(|f| f.predicate.as_ref() == "action_param"));
+    assert!(facts.iter().any(|f| f.predicate.as_ref() == "action_param"));
 
     // Verify context facts
     assert!(facts.iter().any(|f| f.predicate.as_ref() == "context"));
@@ -328,10 +322,7 @@ fn test_complex_hierarchy_with_attributes() {
     // Group hierarchy
     fact_store.add_fact(Fact::new(
         "group_parent".to_string(),
-        vec![
-            Value::string("developers"),
-            Value::string("engineering"),
-        ],
+        vec![Value::string("developers"), Value::string("engineering")],
     ));
     fact_store.add_fact(Fact::new(
         "group_parent".to_string(),
