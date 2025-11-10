@@ -1,0 +1,66 @@
+/* RUNE Color Scheme - Purple Identity */
+
+:root {
+    --text-primary: #000;
+    --text-secondary: #666;
+    --border: #eaeaea;
+    --background: #fff;
+    --background-subtle: #fafafa;
+    --accent: #7B1FA2;  /* RUNE purple accent */
+    --code-bg: #fafafa;
+    --code-border: #eaeaea;
+    /* Semantic colors - Purple + Gray scale */
+    --color-success: #9C27B0;  /* deep purple - primary */
+    --color-error: #7B1FA2;    /* darker purple - primary */
+    --color-warning: #757575;  /* medium gray - secondary */
+    --color-info: #616161;     /* dark gray - secondary */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #ededed;
+        --text-secondary: #888;
+        --border: #333;
+        --background: #000;
+        --background-subtle: #111;
+        --accent: #9C27B0;  /* Brighter purple for dark mode */
+        --code-bg: #111;
+        --code-border: #333;
+        /* Semantic colors for dark mode - Purple + Gray scale */
+        --color-success: #AB47BC;  /* lighter purple - primary */
+        --color-error: #BA68C8;    /* light purple - primary */
+        --color-warning: #9E9E9E;  /* light gray - secondary */
+        --color-info: #BDBDBD;     /* lighter gray - secondary */
+    }
+}
+
+/* Manual theme override classes */
+body.light-theme {
+    --text-primary: #000;
+    --text-secondary: #666;
+    --border: #eaeaea;
+    --background: #fff;
+    --background-subtle: #fafafa;
+    --accent: #7B1FA2;
+    --code-bg: #fafafa;
+    --code-border: #eaeaea;
+    --color-success: #9C27B0;
+    --color-error: #7B1FA2;
+    --color-warning: #757575;
+    --color-info: #616161;
+}
+
+body.dark-theme {
+    --text-primary: #ededed;
+    --text-secondary: #888;
+    --border: #333;
+    --background: #000;
+    --background-subtle: #111;
+    --accent: #9C27B0;
+    --code-bg: #111;
+    --code-border: #333;
+    --color-success: #AB47BC;
+    --color-error: #BA68C8;
+    --color-warning: #9E9E9E;
+    --color-info: #BDBDBD;
+}

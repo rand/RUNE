@@ -30,7 +30,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Load foundation first (structure) -->
+    <link rel="stylesheet" href="css/foundation.css">
+    <!-- Then load project colors (RUNE purple identity) -->
+    <link rel="stylesheet" href="css/colors-rune.css">
 </head>
 <body>
     <nav class="navbar">
@@ -144,6 +147,11 @@
         </footer>
     </main>
 
+    <!-- Load foundation JS first -->
+    <script src="js/theme-core.js"></script>
+    <script src="js/sidebar-core.js"></script>
+    <script src="js/toc-core.js"></script>
+    <!-- Then load project-specific wrappers -->
     <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
 </body>

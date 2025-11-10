@@ -30,7 +30,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Load foundation first (structure) -->
+    <link rel="stylesheet" href="css/foundation.css">
+    <!-- Then load project colors (RUNE purple identity) -->
+    <link rel="stylesheet" href="css/colors-rune.css">
 </head>
 <body>
     <nav class="navbar">
@@ -122,7 +125,10 @@ cargo test
 </ul>
 <h3 id="architecture">Architecture</h3>
 <div class="diagram-container">
-    <img class="diagram-svg" alt="RUNE Architecture" src="diagrams/architecture.svg" />
+    <picture>
+        <source srcset="diagrams/architecture-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="diagrams/architecture-light.svg" alt="RUNE Architecture" class="diagram-svg">
+    </picture>
 </div>
 <p>RUNE evaluates requests through parallel Datalog and Cedar engines, backed by a lock-free fact store. For detailed architecture, see the <a href="whitepaper.html#4-architecture">Technical Whitepaper</a>.</p>
 <p><strong>Key Design Patterns</strong>:
@@ -764,6 +770,11 @@ bundle exec jekyll serve
         </footer>
     </main>
 
+    <!-- Load foundation JS first -->
+    <script src="js/theme-core.js"></script>
+    <script src="js/sidebar-core.js"></script>
+    <script src="js/toc-core.js"></script>
+    <!-- Then load project-specific wrappers -->
     <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
 </body>

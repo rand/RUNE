@@ -1,4 +1,4 @@
-// Dynamic sidebar content based on scroll position
+// RUNE Sidebar - Project-specific comments with shared foundation
 (function() {
     // Section-specific comments for index page
     const indexComments = {
@@ -144,88 +144,21 @@
         return { sections: indexComments, subsections: {} };
     }
 
-    function updateSidebarContent() {
-        const sidebar = document.querySelector('.sidebar-tagline');
-        if (!sidebar) return;
-
-        const { sections: sectionComments, subsections: subsectionComments } = getSectionComments();
-
-        // Get all sections and headings
-        const allElements = [...document.querySelectorAll('section[id], h2[id], h3[id]')];
-        const headings = [...document.querySelectorAll('h2[id], h3[id]')];
-
-        // Account for navbar height and more responsive detection
-        const navbarHeight = 80;
-        const scrollPosition = window.scrollY + navbarHeight + 50;
-
-        // Find nearest h3 for granular commentary
-        let nearestH3 = null;
-        let minH3Distance = Infinity;
-
-        for (const heading of headings) {
-            if (heading.tagName === 'H3' && heading.id) {
-                const distance = Math.abs(scrollPosition - heading.offsetTop);
-                if (distance < minH3Distance && scrollPosition >= heading.offsetTop - 100) {
-                    minH3Distance = distance;
-                    nearestH3 = heading.id;
-                }
-            }
-        }
-
-        // Find nearest h2 for section-level commentary
-        let nearestH2 = null;
-        let minH2Distance = Infinity;
-
-        for (const heading of headings) {
-            if (heading.tagName === 'H2' && heading.id) {
-                const distance = Math.abs(scrollPosition - heading.offsetTop);
-                if (distance < minH2Distance && scrollPosition >= heading.offsetTop - 100) {
-                    minH2Distance = distance;
-                    nearestH2 = heading.id;
-                }
-            }
-        }
-
-        // Also check section[id] elements
-        const sections = [...document.querySelectorAll('section[id]')];
-        let nearestSection = null;
-        for (let i = sections.length - 1; i >= 0; i--) {
-            if (scrollPosition >= sections[i].offsetTop) {
-                nearestSection = sections[i].id;
-                break;
-            }
-        }
-
-        // Prioritize subsection commentary if we're close to an h3
-        if (nearestH3 && subsectionComments[nearestH3] && minH3Distance < 300) {
-            sidebar.textContent = subsectionComments[nearestH3];
-        } else if (nearestH2 && sectionComments[nearestH2] && minH2Distance < 400) {
-            sidebar.textContent = sectionComments[nearestH2];
-        } else if (nearestSection && sectionComments[nearestSection]) {
-            sidebar.textContent = sectionComments[nearestSection];
-        } else if (Object.keys(sectionComments).length === 0) {
-            // Keep static message for pages without dynamic content
-            return;
-        } else {
-            sidebar.textContent = '// High-Performance Authorization';
-        }
-    }
-
-    // Initialize on page load
+    // Initialize sidebar with RUNE-specific content
     function init() {
-        updateSidebarContent();
+        const { sections, subsections } = getSectionComments();
+        const defaultComment = '// High-Performance Authorization';
 
-        // Update on scroll with throttling
-        let ticking = false;
-        window.addEventListener('scroll', function() {
-            if (!ticking) {
-                window.requestAnimationFrame(function() {
-                    updateSidebarContent();
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
+        // Use the shared foundation's sidebar core
+        if (window.sidebarCore) {
+            window.sidebarCore.init({
+                sectionComments: sections,
+                subsectionComments: subsections,
+                defaultComment: defaultComment
+            });
+        } else {
+            console.error('sidebar-core.js not loaded. Make sure to include it before sidebar.js');
+        }
     }
 
     // Run on DOMContentLoaded
