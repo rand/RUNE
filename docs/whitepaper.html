@@ -31,11 +31,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Shared Styles -->
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/tables.css">
-    <link rel="stylesheet" href="css/purple.css">
+    <!-- Shared Foundation (structure without colors) -->
+    <link rel="stylesheet" href="css/foundation.css">
+
+    <!-- RUNE Theme (project-specific colors and identity) -->
+    <link rel="stylesheet" href="css/rune-theme.css">
 </head>
 <body>
     <nav class="navbar">
@@ -1445,12 +1445,12 @@ RUNE is released under dual MIT/Apache-2.0 license. Contributions welcome at <a 
 
     </main>
 
-    <!-- Project-specific sidebar comments (load BEFORE sidebar-base.js) -->
-    <script src="js/sidebar.js"></script>
+    <!-- Shared Foundation Scripts -->
+    <script src="js/theme-core.js"></script>
+    <script src="js/sidebar-core.js"></script>
+    <script src="js/toc-core.js"></script>
 
-    <!-- Shared Scripts -->
-    <script src="js/theme.js"></script>
-    <script src="js/sidebar-base.js"></script>
-    <script src="js/toc.js"></script>
+    <!-- Project-specific customization -->
+    <script src="js/sidebar.js"></script>
 </body>
 </html>

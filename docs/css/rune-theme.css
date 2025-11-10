@@ -1,0 +1,60 @@
+/* RUNE Theme - Purple Identity */
+/* Defines project-specific colors for shared foundation */
+
+:root {
+    /* Text Colors */
+    --text-primary: #000;
+    --text-secondary: #666;
+
+    /* Background Colors */
+    --bg-primary: #fff;
+    --bg-primary-alpha: rgba(255, 255, 255, 0.8);  /* For navbar blur */
+    --bg-secondary: #fafafa;
+
+    /* Accent Color - RUNE Purple (authorization/security) */
+    --accent: #7B1FA2;
+
+    /* Borders */
+    --border-color: #eaeaea;
+
+    /* Code Blocks */
+    --code-bg: #fafafa;
+
+    /* Badges */
+    --badge-text: #fff;  /* Text color for version badges */
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Theme */
+body.dark-theme {
+    /* Text Colors */
+    --text-primary: #ededed;
+    --text-secondary: #888;
+
+    /* Background Colors */
+    --bg-primary: #000;
+    --bg-primary-alpha: rgba(0, 0, 0, 0.8);
+    --bg-secondary: #111;
+
+    /* Accent Color - Lighter purple for dark mode */
+    --accent: #9C27B0;
+
+    /* Borders */
+    --border-color: #333;
+
+    /* Code Blocks */
+    --code-bg: #111;
+
+    /* Badges */
+    --badge-text: #fff;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Logo Glyph - Closed Contour Integral (authorization/security boundary) */
+.logo-glyph::before {
+    content: "∮";
+}
