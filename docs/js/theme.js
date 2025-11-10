@@ -1,8 +1,6 @@
 // Theme toggle functionality - Simple two-state light/dark toggle
 (function() {
-    // Theme key should be project-specific when used
-    // Override THEME_KEY in project-specific wrapper if needed
-    const THEME_KEY = window.THEME_KEY || 'docs-theme';
+    const THEME_KEY = 'rune-theme';
 
     // Get saved theme, default to light
     function getSavedTheme() {

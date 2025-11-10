@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RUNE Whitepaper</title>
-    <meta name="description" content="Technical whitepaper for RUNE: architecture, design, and implementation details.">
+    <title>RUNE Technical Whitepaper</title>
+    <meta name="description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
 
-    <!-- Favicons -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://rand.github.io/RUNE/">
-    <meta property="og:title" content="RUNE: High-Performance Authorization & Configuration Engine">
-    <meta property="og:description" content="A principled authorization and configuration system combining Datalog and Cedar policies. Sub-millisecond decisions at 5M+ ops/sec.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://rand.github.io/RUNE/whitepaper.html">
+    <meta property="og:title" content="RUNE Technical Whitepaper">
+    <meta property="og:description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
     <meta property="og:image" content="https://rand.github.io/RUNE/og-image.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://rand.github.io/RUNE/">
-    <meta name="twitter:title" content="RUNE: High-Performance Authorization & Configuration Engine">
-    <meta name="twitter:description" content="A principled authorization and configuration system combining Datalog and Cedar policies. Sub-millisecond decisions at 5M+ ops/sec.">
+    <meta name="twitter:url" content="https://rand.github.io/RUNE/whitepaper.html">
+    <meta name="twitter:title" content="RUNE Technical Whitepaper">
+    <meta name="twitter:description" content="Technical whitepaper for RUNE: Dual-engine authorization combining Datalog and Cedar. Lock-free performance at 5M+ ops/sec with sub-millisecond latency.">
     <meta name="twitter:image" content="https://rand.github.io/RUNE/og-image.png">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
@@ -30,34 +30,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-    <!-- Shared Foundation (structure without colors) -->
-    <link rel="stylesheet" href="css/foundation.css">
-
-    <!-- RUNE Theme (project-specific colors and identity) -->
-    <link rel="stylesheet" href="css/rune-theme.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="nav-brand">
-                <span class="logo-glyph">∮</span>
+                <span class="logo-glyph"></span>
                 <strong>RUNE</strong> v0.1.0
             </a>
             <div class="nav-links">
-                
-                    
-                        <a href="whitepaper.html">Whitepaper</a>
-                    
-                
-                    
-                        <a href="agent-guide.html">Agent Guide</a>
-                    
-                
-                    
-                        <a href="https://github.com/rand/RUNE" target="_blank">GitHub</a>
-                    
-                
+                <a href="index.html">Home</a>
+                <a href="whitepaper.html">Whitepaper</a>
+                <a href="agent-guide.html">Agent Guide</a>
+                <a href="https://github.com/rand/RUNE">GitHub</a>
                 <button class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-toggle-icon"></span>
                 </button>
@@ -67,19 +53,25 @@
 
     <aside class="sidebar">
         <div class="sidebar-content">
-            <div class="sidebar-tagline">// High-Performance Authorization</div>
-            <div class="sidebar-toc"></div>
+            <div class="sidebar-status">
+                <span class="status-glyph"></span>
+                <span class="sidebar-tagline">// Technical whitepaper</span>
+            </div>
         </div>
     </aside>
 
     <main class="container">
-        
-<h1 id="rune-high-performance-authorization-configuration-engine">RUNE: High-Performance Authorization &amp; Configuration Engine</h1>
-<p><strong>A principled authorization and configuration system for AI agents</strong></p>
-<p><strong>Version</strong>: 0.1.0
-<strong>Date</strong>: November 2025
-<strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/tree/v0.1.0-whitepaper">v0.1.0-whitepaper</a></p>
-<hr />
+        <header class="paper-header">
+            <h1>RUNE: High-Performance Authorization & Configuration Engine</h1>
+            <p class="paper-subtitle">Technical Whitepaper</p>
+            <p class="paper-meta">
+                <span class="version-badge">v0.1.0</span>
+                <span>November 2025</span>
+                <a href="https://github.com/rand/RUNE">github.com/rand/RUNE</a>
+            </p>
+        </header>
+
+        <div class="section">
 <h2 id="abstract">Abstract</h2>
 <p>As AI agents become increasingly autonomous, organizations face a critical challenge: how to grant agents the freedom to act effectively while ensuring they operate within safe, well-defined boundaries. Traditional authorization systems fall short—they're either too slow for real-time agent decision-making or lack the expressiveness needed for complex agent scenarios.</p>
 <p>We present <strong>RUNE</strong>, a principled authorization and configuration system that combines Datalog-based configuration rules with Cedar-style authorization policies through a novel dual-engine architecture. It delivers sub-millisecond authorization decisions at throughput exceeding 5 million operations per second, using lock-free data structures and zero-copy memory management.</p>
@@ -131,9 +123,8 @@
 - Authorization benefits from <strong>policy languages</strong> (declarative, analyzable, auditable)
 - Configuration benefits from <strong>logic programming</strong> (composable, derivable, contextual)</p>
 <p>RUNE combines both through a <strong>dual-engine architecture</strong>:</p>
-<div class="highlight"><pre><span></span><code>Agent Request → RUNE Engine → [Datalog Engine || Cedar Engine] → Unified Decision
-</code></pre></div>
-
+<pre><code>Agent Request → RUNE Engine → [Datalog Engine || Cedar Engine] → Unified Decision
+</code></pre>
 <p>The Datalog engine derives configuration facts through logic programming. The Cedar engine evaluates authorization policies. Both run in parallel, evaluated against a lock-free fact store, with results merged into a unified authorization decision—all in under a millisecond.</p>
 <h3 id="13-design-goals">1.3 Design Goals</h3>
 <p><strong>Performance</strong>: Sub-millisecond latency, millions of ops/sec
@@ -229,45 +220,45 @@
 <tbody>
 <tr>
 <td><strong>RBAC</strong></td>
-<td>✅ Fast</td>
-<td>❌ Limited</td>
-<td>⚠️ Moderate</td>
-<td>✅ Simple</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Fast</td>
+<td><i class="fa-solid fa-circle-xmark status-error"></i> Limited</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Moderate</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Simple</td>
 </tr>
 <tr>
 <td><strong>ABAC</strong></td>
-<td>⚠️ Moderate</td>
-<td>✅ High</td>
-<td>⚠️ Moderate</td>
-<td>⚠️ Complex</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Moderate</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> High</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Moderate</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Complex</td>
 </tr>
 <tr>
 <td><strong>OPA</strong></td>
-<td>❌ Slow</td>
-<td>✅ High</td>
-<td>✅ Hot-reload</td>
-<td>⚠️ Service</td>
+<td><i class="fa-solid fa-circle-xmark status-error"></i> Slow</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> High</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Hot-reload</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Service</td>
 </tr>
 <tr>
 <td><strong>Zanzibar</strong></td>
-<td>✅ Fast</td>
-<td>⚠️ Moderate</td>
-<td>✅ Dynamic</td>
-<td>❌ Complex</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Fast</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Moderate</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Dynamic</td>
+<td><i class="fa-solid fa-circle-xmark status-error"></i> Complex</td>
 </tr>
 <tr>
 <td><strong>Custom code</strong></td>
-<td>✅ Fast</td>
-<td>⚠️ Variable</td>
-<td>❌ Requires deploy</td>
-<td>⚠️ Scattered</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Fast</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Variable</td>
+<td><i class="fa-solid fa-circle-xmark status-error"></i> Requires deploy</td>
+<td><i class="fa-solid fa-triangle-exclamation status-warning"></i> Scattered</td>
 </tr>
 <tr>
 <td><strong>RUNE</strong></td>
-<td>✅ &lt;1ms</td>
-<td>✅ Dual-engine</td>
-<td>✅ RCU</td>
-<td>✅ Python FFI</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> &lt;1ms</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Dual-engine</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> RCU</td>
+<td><i class="fa-solid fa-circle-check status-success"></i> Python FFI</td>
 </tr>
 </tbody>
 </table>
@@ -317,44 +308,39 @@
 <h2 id="3-system-design">3. System Design</h2>
 <h3 id="31-core-concepts">3.1 Core Concepts</h3>
 <p><strong>Fact</strong>: An atomic piece of information about the world.</p>
-<div class="highlight"><pre><span></span><code>environment(&quot;production&quot;)
+<pre><code>environment(&quot;production&quot;)
 agent.name = &quot;code-assistant&quot;
 agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
-</code></pre></div>
-
+</code></pre>
 <p><strong>Rule</strong>: A logical implication deriving new facts from existing facts.</p>
-<div class="highlight"><pre><span></span><code><span class="nf">allow_file_read</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;file.read&quot;</span><span class="p">),</span>
-    <span class="nf">path</span><span class="p">(</span><span class="nv">Path</span><span class="p">),</span>
-    <span class="nv">Path</span><span class="p">.</span><span class="nf">starts_with</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">).</span>
-</code></pre></div>
-
+<pre><code>allow_file_read(Path) :-
+    action(&quot;file.read&quot;),
+    path(Path),
+    Path.starts_with(&quot;/tmp&quot;).
+</code></pre>
 <p><strong>Policy</strong>: A declarative authorization statement.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">permit</span><span class="o">(</span>
-<span class="w">    </span><span class="nt">principal</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nt">Group</span><span class="o">::</span><span class="s2">&quot;agents&quot;</span><span class="o">,</span>
-<span class="w">    </span><span class="nt">action</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nt">Action</span><span class="o">::</span><span class="s2">&quot;read&quot;</span><span class="o">,</span>
-<span class="w">    </span><span class="nt">resource</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nt">File</span><span class="o">::</span><span class="s2">&quot;/tmp/*&quot;</span>
-<span class="o">);</span>
-</code></pre></div>
-
+<pre><code>permit(
+    principal in Group::&quot;agents&quot;,
+    action == Action::&quot;read&quot;,
+    resource in File::&quot;/tmp/*&quot;
+);
+</code></pre>
 <p><strong>Request</strong>: A proposed action by an agent.</p>
-<div class="highlight"><pre><span></span><code>Request {
+<pre><code>Request {
     principal: &quot;agent-code-assistant&quot;,
     action: &quot;file.read&quot;,
     resource: &quot;/tmp/source.rs&quot;,
     context: { environment: &quot;production&quot; }
 }
-</code></pre></div>
-
+</code></pre>
 <p><strong>Decision</strong>: The result of evaluating a request.</p>
-<div class="highlight"><pre><span></span><code>Decision {
+<pre><code>Decision {
     permitted: true,
     explanation: &quot;Matched policy P1, rule R2&quot;,
     evaluated_rules: [&quot;allow_file_read&quot;],
     evaluation_time: 523 ns
 }
-</code></pre></div>
-
+</code></pre>
 <h3 id="32-design-principles">3.2 Design Principles</h3>
 <p><strong>1. Separation of Concerns</strong>
 - Datalog handles configuration derivation
@@ -383,74 +369,61 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - Metrics export for monitoring</p>
 <h3 id="33-the-rune-configuration-format">3.3 The .rune Configuration Format</h3>
 <p>RUNE configurations use a custom format optimized for human readability and machine parsing:</p>
-<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+<pre><code class="language-rune">version = &quot;rune/1.0&quot;
 
-<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Base</span> <span class="s s-Atom">facts</span> <span class="s s-Atom">about</span> <span class="s s-Atom">the</span> <span class="s s-Atom">environment</span>
-<span class="s s-Atom">environment</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span>
-<span class="s s-Atom">agent</span><span class="p">.</span><span class="s s-Atom">name</span> <span class="o">=</span> <span class="s2">&quot;code-assistant&quot;</span>
-<span class="s s-Atom">agent</span><span class="p">.</span><span class="s s-Atom">capabilities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;read&quot;</span><span class="p">,</span> <span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="s2">&quot;execute&quot;</span><span class="p">]</span>
+[data]
+# Base facts about the environment
+environment = &quot;production&quot;
+agent.name = &quot;code-assistant&quot;
+agent.capabilities = [&quot;read&quot;, &quot;write&quot;, &quot;execute&quot;]
 
-<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Datalog</span> <span class="s s-Atom">rules</span> <span class="s s-Atom">for</span> <span class="s s-Atom">configuration</span>
-<span class="nf">allow_file_read</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;file.read&quot;</span><span class="p">),</span>
-    <span class="nf">path</span><span class="p">(</span><span class="nv">Path</span><span class="p">),</span>
-    <span class="nv">Path</span><span class="p">.</span><span class="nf">starts_with</span><span class="p">(</span><span class="s2">&quot;/allowed&quot;</span><span class="p">).</span>
+[rules]
+# Datalog rules for configuration
+allow_file_read(Path) :-
+    action(&quot;file.read&quot;),
+    path(Path),
+    Path.starts_with(&quot;/allowed&quot;).
 
-<span class="nf">allow_file_write</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;file.write&quot;</span><span class="p">),</span>
-    <span class="nf">path</span><span class="p">(</span><span class="nv">Path</span><span class="p">),</span>
-    <span class="nv">Path</span><span class="p">.</span><span class="nf">starts_with</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">),</span>
-    <span class="nf">environment</span><span class="p">(</span><span class="s2">&quot;development&quot;</span><span class="p">).</span>
+allow_file_write(Path) :-
+    action(&quot;file.write&quot;),
+    path(Path),
+    Path.starts_with(&quot;/tmp&quot;),
+    environment(&quot;development&quot;).
 
-<span class="nf">deny_action</span><span class="p">(</span><span class="nv">A</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">action</span><span class="p">(</span><span class="nv">A</span><span class="p">),</span>
-    <span class="nv">A</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;rm -rf&quot;</span><span class="p">).</span>
+deny_action(A) :-
+    action(A),
+    A.contains(&quot;rm -rf&quot;).
 
-<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Cedar</span> <span class="s s-Atom">policies</span> <span class="s s-Atom">for</span> <span class="s s-Atom">authorization</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span> <span class="s s-Atom">in</span> <span class="nv">Group</span><span class="o">::</span><span class="s2">&quot;agents&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;read&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span> <span class="s s-Atom">in</span> <span class="nv">File</span><span class="o">::</span><span class="s2">&quot;/tmp/*&quot;</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">principal</span><span class="p">.</span><span class="s s-Atom">verified</span> <span class="o">==</span> <span class="s s-Atom">true</span>
-<span class="p">};</span>
+[policies]
+# Cedar policies for authorization
+permit(
+    principal in Group::&quot;agents&quot;,
+    action == Action::&quot;read&quot;,
+    resource in File::&quot;/tmp/*&quot;
+) when {
+    principal.verified == true
+};
 
-<span class="nf">forbid</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;execute&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">dangerous</span> <span class="o">==</span> <span class="s s-Atom">true</span>
-<span class="p">};</span>
-</code></pre></div>
-
+forbid(
+    principal,
+    action == Action::&quot;execute&quot;,
+    resource
+) when {
+    resource.dangerous == true
+};
+</code></pre>
 <p><strong>Section Breakdown:</strong>
 - <code>[data]</code>: Base facts (TOML format)
 - <code>[rules]</code>: Datalog rules (Prolog-like syntax)
 - <code>[policies]</code>: Cedar policies (Cedar syntax)</p>
 <p>This unified format means a single file fully specifies agent guardrails.</p>
 <h3 id="34-request-flow">3.4 Request Flow</h3>
-<p><img alt="Request Flow Diagram" src="diagrams/request-flow.svg" /></p>
-<div class="highlight"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="n">makes</span><span class="w"> </span><span class="n">request</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">2.</span><span class="w"> </span><span class="kr">RUN</span><span class="n">E</span><span class="w"> </span><span class="n">Engine</span><span class="w"> </span><span class="n">receives</span><span class="w"> </span><span class="n">request</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">3.</span><span class="w"> </span><span class="n">Build</span><span class="w"> </span><span class="kr">cont</span><span class="n">ext</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">facts</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">4.</span><span class="w"> </span><span class="n">Parallel</span><span class="w"> </span><span class="n">evaluation</span><span class="p">:</span>
-<span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="kd">Data</span><span class="nb">log</span><span class="w"> </span><span class="n">Engine</span><span class="w"> </span><span class="n">evaluates</span><span class="w"> </span><span class="n">rules</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Derived</span><span class="w"> </span><span class="n">facts</span>
-<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="n">Cedar</span><span class="w"> </span><span class="n">Engine</span><span class="w"> </span><span class="n">evaluates</span><span class="w"> </span><span class="n">policies</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Authorization</span><span class="w"> </span><span class="n">decision</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">5.</span><span class="w"> </span><span class="n">Merge</span><span class="w"> </span><span class="n">results</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">6.</span><span class="w"> </span><span class="n">Check</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="p">(</span><span class="kr">on</span><span class="w"> </span><span class="n">hit</span><span class="p">:</span><span class="w"> </span><span class="n">skip</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="mf">7</span><span class="p">)</span>
-<span class="w">   </span><span class="err">↓</span>
-<span class="mf">7.</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="n">unified</span><span class="w"> </span><span class="n">decision</span>
-</code></pre></div>
-
+<div class="diagram-container">
+    <picture>
+        <source srcset="diagrams/request-flow-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="diagrams/request-flow-light.svg" alt="Request Flow Diagram" class="diagram-svg" />
+    </picture>
+</div>
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/engine.rs#L85-L145">Request flow implementation</a></p>
 <h3 id="35-caching-strategy">3.5 Caching Strategy</h3>
 <p>RUNE employs multi-level caching:</p>
@@ -471,61 +444,42 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <hr />
 <h2 id="4-architecture">4. Architecture</h2>
 <h3 id="41-system-architecture">4.1 System Architecture</h3>
-<p><img alt="System Architecture" src="diagrams/architecture.svg" /></p>
-<p><strong>Component Hierarchy:</strong></p>
-<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────────┐
-│              Client (Python/Rust)               │
-└────────────────────┬────────────────────────────┘
-                     │
-                     ↓
-┌─────────────────────────────────────────────────┐
-│              RUNE Engine (Core)                 │
-│  ┌───────────────────────────────────────────┐  │
-│  │     Request Cache (DashMap&lt;Key, Decision&gt;) │  │
-│  └───────────────────────────────────────────┘  │
-│                     │                            │
-│          ┌──────────┴──────────┐                 │
-│          ↓                     ↓                 │
-│  ┌──────────────┐      ┌──────────────┐         │
-│  │   Datalog    │      │    Cedar     │         │
-│  │   Engine     │      │   Engine     │         │
-│  └──────┬───────┘      └──────┬───────┘         │
-│         │                     │                  │
-│         └──────────┬──────────┘                  │
-│                    ↓                             │
-│         ┌───────────────────────┐                │
-│         │  Lock-Free Fact Store │                │
-│         │  (Crossbeam Epoch)    │                │
-│         └───────────────────────┘                │
-└─────────────────────────────────────────────────┘
-</code></pre></div>
-
+<div class="diagram-container">
+    <picture>
+        <source srcset="diagrams/architecture-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="diagrams/architecture-light.svg" alt="System Architecture" class="diagram-svg" />
+    </picture>
+</div>
 <p><strong>Key Components:</strong></p>
 <ol>
+<li><strong>RUNE Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/engine.rs">engine.rs</a>)</li>
+<li>Orchestrates request evaluation</li>
+<li>Manages caching</li>
 <li>
-<p><strong>RUNE Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/engine.rs">engine.rs</a>)
-   - Orchestrates request evaluation
-   - Manages caching
-   - Merges dual-engine results</p>
+<p>Merges dual-engine results</p>
 </li>
 <li>
-<p><strong>Datalog Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/datalog.rs">datalog.rs</a>)
-   - Semi-naive bottom-up evaluation
-   - Stratified negation
-   - Derives configuration facts</p>
+<p><strong>Datalog Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/datalog.rs">datalog.rs</a>)</p>
+</li>
+<li>Semi-naive bottom-up evaluation</li>
+<li>Stratified negation</li>
+<li>
+<p>Derives configuration facts</p>
 </li>
 <li>
-<p><strong>Cedar Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/policy.rs">policy.rs</a>)
-   - Wraps cedar-policy crate
-   - Converts RUNE types to Cedar entities
-   - Evaluates authorization policies</p>
+<p><strong>Cedar Engine</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/policy.rs">policy.rs</a>)</p>
+</li>
+<li>Wraps cedar-policy crate</li>
+<li>Converts RUNE types to Cedar entities</li>
+<li>
+<p>Evaluates authorization policies</p>
 </li>
 <li>
-<p><strong>Lock-Free Fact Store</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/facts.rs">facts.rs</a>)
-   - Concurrent fact access
-   - Epoch-based memory reclamation
-   - Zero-copy reads</p>
+<p><strong>Lock-Free Fact Store</strong> (<a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/facts.rs">facts.rs</a>)</p>
 </li>
+<li>Concurrent fact access</li>
+<li>Epoch-based memory reclamation</li>
+<li>Zero-copy reads</li>
 </ol>
 <h3 id="42-lock-free-fact-store">4.2 Lock-Free Fact Store</h3>
 <p>The fact store is the foundation of RUNE's performance. It must support:
@@ -534,47 +488,44 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - <strong>Zero-copy access</strong> to avoid allocation overhead
 - <strong>Memory safety</strong> without garbage collection</p>
 <p><strong>Design</strong>: Crossbeam epoch-based reclamation + DashMap</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">FactStore</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Facts indexed by predicate for fast lookup</span>
-<span class="w">    </span><span class="n">facts_by_predicate</span><span class="p">:</span><span class="w"> </span><span class="nc">DashMap</span><span class="o">&lt;</span><span class="n">Arc</span><span class="o">&lt;</span><span class="kt">str</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">Arc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Fact</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
+<pre><code class="language-rust">pub struct FactStore {
+    // Facts indexed by predicate for fast lookup
+    facts_by_predicate: DashMap&lt;Arc&lt;str&gt;, Arc&lt;Vec&lt;Fact&gt;&gt;&gt;,
 
-<span class="w">    </span><span class="c1">// All facts for full scans</span>
-<span class="w">    </span><span class="n">all_facts</span><span class="p">:</span><span class="w"> </span><span class="nc">Atomic</span><span class="o">&lt;</span><span class="n">Arc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Fact</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
+    // All facts for full scans
+    all_facts: Atomic&lt;Arc&lt;Vec&lt;Fact&gt;&gt;&gt;,
 
-<span class="w">    </span><span class="c1">// Version counter for cache invalidation</span>
-<span class="w">    </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="nc">AtomicU64</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div>
-
+    // Version counter for cache invalidation
+    version: AtomicU64,
+}
+</code></pre>
 <p><strong>Read Path</strong> (zero-copy):</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">get_facts</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">predicate</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">Arc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Fact</span><span class="o">&gt;&gt;&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">facts_by_predicate</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">predicate</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">entry</span><span class="o">|</span><span class="w"> </span><span class="n">entry</span><span class="p">.</span><span class="n">value</span><span class="p">().</span><span class="n">clone</span><span class="p">())</span><span class="w">  </span><span class="c1">// Arc clone, not data clone</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-rust">pub fn get_facts(&amp;self, predicate: &amp;str) -&gt; Option&lt;Arc&lt;Vec&lt;Fact&gt;&gt;&gt; {
+    self.facts_by_predicate.get(predicate)
+        .map(|entry| entry.value().clone())  // Arc clone, not data clone
+}
+</code></pre>
 <p><strong>Write Path</strong> (copy-on-write):</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">fact</span><span class="p">:</span><span class="w"> </span><span class="nc">Fact</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">predicate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fact</span><span class="p">.</span><span class="n">predicate</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+<pre><code class="language-rust">pub fn insert(&amp;self, fact: Fact) {
+    let predicate = fact.predicate.clone();
 
-<span class="w">    </span><span class="c1">// Update predicate index</span>
-<span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">facts_by_predicate</span>
-<span class="w">        </span><span class="p">.</span><span class="n">entry</span><span class="p">(</span><span class="n">predicate</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">and_modify</span><span class="p">(</span><span class="o">|</span><span class="n">facts</span><span class="o">|</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">new_facts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">**</span><span class="n">facts</span><span class="p">).</span><span class="n">clone</span><span class="p">();</span><span class="w">  </span><span class="c1">// Clone the Vec</span>
-<span class="w">            </span><span class="n">new_facts</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">fact</span><span class="p">.</span><span class="n">clone</span><span class="p">());</span>
-<span class="w">            </span><span class="o">*</span><span class="n">facts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">new_facts</span><span class="p">);</span>
-<span class="w">        </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">or_insert_with</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="fm">vec!</span><span class="p">[</span><span class="n">fact</span><span class="p">.</span><span class="n">clone</span><span class="p">()]));</span>
+    // Update predicate index
+    self.facts_by_predicate
+        .entry(predicate)
+        .and_modify(|facts| {
+            let mut new_facts = (**facts).clone();  // Clone the Vec
+            new_facts.push(fact.clone());
+            *facts = Arc::new(new_facts);
+        })
+        .or_insert_with(|| Arc::new(vec![fact.clone()]));
 
-<span class="w">    </span><span class="c1">// Update all_facts</span>
-<span class="w">    </span><span class="c1">// (omitted for brevity, similar pattern)</span>
+    // Update all_facts
+    // (omitted for brevity, similar pattern)
 
-<span class="w">    </span><span class="c1">// Increment version</span>
-<span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">version</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Release</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
-
+    // Increment version
+    self.version.fetch_add(1, Ordering::Release);
+}
+</code></pre>
 <p><strong>Why This Works:</strong>
 - Readers get an <code>Arc&lt;Vec&lt;Fact&gt;&gt;</code> snapshot
 - Snapshot remains valid even if store updates
@@ -583,29 +534,28 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/facts.rs#L20-L120">Lock-free fact store implementation</a></p>
 <h3 id="43-parallel-dual-engine-evaluation">4.3 Parallel Dual-Engine Evaluation</h3>
 <p>RUNE evaluates both engines in parallel using Rayon:</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">authorize</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">Request</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">AuthorizationResult</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">req_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">facts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">facts</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">datalog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="n">datalog_engine</span><span class="p">);</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">policies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="n">policies</span><span class="p">);</span>
+<pre><code class="language-rust">pub fn authorize(&amp;self, request: &amp;Request) -&gt; Result&lt;AuthorizationResult&gt; {
+    let req_clone = request.clone();
+    let facts = self.facts.clone();
+    let datalog = Arc::clone(&amp;self.datalog_engine);
+    let policies = Arc::clone(&amp;self.policies);
 
-<span class="w">    </span><span class="c1">// Parallel evaluation</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">datalog_result</span><span class="p">,</span><span class="w"> </span><span class="n">cedar_result</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rayon</span><span class="p">::</span><span class="n">join</span><span class="p">(</span>
-<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">AuthorizationResult</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">engine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">datalog</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">            </span><span class="n">engine</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">req_clone</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">facts</span><span class="p">)</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">AuthorizationResult</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">policy_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">policies</span><span class="p">.</span><span class="n">read</span><span class="p">();</span>
-<span class="w">            </span><span class="n">policy_set</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">req_clone</span><span class="p">)</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">    </span><span class="p">);</span>
+    // Parallel evaluation
+    let (datalog_result, cedar_result) = rayon::join(
+        || -&gt; Result&lt;AuthorizationResult&gt; {
+            let engine = datalog.read();
+            engine.evaluate(&amp;req_clone, &amp;facts)
+        },
+        || -&gt; Result&lt;AuthorizationResult&gt; {
+            let policy_set = policies.read();
+            policy_set.evaluate(&amp;req_clone)
+        },
+    );
 
-<span class="w">    </span><span class="c1">// Merge results</span>
-<span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">merge_results</span><span class="p">(</span><span class="n">datalog_result</span><span class="o">?</span><span class="p">,</span><span class="w"> </span><span class="n">cedar_result</span><span class="o">?</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
+    // Merge results
+    self.merge_results(datalog_result?, cedar_result?)
+}
+</code></pre>
 <p><strong>Why Parallel?</strong>
 - Engines are independent (no data dependencies)
 - Both are CPU-bound (no I/O to coordinate)
@@ -620,42 +570,39 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="44-cedar-integration">4.4 Cedar Integration</h3>
 <p>Cedar is a policy language developed by AWS for expressive, analyzable authorization. RUNE integrates Cedar 3.x for the authorization engine.</p>
 <p><strong>Cedar Policy Example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="nt">permit</span><span class="o">(</span>
-<span class="w">    </span><span class="nt">principal</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nt">Group</span><span class="o">::</span><span class="s2">&quot;agents&quot;</span><span class="o">,</span>
-<span class="w">    </span><span class="nt">action</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nt">Action</span><span class="o">::</span><span class="s2">&quot;read&quot;</span><span class="o">,</span>
-<span class="w">    </span><span class="nt">resource</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nt">File</span><span class="o">::</span><span class="s2">&quot;/tmp/*&quot;</span>
-<span class="o">)</span><span class="w"> </span><span class="nt">when</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="err">principal.verified</span><span class="w"> </span><span class="err">==</span><span class="w"> </span><span class="err">true</span><span class="w"> </span><span class="err">&amp;&amp;</span>
-<span class="w">    </span><span class="err">context.environment</span><span class="w"> </span><span class="err">==</span><span class="w"> </span><span class="err">&quot;production&quot;</span>
-<span class="p">}</span><span class="o">;</span>
-</code></pre></div>
-
+<pre><code class="language-cedar">permit(
+    principal in Group::&quot;agents&quot;,
+    action == Action::&quot;read&quot;,
+    resource in File::&quot;/tmp/*&quot;
+) when {
+    principal.verified == true &amp;&amp;
+    context.environment == &quot;production&quot;
+};
+</code></pre>
 <p><strong>Integration Challenges:</strong></p>
 <p><strong>Challenge 1</strong>: Entity Conversion
 - Cedar uses its own entity model
 - RUNE has Rust-native types
 - Solution: Convert at policy evaluation time</p>
-<div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">rune_principal_to_cedar</span><span class="p">(</span><span class="n">principal</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">Principal</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">CedarEntityUid</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">EntityUid</span><span class="p">::</span><span class="n">from_type_name_and_id</span><span class="p">(</span>
-<span class="w">        </span><span class="n">EntityTypeName</span><span class="p">::</span><span class="n">from_str</span><span class="p">(</span><span class="s">&quot;Agent&quot;</span><span class="p">).</span><span class="n">unwrap</span><span class="p">(),</span>
-<span class="w">        </span><span class="n">EntityId</span><span class="p">::</span><span class="n">from_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">principal</span><span class="p">.</span><span class="n">id</span><span class="p">).</span><span class="n">unwrap</span><span class="p">(),</span>
-<span class="w">    </span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-rust">fn rune_principal_to_cedar(principal: &amp;Principal) -&gt; CedarEntityUid {
+    EntityUid::from_type_name_and_id(
+        EntityTypeName::from_str(&quot;Agent&quot;).unwrap(),
+        EntityId::from_str(&amp;principal.id).unwrap(),
+    )
+}
+</code></pre>
 <p><strong>Challenge 2</strong>: Entity Ownership
 - Cedar's <code>Entities::from_entities()</code> takes ownership
 - Can't call multiple times on same entities
 - Solution: Collect all entities first, then create <code>Entities</code> once</p>
-<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">all_entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span><span class="p">::</span><span class="n">new</span><span class="p">();</span>
-<span class="n">all_entities</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">principal_entity</span><span class="p">);</span>
-<span class="n">all_entities</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">resource_entity</span><span class="p">);</span>
-<span class="n">all_entities</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">action_entity</span><span class="p">);</span>
+<pre><code class="language-rust">let mut all_entities = Vec::new();
+all_entities.push(principal_entity);
+all_entities.push(resource_entity);
+all_entities.push(action_entity);
 
-<span class="kd">let</span><span class="w"> </span><span class="n">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Entities</span><span class="p">::</span><span class="n">from_entities</span><span class="p">(</span><span class="n">all_entities</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">map_err</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="n">RUNEError</span><span class="p">::</span><span class="n">CedarError</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">to_string</span><span class="p">()))</span><span class="o">?</span><span class="p">;</span>
-</code></pre></div>
-
+let entities = Entities::from_entities(all_entities, None)
+    .map_err(|e| RUNEError::CedarError(e.to_string()))?;
+</code></pre>
 <p><strong>Challenge 3</strong>: Schema Validation (future)
 - Cedar supports schema validation for policies
 - RUNE doesn't yet generate schemas from configuration
@@ -664,19 +611,18 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="45-memory-management">4.5 Memory Management</h3>
 <p>RUNE achieves zero-copy performance through careful memory management:</p>
 <p><strong>Principle 1: Arc for Shared Ownership</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Fact</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">predicate</span><span class="p">:</span><span class="w"> </span><span class="nc">Arc</span><span class="o">&lt;</span><span class="kt">str</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">arguments</span><span class="p">:</span><span class="w"> </span><span class="nc">Arc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-<span class="p">}</span>
+<pre><code class="language-rust">pub struct Fact {
+    pub predicate: Arc&lt;str&gt;,
+    pub arguments: Arc&lt;Vec&lt;Value&gt;&gt;,
+}
 
-<span class="k">pub</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">Value</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nb">String</span><span class="p">(</span><span class="n">Arc</span><span class="o">&lt;</span><span class="kt">str</span><span class="o">&gt;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Number</span><span class="p">(</span><span class="kt">i64</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Boolean</span><span class="p">(</span><span class="kt">bool</span><span class="p">),</span>
-<span class="w">    </span><span class="n">List</span><span class="p">(</span><span class="n">Arc</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;&gt;</span><span class="p">),</span>
-<span class="p">}</span>
-</code></pre></div>
-
+pub enum Value {
+    String(Arc&lt;str&gt;),
+    Number(i64),
+    Boolean(bool),
+    List(Arc&lt;Vec&lt;Value&gt;&gt;),
+}
+</code></pre>
 <ul>
 <li><code>Arc&lt;str&gt;</code> and <code>Arc&lt;Vec&lt;T&gt;&gt;</code> enable zero-copy sharing</li>
 <li>Clone is cheap (atomic increment)</li>
@@ -725,14 +671,13 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/Cargo.toml">Cargo workspace</a></p>
 <h3 id="52-parser-implementation">5.2 Parser Implementation</h3>
 <p>The RUNE parser handles .rune files with three distinct sections:</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">RUNEConfig</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">version</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">,</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nc">HashMap</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="n">Value</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">rules</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Rule</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">policies</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Policy</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div>
-
+<pre><code class="language-rust">pub struct RUNEConfig {
+    pub version: String,
+    pub data: HashMap&lt;String, Value&gt;,
+    pub rules: Vec&lt;Rule&gt;,
+    pub policies: Vec&lt;Policy&gt;,
+}
+</code></pre>
 <p><strong>Parsing Strategy</strong>:
 1. Split file into sections by <code>[...]</code> headers
 2. Parse <code>[data]</code> with TOML parser
@@ -750,77 +695,70 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="53-datalog-engine-future">5.3 Datalog Engine (Future)</h3>
 <p>The Datalog engine in v0.1.0 is a placeholder. The planned implementation uses <strong>semi-naive bottom-up evaluation</strong> with <strong>stratified negation</strong>.</p>
 <p><strong>Algorithm</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Initialize</span><span class="p">:</span><span class="w"> </span><span class="n">Δ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="n">facts</span><span class="p">,</span><span class="w"> </span><span class="n">Facts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">∅</span>
-<span class="mf">2.</span><span class="w"> </span><span class="n">While</span><span class="w"> </span><span class="n">Δ</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">empty</span><span class="p">:</span>
-<span class="w">   </span><span class="n">a</span><span class="mf">.</span><span class="w"> </span><span class="n">Facts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Facts</span><span class="w"> </span><span class="err">∪</span><span class="w"> </span><span class="n">Δ</span>
-<span class="w">   </span><span class="n">b</span><span class="mf">.</span><span class="w"> </span><span class="n">Δ_new</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">∅</span>
-<span class="w">   </span><span class="n">c</span><span class="mf">.</span><span class="w"> </span><span class="kr">For</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">rule</span><span class="w"> </span><span class="n">R</span><span class="p">:</span>
-<span class="w">      </span><span class="o">-</span><span class="w"> </span><span class="n">Evaluate</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">against</span><span class="w"> </span><span class="n">Facts</span>
-<span class="w">      </span><span class="o">-</span><span class="w"> </span><span class="n">Add</span><span class="w"> </span><span class="kr">new</span><span class="w"> </span><span class="n">facts</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">Δ_new</span>
-<span class="w">   </span><span class="n">d</span><span class="mf">.</span><span class="w"> </span><span class="n">Δ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Δ_new</span><span class="w"> </span><span class="err">\</span><span class="w"> </span><span class="n">Facts</span><span class="w">  </span><span class="p">(</span><span class="kr">on</span><span class="n">ly</span><span class="w"> </span><span class="n">keep</span><span class="w"> </span><span class="kr">new</span><span class="w"> </span><span class="n">facts</span><span class="p">)</span>
-<span class="mf">3.</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="n">Facts</span>
-</code></pre></div>
-
+<pre><code>1. Initialize: Δ = base facts, Facts = ∅
+2. While Δ is not empty:
+   a. Facts = Facts ∪ Δ
+   b. Δ_new = ∅
+   c. For each rule R:
+      - Evaluate R against Facts
+      - Add new facts to Δ_new
+   d. Δ = Δ_new \ Facts  (only keep new facts)
+3. Return Facts
+</code></pre>
 <p><strong>Stratification</strong> ensures termination:
 - Partition rules into strata by dependency
 - Stratum N can only depend on strata &lt; N
 - Evaluate strata in order
 - Negation only allowed for lower strata</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">Stratum</span> <span class="mi">0</span><span class="o">:</span>
-  <span class="nf">parent</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">)</span> <span class="o">:-</span> <span class="nf">biological_parent</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">).</span>
+<pre><code>Stratum 0:
+  parent(X, Y) :- biological_parent(X, Y).
 
-<span class="nv">Stratum</span> <span class="mi">1</span><span class="o">:</span>
-  <span class="nf">ancestor</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">)</span> <span class="o">:-</span> <span class="nf">parent</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">).</span>
-  <span class="nf">ancestor</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">)</span> <span class="o">:-</span> <span class="nf">parent</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Z</span><span class="p">),</span> <span class="nf">ancestor</span><span class="p">(</span><span class="nv">Z</span><span class="p">,</span> <span class="nv">Y</span><span class="p">).</span>
+Stratum 1:
+  ancestor(X, Y) :- parent(X, Y).
+  ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
 
-<span class="nv">Stratum</span> <span class="mi">2</span><span class="o">:</span>
-  <span class="nf">unrelated</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">)</span> <span class="o">:-</span> <span class="nf">person</span><span class="p">(</span><span class="nv">X</span><span class="p">),</span> <span class="nf">person</span><span class="p">(</span><span class="nv">Y</span><span class="p">),</span> <span class="s s-Atom">¬</span><span class="nf">ancestor</span><span class="p">(</span><span class="nv">X</span><span class="p">,</span> <span class="nv">Y</span><span class="p">),</span> <span class="s s-Atom">¬</span><span class="nf">ancestor</span><span class="p">(</span><span class="nv">Y</span><span class="p">,</span> <span class="nv">X</span><span class="p">).</span>
-</code></pre></div>
-
+Stratum 2:
+  unrelated(X, Y) :- person(X), person(Y), ¬ancestor(X, Y), ¬ancestor(Y, X).
+</code></pre>
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-core/src/datalog.rs#L20-L55">Datalog engine stub</a></p>
 <h3 id="54-cli-implementation">5.4 CLI Implementation</h3>
 <p>The RUNE CLI provides four commands:</p>
 <p><strong>1. <code>eval</code>: Evaluate an authorization request</strong></p>
-<div class="highlight"><pre><span></span><code>rune<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--action<span class="w"> </span><span class="nb">read</span><span class="w"> </span>--principal<span class="w"> </span>agent-1<span class="w"> </span>--resource<span class="w"> </span>/tmp/file.txt
-</code></pre></div>
-
+<pre><code class="language-bash">rune eval --action read --principal agent-1 --resource /tmp/file.txt
+</code></pre>
 <p><strong>2. <code>validate</code>: Check a .rune configuration</strong></p>
-<div class="highlight"><pre><span></span><code>rune<span class="w"> </span>validate<span class="w"> </span>config.rune
-</code></pre></div>
-
+<pre><code class="language-bash">rune validate config.rune
+</code></pre>
 <p><strong>3. <code>benchmark</code>: Run performance tests</strong></p>
-<div class="highlight"><pre><span></span><code>rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">8</span>
-</code></pre></div>
-
+<pre><code class="language-bash">rune benchmark --requests 10000 --threads 8
+</code></pre>
 <p><strong>4. <code>serve</code>: Start HTTP server</strong> (future)</p>
-<div class="highlight"><pre><span></span><code>rune<span class="w"> </span>serve<span class="w"> </span>--config<span class="w"> </span>config.rune<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span>
-</code></pre></div>
-
+<pre><code class="language-bash">rune serve --config config.rune --port 8080
+</code></pre>
 <p><strong>Output Formatting</strong>:
 - <code>--format text</code>: Human-readable (default)
 - <code>--format json</code>: Machine-parseable</p>
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-cli/src/main.rs#L1-L295">CLI implementation</a></p>
 <h3 id="55-error-handling">5.5 Error Handling</h3>
 <p>RUNE uses Rust's <code>Result&lt;T, E&gt;</code> for recoverable errors and structured error types:</p>
-<div class="highlight"><pre><span></span><code><span class="cp">#[derive(Debug, thiserror::Error)]</span>
-<span class="k">pub</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">RUNEError</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="cp">#[error(</span><span class="s">&quot;Cedar policy error: {0}&quot;</span><span class="cp">)]</span>
-<span class="w">    </span><span class="n">CedarError</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+<pre><code class="language-rust">#[derive(Debug, thiserror::Error)]
+pub enum RUNEError {
+    #[error(&quot;Cedar policy error: {0}&quot;)]
+    CedarError(String),
 
-<span class="w">    </span><span class="cp">#[error(</span><span class="s">&quot;Datalog evaluation error: {0}&quot;</span><span class="cp">)]</span>
-<span class="w">    </span><span class="n">DatalogError</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    #[error(&quot;Datalog evaluation error: {0}&quot;)]
+    DatalogError(String),
 
-<span class="w">    </span><span class="cp">#[error(</span><span class="s">&quot;Parse error: {0}&quot;</span><span class="cp">)]</span>
-<span class="w">    </span><span class="n">ParseError</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
+    #[error(&quot;Parse error: {0}&quot;)]
+    ParseError(String),
 
-<span class="w">    </span><span class="cp">#[error(</span><span class="s">&quot;Invalid request: {0}&quot;</span><span class="cp">)]</span>
-<span class="w">    </span><span class="n">InvalidRequest</span><span class="p">(</span><span class="nb">String</span><span class="p">),</span>
-<span class="p">}</span>
+    #[error(&quot;Invalid request: {0}&quot;)]
+    InvalidRequest(String),
+}
 
-<span class="k">pub</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">RUNEError</span><span class="o">&gt;</span><span class="p">;</span>
-</code></pre></div>
-
+pub type Result&lt;T&gt; = std::result::Result&lt;T, RUNEError&gt;;
+</code></pre>
 <p><strong>Error Contexts</strong>:
 - Parse errors include line and column numbers
 - Cedar errors include policy ID
@@ -836,10 +774,9 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - <strong>Rust</strong>: 1.75.0 (release mode)
 - <strong>Threads</strong>: 4 (half of cores, leave headroom for system)</p>
 <p><strong>Benchmark Setup</strong>:</p>
-<div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>build<span class="w"> </span>--release
-./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">4</span>
-</code></pre></div>
-
+<pre><code class="language-bash">cargo build --release
+./target/release/rune benchmark --requests 1000 --threads 4
+</code></pre>
 <p><strong>Test Data</strong>:
 - 10 unique principals (<code>agent-0</code> through <code>agent-9</code>)
 - 2 actions (<code>read</code>, <code>write</code>)
@@ -853,15 +790,14 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <p><strong>Code Reference</strong>: <a href="https://github.com/yourusername/rune/blob/v0.1.0-whitepaper/rune-cli/src/main.rs#L206-L278">Benchmark implementation</a></p>
 <h3 id="62-throughput-results">6.2 Throughput Results</h3>
 <p><strong>Result: 5,080,423 requests/second</strong></p>
-<div class="highlight"><pre><span></span><code>═ Benchmark Results
+<pre><code>═ Benchmark Results
 ▸ Total requests: 1000
 ▸ Successful: 1000
 ▸ Failed: 0
 ▸ Duration: 0.000s
 ▸ Throughput: 5080423 req/sec
 ▸ Avg latency: 0.000ms
-</code></pre></div>
-
+</code></pre>
 <p><strong>Analysis</strong>:
 - 5M+ ops/sec far exceeds design goal (100K+ ops/sec)
 - Single-threaded equivalent: ~1.27M ops/sec per core
@@ -878,11 +814,10 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 | Memory | &lt;100MB | &lt;50MB | 2x |</p>
 <h3 id="63-cache-performance">6.3 Cache Performance</h3>
 <p><strong>Cache Hit Rate: 90.9%</strong></p>
-<div class="highlight"><pre><span></span><code>═ Cache Statistics
+<pre><code>═ Cache Statistics
 ▸ Cache size: 100
 ▸ Hit rate: 90.9%
-</code></pre></div>
-
+</code></pre>
 <p><strong>Why High Hit Rate?</strong>
 - Test data has limited cardinality (10×2×100 = 2000 unique combinations)
 - Cache size: 10,000 entries (default)
@@ -954,68 +889,67 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - No access to <code>.env</code> or credential files
 - Rate limiting on file operations</p>
 <p><strong>RUNE Configuration</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+<pre><code class="language-rune">version = &quot;rune/1.0&quot;
 
-<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
-<span class="s s-Atom">environment</span> <span class="o">=</span> <span class="s2">&quot;development&quot;</span>
-<span class="s s-Atom">agent</span><span class="p">.</span><span class="s s-Atom">name</span> <span class="o">=</span> <span class="s2">&quot;code-gen-agent&quot;</span>
-<span class="s s-Atom">project</span><span class="p">.</span><span class="s s-Atom">root</span> <span class="o">=</span> <span class="s2">&quot;/workspace/myproject&quot;</span>
+[data]
+environment = &quot;development&quot;
+agent.name = &quot;code-gen-agent&quot;
+project.root = &quot;/workspace/myproject&quot;
 
-<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Configuration</span><span class="o">:</span> <span class="nv">Which</span> <span class="s s-Atom">directories</span> <span class="s s-Atom">are</span> <span class="s s-Atom">safe</span><span class="nb">?</span>
-<span class="nf">safe_read_dir</span><span class="p">(</span><span class="nv">Dir</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">project</span><span class="p">.</span><span class="s s-Atom">root</span> <span class="o">=</span> <span class="nv">Root</span><span class="p">,</span>
-    <span class="nv">Dir</span><span class="p">.</span><span class="nf">starts_with</span><span class="p">(</span><span class="nv">Root</span><span class="p">),</span>
-    <span class="s s-Atom">¬</span><span class="nv">Dir</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;.git&quot;</span><span class="p">),</span>
-    <span class="s s-Atom">¬</span><span class="nv">Dir</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;node_modules&quot;</span><span class="p">).</span>
+[rules]
+# Configuration: Which directories are safe?
+safe_read_dir(Dir) :-
+    project.root = Root,
+    Dir.starts_with(Root),
+    ¬Dir.contains(&quot;.git&quot;),
+    ¬Dir.contains(&quot;node_modules&quot;).
 
-<span class="nf">safe_write_dir</span><span class="p">(</span><span class="nv">Dir</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">project</span><span class="p">.</span><span class="s s-Atom">root</span> <span class="o">=</span> <span class="nv">Root</span><span class="p">,</span>
-    <span class="nv">Dir</span> <span class="o">=</span> <span class="nv">Root</span> <span class="o">+</span> <span class="s2">&quot;/generated&quot;</span><span class="p">.</span>
+safe_write_dir(Dir) :-
+    project.root = Root,
+    Dir = Root + &quot;/generated&quot;.
 
-<span class="s s-Atom">#</span> <span class="nv">Deny</span> <span class="s s-Atom">sensitive</span> <span class="s s-Atom">files</span>
-<span class="nf">sensitive_file</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nv">Path</span><span class="p">.</span><span class="nf">ends_with</span><span class="p">(</span><span class="s2">&quot;.env&quot;</span><span class="p">).</span>
+# Deny sensitive files
+sensitive_file(Path) :-
+    Path.ends_with(&quot;.env&quot;).
 
-<span class="nf">sensitive_file</span><span class="p">(</span><span class="nv">Path</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nv">Path</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;credentials&quot;</span><span class="p">).</span>
+sensitive_file(Path) :-
+    Path.contains(&quot;credentials&quot;).
 
-<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Authorization</span><span class="o">:</span> <span class="nv">File</span> <span class="s s-Atom">read</span> <span class="s s-Atom">allowed</span> <span class="s s-Atom">if</span> <span class="s s-Atom">safe</span> <span class="s s-Atom">and</span> <span class="o">not</span> <span class="s s-Atom">sensitive</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span> <span class="o">==</span> <span class="nv">Agent</span><span class="o">::</span><span class="s2">&quot;code-gen-agent&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;file.read&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">directory</span> <span class="s s-Atom">in</span> <span class="s s-Atom">safe_read_dir</span> <span class="s s-Atom">&amp;&amp;</span>
-    <span class="p">!(</span><span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">path</span> <span class="s s-Atom">in</span> <span class="s s-Atom">sensitive_file</span><span class="p">)</span>
-<span class="p">};</span>
+[policies]
+# Authorization: File read allowed if safe and not sensitive
+permit(
+    principal == Agent::&quot;code-gen-agent&quot;,
+    action == Action::&quot;file.read&quot;,
+    resource
+) when {
+    resource.directory in safe_read_dir &amp;&amp;
+    !(resource.path in sensitive_file)
+};
 
-<span class="s s-Atom">#</span> <span class="nv">File</span> <span class="s s-Atom">write</span> <span class="s s-Atom">allowed</span> <span class="s s-Atom">only</span> <span class="s s-Atom">to</span> <span class="s s-Atom">output</span> <span class="s s-Atom">directory</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span> <span class="o">==</span> <span class="nv">Agent</span><span class="o">::</span><span class="s2">&quot;code-gen-agent&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;file.write&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">directory</span> <span class="s s-Atom">in</span> <span class="s s-Atom">safe_write_dir</span>
-<span class="p">};</span>
-</code></pre></div>
-
+# File write allowed only to output directory
+permit(
+    principal == Agent::&quot;code-gen-agent&quot;,
+    action == Action::&quot;file.write&quot;,
+    resource
+) when {
+    resource.directory in safe_write_dir
+};
+</code></pre>
 <p><strong>Workflow</strong>:
 1. Agent requests to read <code>/workspace/myproject/src/main.rs</code>
    - Datalog derives <code>safe_read_dir("/workspace/myproject/src")</code>
    - Cedar evaluates policy → <strong>PERMIT</strong></p>
-<ol start="2">
+<ol>
+<li>Agent requests to read <code>/workspace/myproject/.env</code></li>
+<li>Datalog derives <code>sensitive_file("/workspace/myproject/.env")</code></li>
 <li>
-<p>Agent requests to read <code>/workspace/myproject/.env</code>
-   - Datalog derives <code>sensitive_file("/workspace/myproject/.env")</code>
-   - Cedar evaluates policy → <strong>DENY</strong></p>
+<p>Cedar evaluates policy → <strong>DENY</strong></p>
 </li>
 <li>
-<p>Agent requests to write <code>/workspace/myproject/generated/output.rs</code>
-   - Datalog derives <code>safe_write_dir("/workspace/myproject/generated")</code>
-   - Cedar evaluates policy → <strong>PERMIT</strong></p>
+<p>Agent requests to write <code>/workspace/myproject/generated/output.rs</code></p>
 </li>
+<li>Datalog derives <code>safe_write_dir("/workspace/myproject/generated")</code></li>
+<li>Cedar evaluates policy → <strong>PERMIT</strong></li>
 </ol>
 <p><strong>Result</strong>: Agent has freedom to generate code while staying within safe boundaries.</p>
 <h3 id="72-api-rate-limiting">7.2 API Rate Limiting</h3>
@@ -1025,34 +959,33 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - Burst allowance for retries
 - Emergency override for critical operations</p>
 <p><strong>RUNE Configuration</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+<pre><code class="language-rune">version = &quot;rune/1.0&quot;
 
-<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
-<span class="s s-Atom">rate_limits</span><span class="p">.</span><span class="s s-Atom">github</span> <span class="o">=</span> <span class="p">{</span> <span class="s s-Atom">calls</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s s-Atom">window</span><span class="p">:</span> <span class="mi">3600</span> <span class="p">}</span>
-<span class="s s-Atom">rate_limits</span><span class="p">.</span><span class="s s-Atom">openai</span> <span class="o">=</span> <span class="p">{</span> <span class="s s-Atom">calls</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s s-Atom">window</span><span class="p">:</span> <span class="mi">60</span> <span class="p">}</span>
-<span class="s s-Atom">emergency</span> <span class="o">=</span> <span class="s s-Atom">false</span>
+[data]
+rate_limits.github = { calls: 1000, window: 3600 }
+rate_limits.openai = { calls: 100, window: 60 }
+emergency = false
 
-<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
-<span class="nf">within_rate_limit</span><span class="p">(</span><span class="nv">API</span><span class="p">,</span> <span class="nv">CurrentCalls</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">rate_limits</span><span class="p">.</span><span class="nv">API</span> <span class="o">=</span> <span class="p">{</span><span class="s s-Atom">calls</span><span class="p">:</span> <span class="nv">Max</span><span class="p">,</span> <span class="s s-Atom">window</span><span class="p">:</span> <span class="k">_</span><span class="p">},</span>
-    <span class="nv">CurrentCalls</span> <span class="o">&lt;</span> <span class="nv">Max</span><span class="p">.</span>
+[rules]
+within_rate_limit(API, CurrentCalls) :-
+    rate_limits.API = {calls: Max, window: _},
+    CurrentCalls &lt; Max.
 
-<span class="nf">burst_allowed</span><span class="p">(</span><span class="nv">API</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">rate_limits</span><span class="p">.</span><span class="nv">API</span> <span class="o">=</span> <span class="p">{</span><span class="s s-Atom">calls</span><span class="p">:</span> <span class="nv">Max</span><span class="p">,</span> <span class="s s-Atom">window</span><span class="p">:</span> <span class="k">_</span><span class="p">},</span>
-    <span class="nf">current_usage</span><span class="p">(</span><span class="nv">API</span><span class="p">,</span> <span class="nv">Calls</span><span class="p">),</span>
-    <span class="nv">Calls</span> <span class="o">&lt;</span> <span class="nv">Max</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">.</span>  <span class="s s-Atom">#</span> <span class="mi">20</span><span class="c1">% burst</span>
+burst_allowed(API) :-
+    rate_limits.API = {calls: Max, window: _},
+    current_usage(API, Calls),
+    Calls &lt; Max * 1.2.  # 20% burst
 
-<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;api.call&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">api</span> <span class="s s-Atom">in</span> <span class="s s-Atom">within_rate_limit</span> <span class="p">||</span>
-    <span class="p">(</span><span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">api</span> <span class="s s-Atom">in</span> <span class="s s-Atom">burst_allowed</span> <span class="s s-Atom">&amp;&amp;</span> <span class="s s-Atom">context</span><span class="p">.</span><span class="s s-Atom">emergency</span> <span class="o">==</span> <span class="s s-Atom">true</span><span class="p">)</span>
-<span class="p">};</span>
-</code></pre></div>
-
+[policies]
+permit(
+    principal,
+    action == Action::&quot;api.call&quot;,
+    resource
+) when {
+    resource.api in within_rate_limit ||
+    (resource.api in burst_allowed &amp;&amp; context.emergency == true)
+};
+</code></pre>
 <p><strong>Workflow</strong>:
 1. Agent makes 50th GitHub API call (limit: 1000/hour) → <strong>PERMIT</strong>
 2. Agent makes 1001st GitHub API call (over limit) → <strong>DENY</strong>
@@ -1060,45 +993,44 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="73-multi-environment-configuration">7.3 Multi-Environment Configuration</h3>
 <p><strong>Scenario</strong>: Same agent operates in dev, staging, production with different rules.</p>
 <p><strong>RUNE Configuration</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+<pre><code class="language-rune">version = &quot;rune/1.0&quot;
 
-<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
-<span class="s s-Atom">environment</span> <span class="o">=</span> <span class="s2">&quot;{{ENV}}&quot;</span>  <span class="s s-Atom">#</span> <span class="nv">Templated</span> <span class="s s-Atom">at</span> <span class="s s-Atom">load</span> <span class="s s-Atom">time</span>
+[data]
+environment = &quot;{{ENV}}&quot;  # Templated at load time
 
-<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Development</span><span class="o">:</span> <span class="nv">Permissive</span>
-<span class="nf">allow_shell_exec</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">environment</span><span class="p">(</span><span class="s2">&quot;development&quot;</span><span class="p">),</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;shell.exec&quot;</span><span class="p">).</span>
+[rules]
+# Development: Permissive
+allow_shell_exec(Cmd) :-
+    environment(&quot;development&quot;),
+    action(&quot;shell.exec&quot;).
 
-<span class="s s-Atom">#</span> <span class="nv">Production</span><span class="o">:</span> <span class="nv">Restrictive</span>
-<span class="nf">allow_shell_exec</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">environment</span><span class="p">(</span><span class="s2">&quot;production&quot;</span><span class="p">),</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;shell.exec&quot;</span><span class="p">),</span>
-    <span class="nv">Cmd</span> <span class="s s-Atom">in</span> <span class="p">[</span><span class="s2">&quot;ls&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;grep&quot;</span><span class="p">].</span>  <span class="s s-Atom">#</span> <span class="nv">Allowlist</span> <span class="s s-Atom">only</span>
+# Production: Restrictive
+allow_shell_exec(Cmd) :-
+    environment(&quot;production&quot;),
+    action(&quot;shell.exec&quot;),
+    Cmd in [&quot;ls&quot;, &quot;cat&quot;, &quot;grep&quot;].  # Allowlist only
 
-<span class="s s-Atom">#</span> <span class="nv">Staging</span><span class="o">:</span> <span class="nv">Middle</span> <span class="s s-Atom">ground</span>
-<span class="nf">allow_shell_exec</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nf">environment</span><span class="p">(</span><span class="s2">&quot;staging&quot;</span><span class="p">),</span>
-    <span class="nf">action</span><span class="p">(</span><span class="s2">&quot;shell.exec&quot;</span><span class="p">),</span>
-    <span class="s s-Atom">¬</span><span class="nf">dangerous_command</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">).</span>
+# Staging: Middle ground
+allow_shell_exec(Cmd) :-
+    environment(&quot;staging&quot;),
+    action(&quot;shell.exec&quot;),
+    ¬dangerous_command(Cmd).
 
-<span class="nf">dangerous_command</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nv">Cmd</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;rm&quot;</span><span class="p">).</span>
+dangerous_command(Cmd) :-
+    Cmd.contains(&quot;rm&quot;).
 
-<span class="nf">dangerous_command</span><span class="p">(</span><span class="nv">Cmd</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="nv">Cmd</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="s2">&quot;curl&quot;</span><span class="p">).</span>  <span class="s s-Atom">#</span> <span class="nv">Prevent</span> <span class="s s-Atom">data</span> <span class="s s-Atom">exfiltration</span>
+dangerous_command(Cmd) :-
+    Cmd.contains(&quot;curl&quot;).  # Prevent data exfiltration
 
-<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span><span class="p">,</span>
-    <span class="s s-Atom">action</span> <span class="o">==</span> <span class="nv">Action</span><span class="o">::</span><span class="s2">&quot;shell.exec&quot;</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span><span class="p">.</span><span class="s s-Atom">command</span> <span class="s s-Atom">in</span> <span class="s s-Atom">allow_shell_exec</span>
-<span class="p">};</span>
-</code></pre></div>
-
+[policies]
+permit(
+    principal,
+    action == Action::&quot;shell.exec&quot;,
+    resource
+) when {
+    resource.command in allow_shell_exec
+};
+</code></pre>
 <p><strong>Workflow</strong>:
 - Dev: <code>agent exec "rm -rf /tmp/test"</code> → <strong>PERMIT</strong> (permissive)
 - Staging: <code>agent exec "rm -rf /tmp/test"</code> → <strong>DENY</strong> (dangerous)
@@ -1107,39 +1039,38 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="74-human-in-the-loop-break-glass">7.4 Human-in-the-Loop Break-Glass</h3>
 <p><strong>Scenario</strong>: Agent needs emergency access, requires human approval.</p>
 <p><strong>RUNE Configuration</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="s s-Atom">version</span> <span class="o">=</span> <span class="s2">&quot;rune/1.0&quot;</span>
+<pre><code class="language-rune">version = &quot;rune/1.0&quot;
 
-<span class="p">[</span><span class="s s-Atom">data</span><span class="p">]</span>
-<span class="s s-Atom">approvals</span> <span class="o">=</span> <span class="p">{}</span>
+[data]
+approvals = {}
 
-<span class="p">[</span><span class="s s-Atom">rules</span><span class="p">]</span>
-<span class="nf">approved_by_human</span><span class="p">(</span><span class="nv">Action</span><span class="p">,</span> <span class="nv">Resource</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">approvals</span><span class="p">[</span><span class="nv">Action</span><span class="o">+</span><span class="nv">Resource</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s s-Atom">approved</span><span class="p">:</span> <span class="s s-Atom">true</span><span class="p">,</span> <span class="s s-Atom">by</span><span class="p">:</span> <span class="nv">Human</span><span class="p">}.</span>
+[rules]
+approved_by_human(Action, Resource) :-
+    approvals[Action+Resource] = {approved: true, by: Human}.
 
-<span class="nf">emergency_access</span><span class="p">(</span><span class="nv">Action</span><span class="p">,</span> <span class="nv">Resource</span><span class="p">)</span> <span class="o">:-</span>
-    <span class="s s-Atom">context</span><span class="p">.</span><span class="s s-Atom">emergency</span> <span class="o">==</span> <span class="s s-Atom">true</span><span class="p">,</span>
-    <span class="nf">approved_by_human</span><span class="p">(</span><span class="nv">Action</span><span class="p">,</span> <span class="nv">Resource</span><span class="p">).</span>
+emergency_access(Action, Resource) :-
+    context.emergency == true,
+    approved_by_human(Action, Resource).
 
-<span class="p">[</span><span class="s s-Atom">policies</span><span class="p">]</span>
-<span class="s s-Atom">#</span> <span class="nv">Normal</span> <span class="s s-Atom">operations</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span><span class="p">,</span>
-    <span class="s s-Atom">action</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="cm">/* normal rules */</span>
-<span class="p">};</span>
+[policies]
+# Normal operations
+permit(
+    principal,
+    action,
+    resource
+) when {
+    /* normal rules */
+};
 
-<span class="s s-Atom">#</span> <span class="nv">Break</span><span class="o">-</span><span class="s s-Atom">glass</span> <span class="s s-Atom">with</span> <span class="s s-Atom">approval</span>
-<span class="nf">permit</span><span class="p">(</span>
-    <span class="s s-Atom">principal</span><span class="p">,</span>
-    <span class="s s-Atom">action</span><span class="p">,</span>
-    <span class="s s-Atom">resource</span>
-<span class="p">)</span> <span class="s s-Atom">when</span> <span class="p">{</span>
-    <span class="s s-Atom">resource</span> <span class="s s-Atom">in</span> <span class="s s-Atom">emergency_access</span>
-<span class="p">};</span>
-</code></pre></div>
-
+# Break-glass with approval
+permit(
+    principal,
+    action,
+    resource
+) when {
+    resource in emergency_access
+};
+</code></pre>
 <p><strong>Workflow</strong>:
 1. Agent requests restricted action → <strong>DENY</strong>
 2. Human approves emergency access:
@@ -1164,15 +1095,13 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <h3 id="82-cedar-integration-requires-care">8.2 Cedar Integration Requires Care</h3>
 <p><strong>Challenge</strong>: Cedar 3.x API changed entity ownership semantics.</p>
 <p><strong>Old (Cedar 2.x)</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">entities</span><span class="p">.</span><span class="n">add_entities</span><span class="p">(</span><span class="fm">vec!</span><span class="p">[</span><span class="n">principal</span><span class="p">]);</span>
-<span class="n">entities</span><span class="p">.</span><span class="n">add_entities</span><span class="p">(</span><span class="fm">vec!</span><span class="p">[</span><span class="n">resource</span><span class="p">]);</span><span class="w">  </span><span class="c1">// Error: moved</span>
-</code></pre></div>
-
+<pre><code class="language-rust">entities.add_entities(vec![principal]);
+entities.add_entities(vec![resource]);  // Error: moved
+</code></pre>
 <p><strong>New (Cedar 3.x)</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="n">principal</span><span class="p">,</span><span class="w"> </span><span class="n">resource</span><span class="p">,</span><span class="w"> </span><span class="n">action</span><span class="p">];</span>
-<span class="kd">let</span><span class="w"> </span><span class="n">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Entities</span><span class="p">::</span><span class="n">from_entities</span><span class="p">(</span><span class="n">all</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">  </span><span class="c1">// One call</span>
-</code></pre></div>
-
+<pre><code class="language-rust">let all = vec![principal, resource, action];
+let entities = Entities::from_entities(all, None)?;  // One call
+</code></pre>
 <p><strong>Lesson</strong>: Collect all entities first, then create <code>Entities</code> once. This pattern generalizes: batch transformations are often more efficient than incremental.</p>
 <h3 id="83-caching-makes-or-breaks-performance">8.3 Caching Makes or Breaks Performance</h3>
 <p><strong>Without cache</strong>: 2M ops/sec
@@ -1191,15 +1120,13 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 <p><strong>Lesson</strong>: Profile first, optimize second. The real bottlenecks are often surprising.</p>
 <h3 id="85-error-messages-matter">8.5 Error Messages Matter</h3>
 <p>Early error messages:</p>
-<div class="highlight"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Cedar</span><span class="w"> </span><span class="n">error</span>
-</code></pre></div>
-
+<pre><code>Error: Cedar error
+</code></pre>
 <p>Current error messages:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">Cedar</span><span class="w"> </span><span class="nv">policy</span><span class="w"> </span><span class="nv">error</span>:<span class="w"> </span><span class="nv">Entity</span><span class="w"> </span><span class="nv">UID</span><span class="w"> </span><span class="nv">parse</span><span class="w"> </span><span class="nv">failed</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="s1">&#39;Agent::invalid id&#39;</span>
-<span class="w">  </span><span class="nv">Policy</span><span class="w"> </span><span class="nv">ID</span>:<span class="w"> </span><span class="nv">P1</span><span class="w"> </span><span class="ss">(</span><span class="s2">&quot;permit agents to read files&quot;</span><span class="ss">)</span>
-<span class="w">  </span><span class="nv">Line</span><span class="w"> </span><span class="mi">3</span>:<span class="w"> </span><span class="nv">principal</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">Agent</span>::<span class="s2">&quot;invalid id&quot;</span>
-</code></pre></div>
-
+<pre><code>Cedar policy error: Entity UID parse failed for 'Agent::invalid id'
+  Policy ID: P1 (&quot;permit agents to read files&quot;)
+  Line 3: principal == Agent::&quot;invalid id&quot;
+</code></pre>
 <p><strong>Lesson</strong>: Good error messages 10x debugging speed. Include context (policy ID, line numbers, affected entities).</p>
 <h3 id="86-the-power-of-rusts-type-system">8.6 The Power of Rust's Type System</h3>
 <p>Rust prevented entire classes of bugs:
@@ -1207,13 +1134,12 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - <strong>Thread safety</strong>: <code>Send</code> and <code>Sync</code> caught race conditions at compile time
 - <strong>Null safety</strong>: <code>Option&lt;T&gt;</code> eliminated null pointer dereferences</p>
 <p><strong>Example</strong>: Attempted to share <code>Entities</code> across threads without <code>Arc</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Entities</span><span class="p">::</span><span class="n">from_entities</span><span class="p">(</span><span class="o">..</span><span class="p">.);</span>
-<span class="n">rayon</span><span class="p">::</span><span class="n">join</span><span class="p">(</span>
-<span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="n">engine1</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">entities</span><span class="p">),</span><span class="w">  </span><span class="c1">// Error: Entities is not Sync</span>
-<span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="n">engine2</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">entities</span><span class="p">),</span>
-<span class="p">);</span>
-</code></pre></div>
-
+<pre><code class="language-rust">let entities = Entities::from_entities(...);
+rayon::join(
+    || engine1.evaluate(&amp;entities),  // Error: Entities is not Sync
+    || engine2.evaluate(&amp;entities),
+);
+</code></pre>
 <p>Compiler forced us to use <code>Arc&lt;Entities&gt;</code>, preventing runtime data races.</p>
 <p><strong>Lesson</strong>: Strong static typing catches bugs before they reach production.</p>
 <hr />
@@ -1288,24 +1214,23 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - Zero-downtime configuration changes
 - Atomic policy set replacement</p>
 <p><strong>Implementation</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">HotReloadEngine</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">current</span><span class="p">:</span><span class="w"> </span><span class="nc">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="n">RUNEEngine</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">next</span><span class="p">:</span><span class="w"> </span><span class="nc">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">RUNEEngine</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
-<span class="p">}</span>
+<pre><code class="language-rust">pub struct HotReloadEngine {
+    current: Arc&lt;RwLock&lt;RUNEEngine&gt;&gt;,
+    next: Arc&lt;RwLock&lt;Option&lt;RUNEEngine&gt;&gt;&gt;,
+}
 
-<span class="k">impl</span><span class="w"> </span><span class="n">HotReloadEngine</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">reload</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">new_config</span><span class="p">:</span><span class="w"> </span><span class="nc">RUNEConfig</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">new_engine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RUNEEngine</span><span class="p">::</span><span class="n">from_config</span><span class="p">(</span><span class="n">new_config</span><span class="p">);</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">next</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
-<span class="w">        </span><span class="o">*</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">new_engine</span><span class="p">);</span>
+impl HotReloadEngine {
+    pub fn reload(&amp;self, new_config: RUNEConfig) {
+        let new_engine = RUNEEngine::from_config(new_config);
+        let mut next = self.next.write();
+        *next = Some(new_engine);
 
-<span class="w">        </span><span class="c1">// Atomically swap</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">current</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
-<span class="w">        </span><span class="o">*</span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">.</span><span class="n">take</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
-
+        // Atomically swap
+        let mut current = self.current.write();
+        *current = next.take().unwrap();
+    }
+}
+</code></pre>
 <p><strong>Impact</strong>: Dynamic policy updates without service restart</p>
 <h3 id="103-python-bindings">10.3 Python Bindings</h3>
 <p><strong>Current State</strong>: Stub implementation, disabled in workspace</p>
@@ -1315,20 +1240,19 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - Async evaluation (GIL-free)
 - Decorator-based enforcement</p>
 <p><strong>Example Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rune</span><span class="w"> </span><span class="kn">import</span> <span class="n">RUNEEngine</span><span class="p">,</span> <span class="n">authorize</span>
+<pre><code class="language-python">from rune import RUNEEngine, authorize
 
-<span class="n">engine</span> <span class="o">=</span> <span class="n">RUNEEngine</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;config.rune&quot;</span><span class="p">)</span>
+engine = RUNEEngine.from_file(&quot;config.rune&quot;)
 
-<span class="nd">@authorize</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;file.read&quot;</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+@authorize(engine, action=&quot;file.read&quot;)
+def read_file(path: str) -&gt; str:
+    with open(path) as f:
+        return f.read()
 
-<span class="c1"># Automatic authorization check</span>
-<span class="n">content</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/tmp/allowed.txt&quot;</span><span class="p">)</span>  <span class="c1"># OK</span>
-<span class="n">content</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/etc/passwd&quot;</span><span class="p">)</span>  <span class="c1"># Raises AuthorizationError</span>
-</code></pre></div>
-
+# Automatic authorization check
+content = read_file(&quot;/tmp/allowed.txt&quot;)  # OK
+content = read_file(&quot;/etc/passwd&quot;)  # Raises AuthorizationError
+</code></pre>
 <p><strong>Impact</strong>: Seamless integration with AI frameworks</p>
 <h3 id="104-comprehensive-benchmarks">10.4 Comprehensive Benchmarks</h3>
 <p><strong>Current State</strong>: Basic throughput test</p>
@@ -1356,15 +1280,14 @@ agent.capabilities = [&quot;read&quot;, &quot;write&quot;]
 - Validate policies against schemas at load time
 - Type errors caught early</p>
 <p><strong>Example</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">[data]</span>
-<span class="na">agent.capabilities</span><span class="o">:</span><span class="w"> </span><span class="s">List&lt;String&gt;</span><span class="w">  </span><span class="c1"># Schema declaration</span>
+<pre><code class="language-rune">[data]
+agent.capabilities: List&lt;String&gt;  # Schema declaration
 
-<span class="k">[policies]</span>
-<span class="na">permit(...) when {</span>
-<span class="w">    </span><span class="na">&quot;read&quot; in principal.capabilities  # Type-checked!</span>
-<span class="na">};</span>
-</code></pre></div>
-
+[policies]
+permit(...) when {
+    &quot;read&quot; in principal.capabilities  # Type-checked!
+};
+</code></pre>
 <p><strong>Impact</strong>: Catch policy errors before evaluation</p>
 <hr />
 <h2 id="11-conclusion">11. Conclusion</h2>
@@ -1435,22 +1358,17 @@ RUNE is released under dual MIT/Apache-2.0 license. Contributions welcome at <a 
 <strong>Code Validation</strong>: <a href="https://github.com/yourusername/rune/tree/v0.1.0-whitepaper">v0.1.0-whitepaper tag</a>
 <strong>License</strong>: MIT OR Apache-2.0
 <strong>Contact</strong>: RUNE Contributors</p>
+        </div>
 
-<footer class="footer">
-    <p>
-        RUNE is open-source software. For questions or contributions, visit the
-        <a href="https://github.com/rand/RUNE">GitHub repository</a>.
-    </p>
-</footer>
-
+        <footer class="footer">
+            <p>
+                RUNE is open-source software. For questions or contributions, visit the
+                <a href="https://github.com/rand/RUNE">GitHub repository</a>.
+            </p>
+        </footer>
     </main>
 
-    <!-- Shared Foundation Scripts -->
-    <script src="js/theme-core.js"></script>
-    <script src="js/sidebar-core.js"></script>
-    <script src="js/toc-core.js"></script>
-
-    <!-- Project-specific customization -->
+    <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
 </body>
 </html>

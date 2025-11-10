@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RUNE Whitepaper</title>
-    <meta name="description" content="Technical whitepaper for RUNE: architecture, design, and implementation details.">
+    <title>RUNE Agent Integration Guide</title>
+    <meta name="description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
 
-    <!-- Favicons -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://rand.github.io/RUNE/">
-    <meta property="og:title" content="RUNE: High-Performance Authorization & Configuration Engine">
-    <meta property="og:description" content="A principled authorization and configuration system combining Datalog and Cedar policies. Sub-millisecond decisions at 5M+ ops/sec.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://rand.github.io/RUNE/agent-guide.html">
+    <meta property="og:title" content="RUNE Agent Integration Guide">
+    <meta property="og:description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
     <meta property="og:image" content="https://rand.github.io/RUNE/og-image.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://rand.github.io/RUNE/">
-    <meta name="twitter:title" content="RUNE: High-Performance Authorization & Configuration Engine">
-    <meta name="twitter:description" content="A principled authorization and configuration system combining Datalog and Cedar policies. Sub-millisecond decisions at 5M+ ops/sec.">
+    <meta name="twitter:url" content="https://rand.github.io/RUNE/agent-guide.html">
+    <meta name="twitter:title" content="RUNE Agent Integration Guide">
+    <meta name="twitter:description" content="Practical guide for integrating RUNE into AI agent architectures. Examples, best practices, and integration patterns for LangChain, AutoGPT, and Claude Code.">
     <meta name="twitter:image" content="https://rand.github.io/RUNE/og-image.png">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/geist.css">
@@ -30,34 +30,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-    <!-- Shared Foundation (structure without colors) -->
-    <link rel="stylesheet" href="css/foundation.css">
-
-    <!-- RUNE Theme (project-specific colors and identity) -->
-    <link rel="stylesheet" href="css/rune-theme.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="nav-brand">
-                <span class="logo-glyph">∮</span>
+                <span class="logo-glyph"></span>
                 <strong>RUNE</strong> v0.1.0
             </a>
             <div class="nav-links">
-                
-                    
-                        <a href="whitepaper.html">Whitepaper</a>
-                    
-                
-                    
-                        <a href="agent-guide.html">Agent Guide</a>
-                    
-                
-                    
-                        <a href="https://github.com/rand/RUNE" target="_blank">GitHub</a>
-                    
-                
+                <a href="index.html">Home</a>
+                <a href="whitepaper.html">Whitepaper</a>
+                <a href="agent-guide.html">Agent Guide</a>
+                <a href="https://github.com/rand/RUNE">GitHub</a>
                 <button class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-toggle-icon"></span>
                 </button>
@@ -67,18 +53,25 @@
 
     <aside class="sidebar">
         <div class="sidebar-content">
-            <div class="sidebar-tagline">// High-Performance Authorization</div>
-            <div class="sidebar-toc"></div>
+            <div class="sidebar-status">
+                <span class="status-glyph"></span>
+                <span class="sidebar-tagline">// Agent integration guide</span>
+            </div>
         </div>
     </aside>
 
     <main class="container">
-        
-<h1 id="rune-agent-guide">RUNE Agent Guide</h1>
-<p><strong>For</strong>: Agentic systems (Claude Code, mnemosyne, etc.)
-<strong>Purpose</strong>: Efficient, comprehensive guidance for working on RUNE
-<strong>Version</strong>: 0.1.0</p>
-<hr />
+        <header class="paper-header">
+            <h1>Agent Integration Guide</h1>
+            <p class="paper-subtitle">Efficient, comprehensive guidance for working with RUNE</p>
+            <p class="paper-meta">
+                <span class="version-badge">v0.1.0</span>
+                <span>November 2025</span>
+                <span>For agentic systems</span>
+            </p>
+        </header>
+
+        <div class="section">
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
 <li><a href="#quick-start">Quick Start</a></li>
@@ -86,7 +79,6 @@
 <li><a href="#repository-structure">Repository Structure</a></li>
 <li><a href="#development-workflow">Development Workflow</a></li>
 <li><a href="#documentation-protocols">Documentation Protocols</a></li>
-<li><a href="#documentation-management">Documentation Management</a></li>
 <li><a href="#release-management">Release Management</a></li>
 <li><a href="#repository-organization">Repository Organization</a></li>
 <li><a href="#testing-protocols">Testing Protocols</a></li>
@@ -105,15 +97,14 @@
 - Update ALL relevant docs when making significant changes
 - Maintain sub-millisecond authorization latency</p>
 <p><strong>First Steps</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Build and test</span>
-cargo<span class="w"> </span>build<span class="w"> </span>--release
-cargo<span class="w"> </span><span class="nb">test</span>
-./target/release/rune<span class="w"> </span>--help
+<pre><code class="language-bash"># Build and test
+cargo build --release
+cargo test
+./target/release/rune --help
 
-<span class="c1"># Run benchmarks to validate performance</span>
-./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">8</span>
-</code></pre></div>
-
+# Run benchmarks to validate performance
+./target/release/rune benchmark --requests 10000 --threads 8
+</code></pre>
 <hr />
 <h2 id="project-overview">Project Overview</h2>
 <h3 id="what-is-rune">What is RUNE?</h3>
@@ -130,13 +121,10 @@ cargo<span class="w"> </span><span class="nb">test</span>
 <li><strong>Integration</strong>: Python bindings for AI frameworks (LangChain, AutoGPT, etc.)</li>
 </ul>
 <h3 id="architecture">Architecture</h3>
-<div class="highlight"><pre><span></span><code>Request → RUNEEngine → [Datalog Engine || Cedar Engine] → Decision
-                            ↓              ↓
-                         FactStore    PolicySet
-                            ↓              ↓
-                      Lock-free       Cached
-</code></pre></div>
-
+<div class="diagram-container">
+    <img class="diagram-svg" alt="RUNE Architecture" src="diagrams/architecture.svg" />
+</div>
+<p>RUNE evaluates requests through parallel Datalog and Cedar engines, backed by a lock-free fact store. For detailed architecture, see the <a href="whitepaper.html#4-architecture">Technical Whitepaper</a>.</p>
 <p><strong>Key Design Patterns</strong>:
 - <strong>Lock-free data structures</strong>: Crossbeam epoch-based memory reclamation
 - <strong>Zero-copy architecture</strong>: Arc-wrapped values, memory-mapped facts
@@ -144,39 +132,38 @@ cargo<span class="w"> </span><span class="nb">test</span>
 - <strong>DashMap caching</strong>: Concurrent hashmap for authorization results</p>
 <hr />
 <h2 id="repository-structure">Repository Structure</h2>
-<div class="highlight"><pre><span></span><code><span class="nx">RUNE</span><span class="o">/</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">rune</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Rust</span><span class="w"> </span><span class="nx">core</span><span class="w"> </span><span class="nx">engine</span>
-<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">lib</span><span class="p">.</span><span class="nx">rs</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Public</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">surface</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">rs</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Main</span><span class="w"> </span><span class="nx">authorization</span><span class="w"> </span><span class="nx">engine</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">facts</span><span class="p">.</span><span class="nx">rs</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Lock</span><span class="o">-</span><span class="nx">free</span><span class="w"> </span><span class="nx">fact</span><span class="w"> </span><span class="nx">store</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">policy</span><span class="p">.</span><span class="nx">rs</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Cedar</span><span class="w"> </span><span class="nx">integration</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">datalog</span><span class="p">.</span><span class="nx">rs</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Datalog</span><span class="w"> </span><span class="nx">evaluation</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">parser</span><span class="p">.</span><span class="nx">rs</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="p">.</span><span class="nx">rune</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="nx">parser</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">rs</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">Request</span><span class="w"> </span><span class="nx">abstraction</span>
-<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">rs</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Core</span><span class="w"> </span><span class="nx">types</span><span class="w"> </span><span class="p">(</span><span class="nx">Value</span><span class="p">,</span><span class="w"> </span><span class="nx">Entity</span><span class="p">,</span><span class="w"> </span><span class="nx">etc</span><span class="p">.)</span>
-<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">Cargo</span><span class="p">.</span><span class="nx">toml</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">rune</span><span class="o">-</span><span class="nx">cli</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Command</span><span class="o">-</span><span class="nx">line</span><span class="w"> </span><span class="kd">interface</span>
-<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span><span class="nx">main</span><span class="p">.</span><span class="nx">rs</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">CLI</span><span class="w"> </span><span class="nx">with</span><span class="w"> </span><span class="nx">eval</span><span class="p">,</span><span class="w"> </span><span class="nx">validate</span><span class="p">,</span><span class="w"> </span><span class="nx">benchmark</span><span class="p">,</span><span class="w"> </span><span class="nx">serve</span>
-<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">Cargo</span><span class="p">.</span><span class="nx">toml</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">rune</span><span class="o">-</span><span class="nx">python</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">bindings</span><span class="w"> </span><span class="p">(</span><span class="nx">PyO3</span><span class="p">)</span>
-<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="p">(</span><span class="nx">disabled</span><span class="w"> </span><span class="nx">until</span><span class="w"> </span><span class="nx">Python</span><span class="w"> </span><span class="nx">dev</span><span class="w"> </span><span class="nx">env</span><span class="w"> </span><span class="nx">configured</span><span class="p">)</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">examples</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Example</span><span class="w"> </span><span class="p">.</span><span class="nx">rune</span><span class="w"> </span><span class="nx">configurations</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">specs</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">Project</span><span class="w"> </span><span class="nx">specifications</span>
-<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">origination</span><span class="o">/</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Original</span><span class="w"> </span><span class="nx">competing</span><span class="w"> </span><span class="nx">plans</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">docs</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">GitHub</span><span class="w"> </span><span class="nx">Pages</span><span class="w"> </span><span class="nx">documentation</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">diagrams</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">D2</span><span class="w"> </span><span class="nx">architecture</span><span class="w"> </span><span class="nx">diagrams</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">scripts</span><span class="o">/</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">Validation</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="nx">build</span><span class="w"> </span><span class="nx">scripts</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">Cargo</span><span class="p">.</span><span class="nx">toml</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Workspace</span><span class="w"> </span><span class="nx">manifest</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">README</span><span class="p">.</span><span class="nx">md</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">User</span><span class="o">-</span><span class="nx">facing</span><span class="w"> </span><span class="nx">documentation</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">WHITEPAPER</span><span class="p">.</span><span class="nx">md</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">Technical</span><span class="w"> </span><span class="nx">whitepaper</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">AGENT_GUIDE</span><span class="p">.</span><span class="nx">md</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">This</span><span class="w"> </span><span class="nx">file</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">CONTRIBUTING</span><span class="p">.</span><span class="nx">md</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">Contribution</span><span class="w"> </span><span class="nx">guidelines</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">CHANGELOG</span><span class="p">.</span><span class="nx">md</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Version</span><span class="w"> </span><span class="nx">history</span>
-<span class="err">├──</span><span class="w"> </span><span class="nx">LICENSE</span><span class="o">-</span><span class="nx">MIT</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">MIT</span><span class="w"> </span><span class="nx">license</span>
-<span class="err">└──</span><span class="w"> </span><span class="nx">LICENSE</span><span class="o">-</span><span class="nx">APACHE</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Apache</span><span class="w"> </span><span class="m m-Double">2.0</span><span class="w"> </span><span class="nx">license</span>
-</code></pre></div>
-
+<pre><code>RUNE/
+├── rune-core/          # Rust core engine
+│   ├── src/
+│   │   ├── lib.rs      # Public API surface
+│   │   ├── engine.rs   # Main authorization engine
+│   │   ├── facts.rs    # Lock-free fact store
+│   │   ├── policy.rs   # Cedar integration
+│   │   ├── datalog.rs  # Datalog evaluation
+│   │   ├── parser.rs   # .rune file parser
+│   │   ├── request.rs  # Request abstraction
+│   │   └── types.rs    # Core types (Value, Entity, etc.)
+│   └── Cargo.toml
+├── rune-cli/           # Command-line interface
+│   ├── src/main.rs     # CLI with eval, validate, benchmark, serve
+│   └── Cargo.toml
+├── rune-python/        # Python bindings (PyO3)
+│   └── (disabled until Python dev env configured)
+├── examples/           # Example .rune configurations
+├── specs/              # Project specifications
+│   └── origination/    # Original competing plans
+├── docs/               # GitHub Pages documentation
+├── diagrams/           # D2 architecture diagrams
+├── scripts/            # Validation and build scripts
+├── Cargo.toml          # Workspace manifest
+├── README.md           # User-facing documentation
+├── WHITEPAPER.md       # Technical whitepaper
+├── AGENT_GUIDE.md      # This file
+├── CONTRIBUTING.md     # Contribution guidelines
+├── CHANGELOG.md        # Version history
+├── LICENSE-MIT         # MIT license
+└── LICENSE-APACHE      # Apache 2.0 license
+</code></pre>
 <h3 id="key-files">Key Files</h3>
 <table>
 <thead>
@@ -223,11 +210,10 @@ cargo<span class="w"> </span><span class="nb">test</span>
 <h2 id="development-workflow">Development Workflow</h2>
 <h3 id="branching-strategy">Branching Strategy</h3>
 <p><strong>ALWAYS use feature branches</strong>:</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/typed-holes
-git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fix/cache-invalidation
-git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>docs/architecture-diagrams
-</code></pre></div>
-
+<pre><code class="language-bash">git checkout -b feature/typed-holes
+git checkout -b fix/cache-invalidation
+git checkout -b docs/architecture-diagrams
+</code></pre>
 <p><strong>Branch Naming</strong>:
 - <code>feature/</code>: New functionality
 - <code>fix/</code>: Bug fixes
@@ -236,43 +222,39 @@ git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </
 - <code>perf/</code>: Performance improvements</p>
 <h3 id="commit-protocol">Commit Protocol</h3>
 <p><strong>CRITICAL</strong>: Commit BEFORE testing, never test uncommitted code.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Make changes</span>
-<span class="c1"># 2. Commit changes</span>
-git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add typed holes for Datalog integration&quot;</span>
-git<span class="w"> </span>log<span class="w"> </span>-1<span class="w"> </span>--oneline
+<pre><code class="language-bash"># 1. Make changes
+# 2. Commit changes
+git add .
+git commit -m &quot;Add typed holes for Datalog integration&quot;
+git log -1 --oneline
 
-<span class="c1"># 3. Run tests</span>
-cargo<span class="w"> </span><span class="nb">test</span>
+# 3. Run tests
+cargo test
 
-<span class="c1"># 4. If tests fail: Fix → Commit → Re-test</span>
-</code></pre></div>
-
+# 4. If tests fail: Fix → Commit → Re-test
+</code></pre>
 <p><strong>Commit Message Format</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="k">type</span><span class="p">&gt;:</span><span class="w"> </span><span class="p">&lt;</span><span class="nx">short</span><span class="w"> </span><span class="nx">summary</span><span class="p">&gt;</span>
+<pre><code>&lt;type&gt;: &lt;short summary&gt;
 
-<span class="p">&lt;</span><span class="nx">optional</span><span class="w"> </span><span class="nx">detailed</span><span class="w"> </span><span class="nx">explanation</span><span class="p">&gt;</span>
+&lt;optional detailed explanation&gt;
 
-<span class="p">&lt;</span><span class="nx">optional</span><span class="w"> </span><span class="nx">breaking</span><span class="w"> </span><span class="nx">changes</span><span class="p">&gt;</span>
-</code></pre></div>
-
+&lt;optional breaking changes&gt;
+</code></pre>
 <p><strong>Types</strong>: <code>feat</code>, <code>fix</code>, <code>refactor</code>, <code>perf</code>, <code>docs</code>, <code>test</code>, <code>chore</code></p>
 <p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">feat</span><span class="o">:</span><span class="w"> </span><span class="n">Add</span><span class="w"> </span><span class="n">semi</span><span class="o">-</span><span class="n">naive</span><span class="w"> </span><span class="n">Datalog</span><span class="w"> </span><span class="n">evaluation</span><span class="w"> </span><span class="n">engine</span>
-<span class="n">fix</span><span class="o">:</span><span class="w"> </span><span class="n">Resolve</span><span class="w"> </span><span class="n">race</span><span class="w"> </span><span class="n">condition</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">invalidation</span>
-<span class="n">perf</span><span class="o">:</span><span class="w"> </span><span class="n">Optimize</span><span class="w"> </span><span class="n">fact</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">lock</span><span class="o">-</span><span class="n">free</span><span class="w"> </span><span class="n">epoch</span><span class="w"> </span><span class="n">reclamation</span>
-<span class="n">docs</span><span class="o">:</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">whitepaper</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">performance</span><span class="w"> </span><span class="n">benchmarks</span>
-</code></pre></div>
-
+<pre><code>feat: Add semi-naive Datalog evaluation engine
+fix: Resolve race condition in cache invalidation
+perf: Optimize fact store with lock-free epoch reclamation
+docs: Update whitepaper with performance benchmarks
+</code></pre>
 <h3 id="pull-requests">Pull Requests</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># Push branch</span>
-git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feature/typed-holes
+<pre><code class="language-bash"># Push branch
+git push -u origin feature/typed-holes
 
-<span class="c1"># Create PR (GitHub CLI)</span>
-gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </span>--title<span class="w"> </span><span class="s2">&quot;Add typed holes for Datalog integration&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;Implements typed holes pattern for clean component boundaries...&quot;</span>
-</code></pre></div>
-
+# Create PR (GitHub CLI)
+gh pr create --title &quot;Add typed holes for Datalog integration&quot; \
+  --body &quot;Implements typed holes pattern for clean component boundaries...&quot;
+</code></pre>
 <p><strong>PR Checklist</strong>:
 - [ ] All tests pass
 - [ ] Benchmarks show no performance regression
@@ -337,89 +319,10 @@ gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </spa
 - Explain safety requirements for unsafe code</p>
 <h3 id="code-reference-format">Code Reference Format</h3>
 <p>When updating docs, use tagged version links:</p>
-<div class="highlight"><pre><span></span><code>The [<span class="nt">fact store implementation</span>](<span class="na">https://github.com/user/rune/blob/v0.1.0/rune-core/src/facts.rs#L45-L67</span>)
+<pre><code class="language-markdown">The [fact store implementation](https://github.com/user/rune/blob/v0.1.0/rune-core/src/facts.rs#L45-L67)
 uses epoch-based memory reclamation.
-</code></pre></div>
-
+</code></pre>
 <p><strong>Format</strong>: <code>https://github.com/{user}/{repo}/blob/{tag}/{path}#{lines}</code></p>
-<hr />
-<h2 id="documentation-management">Documentation Management</h2>
-<h3 id="structure">Structure</h3>
-<div class="highlight"><pre><span></span><code>docs/                     # Markdown source files
-├── index.md             # Home page
-├── whitepaper.md        # Technical documentation
-├── css/styles.css       # Custom design (project-specific colors)
-├── js/                  # Theme toggle, sidebar behavior
-└── assets/              # Images, diagrams, favicons
-
-templates/               # Jinja2 HTML templates
-├── base.html           # Navbar, sidebar, theme toggle
-├── index.html          # Home page layout
-└── whitepaper.html     # Documentation layout
-
-scripts/build-docs.py   # Python build script
-site/                    # Generated static HTML (ignored by git)
-</code></pre></div>
-
-<h3 id="updating-documentation">Updating Documentation</h3>
-<ol>
-<li><strong>Edit markdown files</strong> in <code>docs/</code> (index.md, whitepaper.md, etc.)</li>
-<li><strong>Test locally</strong> (optional):
-   <code>bash
-   python scripts/build-docs.py
-   cd site &amp;&amp; python -m http.server 8000</code></li>
-<li><strong>Commit and push</strong> to main</li>
-<li><strong>Verify deployment</strong>: GitHub Actions builds and deploys automatically (~1-2 min)</li>
-</ol>
-<h3 id="design-system">Design System</h3>
-<p><strong>Project-specific</strong>:
-- <strong>Glyph</strong>: ∮ (Closed contour integral) in navbar
-- <strong>Colors</strong>: Accent color in <code>docs/css/styles.css</code> (<code>:root</code> CSS variables)
-- <strong>Tagline</strong>: "// High-Performance Authorization" in fixed right sidebar</p>
-<p><strong>Shared features</strong>:
-- Geist font + JetBrains Mono for code
-- Theme toggle (light/dark)
-- Responsive design (sidebar hides &lt;1200px)
-- SVG diagrams with light/dark variants</p>
-<h3 id="build-process">Build Process</h3>
-<ol>
-<li>Python-Markdown parses <code>.md</code> files</li>
-<li>YAML front matter stripped automatically</li>
-<li>Jinja2 templates apply HTML structure</li>
-<li>Static HTML + CSS/JS copied to <code>site/</code></li>
-<li>GitHub Actions deploys to GitHub Pages</li>
-</ol>
-<h3 id="troubleshooting">Troubleshooting</h3>
-<table>
-<thead>
-<tr>
-<th>Issue</th>
-<th>Solution</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Build fails</td>
-<td>Check Python dependencies: <code>pip install markdown jinja2 pygments</code></td>
-</tr>
-<tr>
-<td>Styles missing</td>
-<td>Verify <code>docs/css/styles.css</code> exists</td>
-</tr>
-<tr>
-<td>Theme toggle broken</td>
-<td>Check <code>docs/js/theme.js</code> loaded</td>
-</tr>
-<tr>
-<td>Diagrams missing</td>
-<td>Verify SVG files in <code>docs/assets/diagrams/</code></td>
-</tr>
-<tr>
-<td>Old content showing</td>
-<td>Hard refresh browser (Cmd+Shift+R)</td>
-</tr>
-</tbody>
-</table>
 <hr />
 <h2 id="release-management">Release Management</h2>
 <h3 id="semantic-versioning">Semantic Versioning</h3>
@@ -435,29 +338,25 @@ site/                    # Generated static HTML (ignored by git)
 </ul>
 <h3 id="release-process">Release Process</h3>
 <p><strong>1. Version Bump</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Update version in Cargo.toml (workspace.package.version)</span>
-<span class="c1"># Update CHANGELOG.md with release notes</span>
-git<span class="w"> </span>add<span class="w"> </span>Cargo.toml<span class="w"> </span>CHANGELOG.md
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: Bump version to 0.2.0&quot;</span>
-</code></pre></div>
-
+<pre><code class="language-bash"># Update version in Cargo.toml (workspace.package.version)
+# Update CHANGELOG.md with release notes
+git add Cargo.toml CHANGELOG.md
+git commit -m &quot;chore: Bump version to 0.2.0&quot;
+</code></pre>
 <p><strong>2. Create Tag</strong>:</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v0.2.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Release v0.2.0: Semi-naive Datalog evaluation&quot;</span>
-git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v0.2.0
-</code></pre></div>
-
+<pre><code class="language-bash">git tag -a v0.2.0 -m &quot;Release v0.2.0: Semi-naive Datalog evaluation&quot;
+git push origin v0.2.0
+</code></pre>
 <p><strong>3. Build Release Artifacts</strong>:</p>
-<div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>build<span class="w"> </span>--release
-<span class="c1"># Binary: target/release/rune</span>
-</code></pre></div>
-
+<pre><code class="language-bash">cargo build --release
+# Binary: target/release/rune
+</code></pre>
 <p><strong>4. Create GitHub Release</strong>:</p>
-<div class="highlight"><pre><span></span><code>gh<span class="w"> </span>release<span class="w"> </span>create<span class="w"> </span>v0.2.0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--title<span class="w"> </span><span class="s2">&quot;v0.2.0: Semi-naive Datalog evaluation&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--notes<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>CHANGELOG.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;/## \[0.2.0\]/,/## \[0.1.0\]/p&#39;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>target/release/rune#rune-v0.2.0-<span class="k">$(</span>uname<span class="w"> </span>-m<span class="k">)</span>-<span class="k">$(</span>uname<span class="w"> </span>-s<span class="k">)</span>
-</code></pre></div>
-
+<pre><code class="language-bash">gh release create v0.2.0 \
+  --title &quot;v0.2.0: Semi-naive Datalog evaluation&quot; \
+  --notes &quot;$(cat CHANGELOG.md | sed -n '/## \[0.2.0\]/,/## \[0.1.0\]/p')&quot; \
+  target/release/rune#rune-v0.2.0-$(uname -m)-$(uname -s)
+</code></pre>
 <h3 id="special-tags">Special Tags</h3>
 <ul>
 <li><strong>Validation Tags</strong>: For whitepaper claims validation (e.g., <code>v0.1.0-whitepaper</code>)</li>
@@ -474,67 +373,63 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 </ol>
 <h3 id="tidying-guidelines">Tidying Guidelines</h3>
 <p><strong>DO</strong>:
-- ✅ Use <code>git mv</code> to preserve history when moving files
-- ✅ Update all documentation cross-references after moves
-- ✅ Group related files in logical directories
-- ✅ Remove generated artifacts (covered by .gitignore)
-- ✅ Clean up commented-out code in favor of git history</p>
+- <i class="fa-solid fa-circle-check status-success"></i> Use <code>git mv</code> to preserve history when moving files
+- <i class="fa-solid fa-circle-check status-success"></i> Update all documentation cross-references after moves
+- <i class="fa-solid fa-circle-check status-success"></i> Group related files in logical directories
+- <i class="fa-solid fa-circle-check status-success"></i> Remove generated artifacts (covered by .gitignore)
+- <i class="fa-solid fa-circle-check status-success"></i> Clean up commented-out code in favor of git history</p>
 <p><strong>DON'T</strong>:
-- ❌ Delete files without checking for references
-- ❌ Rename files without updating imports/documentation
-- ❌ Move files between commits (do it as separate commit)
-- ❌ Restructure without updating AGENT_GUIDE.md</p>
+- <i class="fa-solid fa-circle-xmark status-error"></i> Delete files without checking for references
+- <i class="fa-solid fa-circle-xmark status-error"></i> Rename files without updating imports/documentation
+- <i class="fa-solid fa-circle-xmark status-error"></i> Move files between commits (do it as separate commit)
+- <i class="fa-solid fa-circle-xmark status-error"></i> Restructure without updating AGENT_GUIDE.md</p>
 <p><strong>Example Tidy Workflow</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Move file with history preservation</span>
-git<span class="w"> </span>mv<span class="w"> </span>old/path/file.rs<span class="w"> </span>new/path/file.rs
+<pre><code class="language-bash"># Move file with history preservation
+git mv old/path/file.rs new/path/file.rs
 
-<span class="c1"># Update imports and references</span>
-<span class="c1"># (edit affected files)</span>
+# Update imports and references
+# (edit affected files)
 
-<span class="c1"># Commit move and updates together</span>
-git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: Reorganize fact store modules</span>
+# Commit move and updates together
+git add .
+git commit -m &quot;refactor: Reorganize fact store modules
 
-<span class="s2">- Move fact store to rune-core/src/storage/</span>
-<span class="s2">- Update all imports and cross-references</span>
-<span class="s2">- Update AGENT_GUIDE.md repository structure&quot;</span>
-</code></pre></div>
-
+- Move fact store to rune-core/src/storage/
+- Update all imports and cross-references
+- Update AGENT_GUIDE.md repository structure&quot;
+</code></pre>
 <h3 id="adding-new-components">Adding New Components</h3>
 <p>When adding new crates, modules, or major features:</p>
 <ol>
 <li><strong>Create structure</strong>:</li>
 </ol>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>rune-new-component/src
-<span class="nb">cd</span><span class="w"> </span>rune-new-component
-</code></pre></div>
-
-<ol start="2">
+<pre><code class="language-bash">mkdir -p rune-new-component/src
+cd rune-new-component
+</code></pre>
+<ol>
 <li><strong>Add to workspace</strong> (<code>Cargo.toml</code>):</li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="k">[workspace]</span>
-<span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;rune-core&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;rune-cli&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;rune-new-component&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># Add here</span>
-<span class="p">]</span>
-</code></pre></div>
-
-<ol start="3">
+<pre><code class="language-toml">[workspace]
+members = [
+    &quot;rune-core&quot;,
+    &quot;rune-cli&quot;,
+    &quot;rune-new-component&quot;,  # Add here
+]
+</code></pre>
+<ol>
+<li><strong>Update documentation</strong>:</li>
+<li>Add to repository structure in AGENT_GUIDE.md</li>
+<li>Add to architecture diagram</li>
 <li>
-<p><strong>Update documentation</strong>:
-- Add to repository structure in AGENT_GUIDE.md
-- Add to architecture diagram
-- Update README.md if user-facing</p>
+<p>Update README.md if user-facing</p>
 </li>
 <li>
 <p><strong>Add tests</strong>:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>rune-new-component/tests
-<span class="c1"># Add integration tests</span>
-</code></pre></div>
-
+<pre><code class="language-bash">mkdir -p rune-new-component/tests
+# Add integration tests
+</code></pre>
 <hr />
 <h2 id="testing-protocols">Testing Protocols</h2>
 <h3 id="critical-testing-rules">Critical Testing Rules</h3>
@@ -542,25 +437,24 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <strong>RULE 2</strong>: NEVER test uncommitted code
 <strong>RULE 3</strong>: Kill old test processes before running new tests</p>
 <h3 id="testing-workflow">Testing Workflow</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Make changes and commit</span>
-git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Add feature X&quot;</span>
+<pre><code class="language-bash"># 1. Make changes and commit
+git add .
+git commit -m &quot;feat: Add feature X&quot;
 
-<span class="c1"># 2. Kill any running tests</span>
-pkill<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;cargo test&quot;</span>
+# 2. Kill any running tests
+pkill -f &quot;cargo test&quot;
 
-<span class="c1"># 3. Run tests</span>
-cargo<span class="w"> </span><span class="nb">test</span>
+# 3. Run tests
+cargo test
 
-<span class="c1"># 4. Run benchmarks (for performance-critical changes)</span>
-cargo<span class="w"> </span>bench
+# 4. Run benchmarks (for performance-critical changes)
+cargo bench
 
-<span class="c1"># 5. If tests fail:</span>
-<span class="c1">#    - Fix issue</span>
-<span class="c1">#    - Commit fix</span>
-<span class="c1">#    - Re-test (goto step 2)</span>
-</code></pre></div>
-
+# 5. If tests fail:
+#    - Fix issue
+#    - Commit fix
+#    - Re-test (goto step 2)
+</code></pre>
 <h3 id="test-types">Test Types</h3>
 <table>
 <thead>
@@ -600,16 +494,15 @@ cargo<span class="w"> </span>bench
 </table>
 <h3 id="performance-testing">Performance Testing</h3>
 <p><strong>Critical</strong>: RUNE must maintain sub-millisecond latency.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Run standard benchmark</span>
-./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">8</span>
+<pre><code class="language-bash"># Run standard benchmark
+./target/release/rune benchmark --requests 10000 --threads 8
 
-<span class="c1"># Expected output:</span>
-<span class="c1"># Throughput: &gt;5,000,000 req/sec</span>
-<span class="c1"># Avg latency: &lt;0.001ms</span>
-<span class="c1"># P99 latency: &lt;0.001ms</span>
-<span class="c1"># Cache hit rate: &gt;90%</span>
-</code></pre></div>
-
+# Expected output:
+# Throughput: &gt;5,000,000 req/sec
+# Avg latency: &lt;0.001ms
+# P99 latency: &lt;0.001ms
+# Cache hit rate: &gt;90%
+</code></pre>
 <p><strong>If performance degrades</strong>:
 1. Profile with <code>cargo flamegraph</code> or <code>perf</code>
 2. Identify bottleneck
@@ -663,27 +556,26 @@ cargo<span class="w"> </span>bench
 </table>
 <h3 id="performance-patterns">Performance Patterns</h3>
 <p><strong>DO</strong>:
-- ✅ Use Arc for zero-copy sharing
-- ✅ Use crossbeam for lock-free data structures
-- ✅ Use rayon for data parallelism
-- ✅ Use DashMap for concurrent caching
-- ✅ Minimize allocations in hot paths
-- ✅ Use <code>#[inline]</code> for small, hot functions</p>
+- <i class="fa-solid fa-circle-check status-success"></i> Use Arc for zero-copy sharing
+- <i class="fa-solid fa-circle-check status-success"></i> Use crossbeam for lock-free data structures
+- <i class="fa-solid fa-circle-check status-success"></i> Use rayon for data parallelism
+- <i class="fa-solid fa-circle-check status-success"></i> Use DashMap for concurrent caching
+- <i class="fa-solid fa-circle-check status-success"></i> Minimize allocations in hot paths
+- <i class="fa-solid fa-circle-check status-success"></i> Use <code>#[inline]</code> for small, hot functions</p>
 <p><strong>DON'T</strong>:
-- ❌ Use <code>Mutex</code> or <code>RwLock</code> in hot paths
-- ❌ Clone large structures unnecessarily
-- ❌ Allocate in tight loops
-- ❌ Use async where sync suffices (added overhead)
-- ❌ Ignore <code>clippy::perf</code> warnings</p>
+- <i class="fa-solid fa-circle-xmark status-error"></i> Use <code>Mutex</code> or <code>RwLock</code> in hot paths
+- <i class="fa-solid fa-circle-xmark status-error"></i> Clone large structures unnecessarily
+- <i class="fa-solid fa-circle-xmark status-error"></i> Allocate in tight loops
+- <i class="fa-solid fa-circle-xmark status-error"></i> Use async where sync suffices (added overhead)
+- <i class="fa-solid fa-circle-xmark status-error"></i> Ignore <code>clippy::perf</code> warnings</p>
 <h3 id="benchmarking-new-features">Benchmarking New Features</h3>
 <p>When adding features:</p>
 <ol>
 <li><strong>Baseline</strong>:</li>
 </ol>
-<div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>bench<span class="w"> </span>--<span class="w"> </span>baseline
-</code></pre></div>
-
-<ol start="2">
+<pre><code class="language-bash">cargo bench -- baseline
+</code></pre>
+<ol>
 <li>
 <p><strong>Implement feature</strong></p>
 </li>
@@ -691,10 +583,9 @@ cargo<span class="w"> </span>bench
 <p><strong>Compare</strong>:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>bench<span class="w"> </span>--<span class="w"> </span>new_feature
-</code></pre></div>
-
-<ol start="4">
+<pre><code class="language-bash">cargo bench -- new_feature
+</code></pre>
+<ol>
 <li>
 <p><strong>Validate</strong>: No regression &gt;5% on critical paths</p>
 </li>
@@ -705,132 +596,124 @@ cargo<span class="w"> </span>bench
 <hr />
 <h2 id="common-tasks">Common Tasks</h2>
 <h3 id="add-a-new-datalog-rule-type">Add a New Datalog Rule Type</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Edit parser</span>
-vim<span class="w"> </span>rune-core/src/parser.rs
+<pre><code class="language-bash"># 1. Edit parser
+vim rune-core/src/parser.rs
 
-<span class="c1"># 2. Add rule representation</span>
-vim<span class="w"> </span>rune-core/src/datalog.rs
+# 2. Add rule representation
+vim rune-core/src/datalog.rs
 
-<span class="c1"># 3. Update evaluation</span>
-vim<span class="w"> </span>rune-core/src/datalog.rs
+# 3. Update evaluation
+vim rune-core/src/datalog.rs
 
-<span class="c1"># 4. Add tests</span>
-vim<span class="w"> </span>rune-core/src/datalog.rs<span class="w">  </span><span class="c1"># Add #[cfg(test)] tests</span>
+# 4. Add tests
+vim rune-core/src/datalog.rs  # Add #[cfg(test)] tests
 
-<span class="c1"># 5. Add example</span>
-vim<span class="w"> </span>examples/new-rule.rune
+# 5. Add example
+vim examples/new-rule.rune
 
-<span class="c1"># 6. Commit and test</span>
-git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Add negation support to Datalog rules&quot;</span>
-cargo<span class="w"> </span><span class="nb">test</span>
-</code></pre></div>
-
+# 6. Commit and test
+git add .
+git commit -m &quot;feat: Add negation support to Datalog rules&quot;
+cargo test
+</code></pre>
 <h3 id="add-a-new-cedar-policy-pattern">Add a New Cedar Policy Pattern</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Edit policy integration</span>
-vim<span class="w"> </span>rune-core/src/policy.rs
+<pre><code class="language-bash"># 1. Edit policy integration
+vim rune-core/src/policy.rs
 
-<span class="c1"># 2. Add entity conversion if needed</span>
-vim<span class="w"> </span>rune-core/src/types.rs
+# 2. Add entity conversion if needed
+vim rune-core/src/types.rs
 
-<span class="c1"># 3. Add tests</span>
-vim<span class="w"> </span>rune-core/src/policy.rs
+# 3. Add tests
+vim rune-core/src/policy.rs
 
-<span class="c1"># 4. Add example</span>
-vim<span class="w"> </span>examples/new-policy.rune
+# 4. Add example
+vim examples/new-policy.rune
 
-<span class="c1"># 5. Commit and test</span>
-git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: Support hierarchical resource policies&quot;</span>
-cargo<span class="w"> </span><span class="nb">test</span>
-</code></pre></div>
-
+# 5. Commit and test
+git add .
+git commit -m &quot;feat: Support hierarchical resource policies&quot;
+cargo test
+</code></pre>
 <h3 id="update-performance-benchmarks">Update Performance Benchmarks</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Run benchmarks</span>
-./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">100000</span><span class="w"> </span>--threads<span class="w"> </span><span class="m">16</span>
+<pre><code class="language-bash"># 1. Run benchmarks
+./target/release/rune benchmark --requests 100000 --threads 16
 
-<span class="c1"># 2. Update README.md</span>
-vim<span class="w"> </span>README.md<span class="w">  </span><span class="c1"># Update benchmark results section</span>
+# 2. Update README.md
+vim README.md  # Update benchmark results section
 
-<span class="c1"># 3. Update WHITEPAPER.md</span>
-vim<span class="w"> </span>WHITEPAPER.md<span class="w">  </span><span class="c1"># Update performance section</span>
+# 3. Update WHITEPAPER.md
+vim WHITEPAPER.md  # Update performance section
 
-<span class="c1"># 4. Commit</span>
-git<span class="w"> </span>add<span class="w"> </span>README.md<span class="w"> </span>WHITEPAPER.md
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: Update benchmark results (10M ops/sec achieved)&quot;</span>
-</code></pre></div>
-
+# 4. Commit
+git add README.md WHITEPAPER.md
+git commit -m &quot;docs: Update benchmark results (10M ops/sec achieved)&quot;
+</code></pre>
 <h3 id="add-new-documentation">Add New Documentation</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Create doc file</span>
-vim<span class="w"> </span>docs/new-guide.md
+<pre><code class="language-bash"># 1. Create doc file
+vim docs/new-guide.md
 
-<span class="c1"># 2. Add to docs site</span>
-vim<span class="w"> </span>docs/_config.yml<span class="w">  </span><span class="c1"># Add to navigation</span>
+# 2. Add to docs site
+vim docs/_config.yml  # Add to navigation
 
-<span class="c1"># 3. Link from README</span>
-vim<span class="w"> </span>README.md<span class="w">  </span><span class="c1"># Add link to new guide</span>
+# 3. Link from README
+vim README.md  # Add link to new guide
 
-<span class="c1"># 4. Commit</span>
-git<span class="w"> </span>add<span class="w"> </span>docs/<span class="w"> </span>README.md
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: Add advanced Datalog guide&quot;</span>
-</code></pre></div>
-
+# 4. Commit
+git add docs/ README.md
+git commit -m &quot;docs: Add advanced Datalog guide&quot;
+</code></pre>
 <h3 id="create-a-release">Create a Release</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Update version</span>
-vim<span class="w"> </span>Cargo.toml<span class="w">  </span><span class="c1"># workspace.package.version</span>
+<pre><code class="language-bash"># 1. Update version
+vim Cargo.toml  # workspace.package.version
 
-<span class="c1"># 2. Update CHANGELOG.md</span>
-vim<span class="w"> </span>CHANGELOG.md<span class="w">  </span><span class="c1"># Add release notes</span>
+# 2. Update CHANGELOG.md
+vim CHANGELOG.md  # Add release notes
 
-<span class="c1"># 3. Commit version bump</span>
-git<span class="w"> </span>add<span class="w"> </span>Cargo.toml<span class="w"> </span>CHANGELOG.md
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: Bump version to 0.3.0&quot;</span>
+# 3. Commit version bump
+git add Cargo.toml CHANGELOG.md
+git commit -m &quot;chore: Bump version to 0.3.0&quot;
 
-<span class="c1"># 4. Create tag</span>
-git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v0.3.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Release v0.3.0: Hot-reload with RCU&quot;</span>
+# 4. Create tag
+git tag -a v0.3.0 -m &quot;Release v0.3.0: Hot-reload with RCU&quot;
 
-<span class="c1"># 5. Build release</span>
-cargo<span class="w"> </span>build<span class="w"> </span>--release
+# 5. Build release
+cargo build --release
 
-<span class="c1"># 6. Test release binary</span>
-./target/release/rune<span class="w"> </span>--version
-./target/release/rune<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span>
+# 6. Test release binary
+./target/release/rune --version
+./target/release/rune benchmark --requests 10000
 
-<span class="c1"># 7. Push tag</span>
-git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v0.3.0
+# 7. Push tag
+git push origin v0.3.0
 
-<span class="c1"># 8. Create GitHub release</span>
-gh<span class="w"> </span>release<span class="w"> </span>create<span class="w"> </span>v0.3.0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--title<span class="w"> </span><span class="s2">&quot;v0.3.0: Hot-reload with RCU&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--notes-file<span class="w"> </span>&lt;<span class="o">(</span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="s2">&quot;## \[0.3.0\]&quot;</span><span class="w"> </span>CHANGELOG.md<span class="o">)</span>
-</code></pre></div>
-
+# 8. Create GitHub release
+gh release create v0.3.0 \
+  --title &quot;v0.3.0: Hot-reload with RCU&quot; \
+  --notes-file &lt;(grep -A 20 &quot;## \[0.3.0\]&quot; CHANGELOG.md)
+</code></pre>
 <hr />
 <h2 id="integration-with-mnemosyne">Integration with mnemosyne</h2>
 <p>If using mnemosyne for memory and orchestration:</p>
 <p><strong>Store Key Decisions</strong>:</p>
-<div class="highlight"><pre><span></span><code>mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Using Cedar 3.x API with entity ownership pattern&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="m">9</span><span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;architecture,cedar&quot;</span>
+<pre><code class="language-bash">mnemosyne remember -c &quot;Using Cedar 3.x API with entity ownership pattern&quot; \
+  -n &quot;project:rune&quot; -i 9 -t &quot;architecture,cedar&quot;
 
-mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Lock-free fact store requires unsafe code allowance in facts.rs&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="m">8</span><span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;implementation,concurrency&quot;</span>
-</code></pre></div>
-
+mnemosyne remember -c &quot;Lock-free fact store requires unsafe code allowance in facts.rs&quot; \
+  -n &quot;project:rune&quot; -i 8 -t &quot;implementation,concurrency&quot;
+</code></pre>
 <p><strong>Recall Context</strong>:</p>
-<div class="highlight"><pre><span></span><code>mnemosyne<span class="w"> </span>recall<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;cedar policy integration&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-l<span class="w"> </span><span class="m">5</span>
-mnemosyne<span class="w"> </span>recall<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;performance optimization&quot;</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-l<span class="w"> </span><span class="m">10</span>
-</code></pre></div>
-
+<pre><code class="language-bash">mnemosyne recall -q &quot;cedar policy integration&quot; -n &quot;project:rune&quot; -l 5
+mnemosyne recall -q &quot;performance optimization&quot; -n &quot;project:rune&quot; -l 10
+</code></pre>
 <p><strong>Store TODO Items</strong>:</p>
-<div class="highlight"><pre><span></span><code>mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Implement semi-naive Datalog evaluation&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="m">9</span><span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;todo,datalog&quot;</span>
+<pre><code class="language-bash">mnemosyne remember -c &quot;Implement semi-naive Datalog evaluation&quot; \
+  -n &quot;project:rune&quot; -i 9 -t &quot;todo,datalog&quot;
 
-mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Add Python bindings tests&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-n<span class="w"> </span><span class="s2">&quot;project:rune&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="m">7</span><span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;todo,python&quot;</span>
-</code></pre></div>
-
+mnemosyne remember -c &quot;Add Python bindings tests&quot; \
+  -n &quot;project:rune&quot; -i 7 -t &quot;todo,python&quot;
+</code></pre>
 <hr />
-<h2 id="troubleshooting_1">Troubleshooting</h2>
+<h2 id="troubleshooting">Troubleshooting</h2>
 <h3 id="common-build-errors">Common Build Errors</h3>
 <p><strong>Error</strong>: <code>unsafe code is forbidden</code>
 <strong>Fix</strong>: Add <code>#![allow(unsafe_code)]</code> to module using crossbeam/unsafe patterns</p>
@@ -839,27 +722,25 @@ mnemosyne<span class="w"> </span>remember<span class="w"> </span>-c<span class="
 <p><strong>Error</strong>: Python linker errors
 <strong>Fix</strong>: Ensure Python dev environment configured, or disable rune-python in workspace</p>
 <h3 id="performance-debugging">Performance Debugging</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># Profile with flamegraph</span>
-cargo<span class="w"> </span>flamegraph<span class="w"> </span>--bin<span class="w"> </span>rune<span class="w"> </span>--<span class="w"> </span>benchmark<span class="w"> </span>--requests<span class="w"> </span><span class="m">10000</span>
+<pre><code class="language-bash"># Profile with flamegraph
+cargo flamegraph --bin rune -- benchmark --requests 10000
 
-<span class="c1"># Profile with perf (Linux)</span>
-perf<span class="w"> </span>record<span class="w"> </span>--call-graph<span class="w"> </span>dwarf<span class="w"> </span>./target/release/rune<span class="w"> </span>benchmark
-perf<span class="w"> </span>report
+# Profile with perf (Linux)
+perf record --call-graph dwarf ./target/release/rune benchmark
+perf report
 
-<span class="c1"># Check assembly output</span>
-cargo<span class="w"> </span>rustc<span class="w"> </span>--release<span class="w"> </span>--<span class="w"> </span>--emit<span class="w"> </span>asm
-</code></pre></div>
-
+# Check assembly output
+cargo rustc --release -- --emit asm
+</code></pre>
 <h3 id="documentation-build">Documentation Build</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># Build rustdoc</span>
-cargo<span class="w"> </span>doc<span class="w"> </span>--no-deps<span class="w"> </span>--open
+<pre><code class="language-bash"># Build rustdoc
+cargo doc --no-deps --open
 
-<span class="c1"># Build GitHub Pages locally (requires Jekyll)</span>
-<span class="nb">cd</span><span class="w"> </span>docs
-bundle<span class="w"> </span>install
-bundle<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>jekyll<span class="w"> </span>serve
-</code></pre></div>
-
+# Build GitHub Pages locally (requires Jekyll)
+cd docs
+bundle install
+bundle exec jekyll serve
+</code></pre>
 <hr />
 <h2 id="references">References</h2>
 <ul>
@@ -873,22 +754,17 @@ bundle<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <p><strong>Last Updated</strong>: 2025-11-08
 <strong>Maintainer</strong>: RUNE Contributors
 <strong>Status</strong>: Living document - update as workflows evolve</p>
+        </div>
 
-<footer class="footer">
-    <p>
-        RUNE is open-source software. For questions or contributions, visit the
-        <a href="https://github.com/rand/RUNE">GitHub repository</a>.
-    </p>
-</footer>
-
+        <footer class="footer">
+            <p>
+                RUNE is open-source software. For questions or contributions, visit the
+                <a href="https://github.com/rand/RUNE">GitHub repository</a>.
+            </p>
+        </footer>
     </main>
 
-    <!-- Shared Foundation Scripts -->
-    <script src="js/theme-core.js"></script>
-    <script src="js/sidebar-core.js"></script>
-    <script src="js/toc-core.js"></script>
-
-    <!-- Project-specific customization -->
+    <script src="js/theme.js"></script>
     <script src="js/sidebar.js"></script>
 </body>
 </html>
