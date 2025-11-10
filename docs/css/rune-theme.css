@@ -54,7 +54,4 @@ body.dark-theme {
     --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Logo Glyph - Closed Contour Integral (authorization/security boundary) */
-.logo-glyph::before {
-    content: "∮";
-}
+/* Logo Glyph - Already in HTML, no need for ::before */
