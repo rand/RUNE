@@ -24,6 +24,7 @@
 pub mod aggregation;
 pub mod backends;
 pub mod bridge;
+pub mod diagnostics;
 pub mod evaluation;
 pub mod incremental;
 pub mod lattice;
@@ -41,6 +42,9 @@ pub use backends::{
     BackendType, HashBackend, RelationBackend, TrieBackend, UnionFindBackend, VecBackend,
 };
 pub use bridge::CedarDatalogBridge;
+pub use diagnostics::{
+    DatalogDiagnostics, Diagnostic, DiagnosticBag, Severity, Span, Suggestion,
+};
 pub use evaluation::{EvaluationResult, Evaluator};
 pub use incremental::{
     compute_fact_diff, Delta, IncrementalEvaluator, IncrementalResult, IncrementalStats,
