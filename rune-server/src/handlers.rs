@@ -368,21 +368,21 @@ mod tests {
     fn test_debug_params_default() {
         let json = "{}";
         let params: DebugParams = serde_json::from_str(json).unwrap();
-        assert_eq!(params.debug, false);
+        assert!(!params.debug);
     }
 
     #[test]
     fn test_debug_params_true() {
         let json = r#"{"debug": true}"#;
         let params: DebugParams = serde_json::from_str(json).unwrap();
-        assert_eq!(params.debug, true);
+        assert!(params.debug);
     }
 
     #[test]
     fn test_debug_params_false() {
         let json = r#"{"debug": false}"#;
         let params: DebugParams = serde_json::from_str(json).unwrap();
-        assert_eq!(params.debug, false);
+        assert!(!params.debug);
     }
 
     #[test]
@@ -390,7 +390,7 @@ mod tests {
         // Should ignore extra fields
         let json = r#"{"debug": true, "extra": "field"}"#;
         let params: DebugParams = serde_json::from_str(json).unwrap();
-        assert_eq!(params.debug, true);
+        assert!(params.debug);
     }
 
     #[test]
@@ -412,9 +412,21 @@ mod tests {
     #[test]
     fn test_parse_resource_urls() {
         let test_cases = vec![
-            ("HTTP:https://api.example.com/users", "HTTP", "https://api.example.com/users"),
-            ("FTP:ftp://files.example.com/data", "FTP", "ftp://files.example.com/data"),
-            ("File:file:///home/user/doc.txt", "File", "file:///home/user/doc.txt"),
+            (
+                "HTTP:https://api.example.com/users",
+                "HTTP",
+                "https://api.example.com/users",
+            ),
+            (
+                "FTP:ftp://files.example.com/data",
+                "FTP",
+                "ftp://files.example.com/data",
+            ),
+            (
+                "File:file:///home/user/doc.txt",
+                "File",
+                "file:///home/user/doc.txt",
+            ),
         ];
 
         for (input, expected_type, expected_id) in test_cases {

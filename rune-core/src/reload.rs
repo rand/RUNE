@@ -696,7 +696,9 @@ permit (
 
         // Reload should fail
         let result = coordinator.manual_reload(temp_file.path()).await;
-        assert!(matches!(result, ReloadResult::Failed(msg) if msg.contains("Parse error") || msg.contains("Policy")));
+        assert!(
+            matches!(result, ReloadResult::Failed(msg) if msg.contains("Parse error") || msg.contains("Policy"))
+        );
     }
 
     #[tokio::test]
@@ -723,7 +725,7 @@ fact(unclosed.
         let result = coordinator.manual_reload(temp_file.path()).await;
         // Both success and failure are acceptable - just verify no panic
         match result {
-            ReloadResult::Success | ReloadResult::Failed(_) => {}, // Both OK
+            ReloadResult::Success | ReloadResult::Failed(_) => {} // Both OK
             ReloadResult::Skipped(_) => panic!("Should not be skipped"),
         }
     }
@@ -894,7 +896,9 @@ permit (
 
         // Reload should fail due to duplicate policy IDs
         let result = coordinator.manual_reload(temp_file.path()).await;
-        assert!(matches!(result, ReloadResult::Failed(msg) if msg.contains("duplicate") || msg.contains("Policy add error")));
+        assert!(
+            matches!(result, ReloadResult::Failed(msg) if msg.contains("duplicate") || msg.contains("Policy add error"))
+        );
     }
 
     #[tokio::test]
@@ -982,8 +986,14 @@ can_access(U, R) :- user(U), role(U, admin).
     #[tokio::test]
     async fn test_reload_result_variants_inequality() {
         // Test different variants are not equal
-        assert_ne!(ReloadResult::Success, ReloadResult::Failed("err".to_string()));
-        assert_ne!(ReloadResult::Success, ReloadResult::Skipped("skip".to_string()));
+        assert_ne!(
+            ReloadResult::Success,
+            ReloadResult::Failed("err".to_string())
+        );
+        assert_ne!(
+            ReloadResult::Success,
+            ReloadResult::Skipped("skip".to_string())
+        );
         assert_ne!(
             ReloadResult::Failed("err1".to_string()),
             ReloadResult::Skipped("skip".to_string())
@@ -998,7 +1008,10 @@ can_access(U, R) :- user(U), role(U, admin).
         // Verify initial state
         assert!(coordinator.event_tx.is_none());
         assert_eq!(coordinator.watched_files.len(), 0);
-        assert_eq!(coordinator.config.debounce_duration, Duration::from_millis(500));
+        assert_eq!(
+            coordinator.config.debounce_duration,
+            Duration::from_millis(500)
+        );
     }
 
     #[tokio::test]

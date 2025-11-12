@@ -796,8 +796,8 @@ mod tests {
 
             // All snapshots should be valid
             for snapshot in snapshots {
-                assert!(snapshot.facts().len() >= 1); // At least initial fact
-                assert!(snapshot.version() >= 0);
+                assert!(!snapshot.facts().is_empty()); // At least initial fact
+                                                       // Version is always >= 0 since it's unsigned
             }
         }));
 

@@ -1,15 +1,14 @@
 //! Integration tests for RUNE CLI commands
 
-use assert_cmd::Command;
+use assert_cmd::cargo;
 use predicates::prelude::*;
-use std::fs;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
 /// Test the version command
 #[test]
 fn test_cli_version() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("--version")
         .assert()
         .success()
@@ -19,7 +18,7 @@ fn test_cli_version() {
 /// Test the help command
 #[test]
 fn test_cli_help() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("--help")
         .assert()
         .success()
@@ -34,7 +33,7 @@ fn test_cli_help() {
 /// Test eval command with default parameters
 #[test]
 fn test_eval_basic() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("read")
@@ -49,7 +48,7 @@ fn test_eval_basic() {
 /// Test eval command with principal
 #[test]
 fn test_eval_with_principal() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("write")
@@ -65,7 +64,7 @@ fn test_eval_with_principal() {
 /// Test eval command with JSON format
 #[test]
 fn test_eval_json_format() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("delete")
@@ -81,7 +80,7 @@ fn test_eval_json_format() {
 /// Test eval command with verbose flag
 #[test]
 fn test_eval_verbose() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("--verbose")
         .arg("eval")
         .arg("--action")
@@ -95,7 +94,7 @@ fn test_eval_verbose() {
 /// Test eval command with missing required arguments
 #[test]
 fn test_eval_missing_action() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--resource")
         .arg("/tmp/file.txt")
@@ -107,7 +106,7 @@ fn test_eval_missing_action() {
 /// Test eval command with missing resource
 #[test]
 fn test_eval_missing_resource() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("read")
@@ -142,7 +141,7 @@ permit (
     .unwrap();
     temp_file.flush().unwrap();
 
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate")
         .arg(temp_file.path())
         .assert()
@@ -158,7 +157,7 @@ fn test_validate_invalid_config() {
     writeln!(temp_file, "invalid syntax [[[").unwrap();
     temp_file.flush().unwrap();
 
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate")
         .arg(temp_file.path())
         .assert()
@@ -169,7 +168,7 @@ fn test_validate_invalid_config() {
 /// Test validate command with missing file
 #[test]
 fn test_validate_missing_file() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate")
         .arg("/nonexistent/file.rune")
         .assert()
@@ -179,7 +178,7 @@ fn test_validate_missing_file() {
 /// Test validate command without file argument
 #[test]
 fn test_validate_no_file() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate")
         .assert()
         .failure()
@@ -189,7 +188,7 @@ fn test_validate_no_file() {
 /// Test benchmark command with default parameters
 #[test]
 fn test_benchmark_default() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .assert()
         .success()
@@ -200,7 +199,7 @@ fn test_benchmark_default() {
 /// Test benchmark command with custom parameters
 #[test]
 fn test_benchmark_custom() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .arg("--requests")
         .arg("100")
@@ -215,7 +214,7 @@ fn test_benchmark_custom() {
 /// Test benchmark command with verbose flag
 #[test]
 fn test_benchmark_verbose() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("--verbose")
         .arg("benchmark")
         .arg("--requests")
@@ -227,7 +226,7 @@ fn test_benchmark_verbose() {
 /// Test benchmark command with invalid requests value
 #[test]
 fn test_benchmark_invalid_requests() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .arg("--requests")
         .arg("not_a_number")
@@ -239,7 +238,7 @@ fn test_benchmark_invalid_requests() {
 /// Test benchmark command with zero threads (runs sequentially, doesn't fail)
 #[test]
 fn test_benchmark_zero_threads() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .arg("--threads")
         .arg("0")
@@ -253,7 +252,7 @@ fn test_benchmark_zero_threads() {
 /// Test serve command help
 #[test]
 fn test_serve_help() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("serve")
         .arg("--help")
         .assert()
@@ -265,7 +264,7 @@ fn test_serve_help() {
 /// Test subcommand help
 #[test]
 fn test_eval_help() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--help")
         .assert()
@@ -281,7 +280,7 @@ fn test_eval_help() {
 /// Test validate help
 #[test]
 fn test_validate_help() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate")
         .arg("--help")
         .assert()
@@ -294,7 +293,7 @@ fn test_validate_help() {
 /// Test benchmark help
 #[test]
 fn test_benchmark_help() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .arg("--help")
         .assert()
@@ -307,7 +306,7 @@ fn test_benchmark_help() {
 /// Test unknown command
 #[test]
 fn test_unknown_command() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("unknown")
         .assert()
         .failure()
@@ -317,7 +316,7 @@ fn test_unknown_command() {
 /// Test CLI without any arguments
 #[test]
 fn test_cli_no_args() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("Usage"));
@@ -329,7 +328,7 @@ fn test_eval_different_actions() {
     let actions = vec!["read", "write", "delete", "execute", "list"];
 
     for action in actions {
-        let mut cmd = Command::cargo_bin("rune").unwrap();
+        let mut cmd = cargo::cargo_bin_cmd!("rune");
         cmd.arg("eval")
             .arg("--action")
             .arg(action)
@@ -352,7 +351,7 @@ fn test_eval_different_resources() {
     ];
 
     for resource in resources {
-        let mut cmd = Command::cargo_bin("rune").unwrap();
+        let mut cmd = cargo::cargo_bin_cmd!("rune");
         cmd.arg("eval")
             .arg("--action")
             .arg("read")
@@ -369,7 +368,7 @@ fn test_eval_different_principals() {
     let principals = vec!["user:alice", "agent-1", "service:api", "admin:root"];
 
     for principal in principals {
-        let mut cmd = Command::cargo_bin("rune").unwrap();
+        let mut cmd = cargo::cargo_bin_cmd!("rune");
         cmd.arg("eval")
             .arg("--action")
             .arg("read")
@@ -389,7 +388,7 @@ fn test_validate_minimal_config() {
     writeln!(temp_file, r#"version = "rune/1.0""#).unwrap();
     temp_file.flush().unwrap();
 
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
@@ -410,7 +409,7 @@ can_access(U) :- user(U), admin(U).
     .unwrap();
     temp_file.flush().unwrap();
 
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
@@ -433,14 +432,14 @@ permit (
     .unwrap();
     temp_file.flush().unwrap();
 
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("validate").arg(temp_file.path()).assert().success();
 }
 
 /// Test benchmark with very small number of requests
 #[test]
 fn test_benchmark_small() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("benchmark")
         .arg("--requests")
         .arg("1")
@@ -453,7 +452,7 @@ fn test_benchmark_small() {
 /// Test eval command text format explicitly
 #[test]
 fn test_eval_text_format() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("read")
@@ -469,7 +468,7 @@ fn test_eval_text_format() {
 /// Test eval with invalid format
 #[test]
 fn test_eval_invalid_format() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("eval")
         .arg("--action")
         .arg("read")
@@ -484,7 +483,7 @@ fn test_eval_invalid_format() {
 /// Test combinations of global and command flags
 #[test]
 fn test_global_and_command_flags() {
-    let mut cmd = Command::cargo_bin("rune").unwrap();
+    let mut cmd = cargo::cargo_bin_cmd!("rune");
     cmd.arg("--verbose")
         .arg("eval")
         .arg("--action")

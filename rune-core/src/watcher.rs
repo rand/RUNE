@@ -321,7 +321,9 @@ mod tests {
         // Watch directory (should use recursive mode)
         assert!(watcher.watch(temp_dir.path()).is_ok());
         assert_eq!(watcher.watched_paths().len(), 1);
-        assert!(watcher.watched_paths().contains(&temp_dir.path().to_path_buf()));
+        assert!(watcher
+            .watched_paths()
+            .contains(&temp_dir.path().to_path_buf()));
     }
 
     #[test]
@@ -650,7 +652,7 @@ mod tests {
 
         debouncer.add_event(event1);
         std::thread::sleep(Duration::from_millis(50));
-        debouncer.add_event(event2);  // This should reset the timer
+        debouncer.add_event(event2); // This should reset the timer
 
         // Wait for first duration but not second
         std::thread::sleep(Duration::from_millis(60));

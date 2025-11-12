@@ -188,7 +188,7 @@ mod tests {
     use std::sync::Arc;
     use std::sync::Mutex;
     use tracing::subscriber::with_default;
-    use tracing_subscriber::layer::SubscriberExt;
+
     use tracing_subscriber::Registry;
 
     #[test]

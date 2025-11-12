@@ -645,7 +645,10 @@ mod tests {
 
         // Total authorizations only counts non-cached evaluations (cache misses)
         let total = metrics.total_authorizations.load(Ordering::Relaxed);
-        assert_eq!(total, 2, "Expected 2 total authorizations (only cache misses are evaluated)");
+        assert_eq!(
+            total, 2,
+            "Expected 2 total authorizations (only cache misses are evaluated)"
+        );
     }
 
     #[test]
@@ -672,10 +675,7 @@ mod tests {
     fn test_add_fact() {
         let engine = RUNEEngine::new();
         engine.add_fact("user", vec![Value::string("alice")]);
-        engine.add_fact(
-            "role",
-            vec![Value::string("alice"), Value::string("admin")],
-        );
+        engine.add_fact("role", vec![Value::string("alice"), Value::string("admin")]);
 
         // Facts should be in the store (we can't easily verify without exposing the fact store)
         // but at least ensure it doesn't panic
@@ -792,9 +792,9 @@ mod tests {
             let engine_clone = engine.clone();
             let handle = thread::spawn(move || {
                 let request = Request::new(
-                    Principal::agent(&format!("user_{}", i)),
+                    Principal::agent(format!("user_{}", i)),
                     Action::new("read"),
-                    Resource::file(&format!("/data/file_{}.txt", i)),
+                    Resource::file(format!("/data/file_{}.txt", i)),
                 );
                 engine_clone
                     .authorize(&request)
@@ -841,8 +841,7 @@ mod tests {
 
         let permit = Decision::Permit;
         let json = serde_json::to_string(&permit).expect("Failed to serialize");
-        let deserialized: Decision =
-            serde_json::from_str(&json).expect("Failed to deserialize");
+        let deserialized: Decision = serde_json::from_str(&json).expect("Failed to deserialize");
         assert_eq!(permit, deserialized);
     }
 
@@ -866,8 +865,7 @@ mod tests {
             hit_rate: 0.75,
         };
         let json = serde_json::to_string(&stats).expect("Failed to serialize");
-        let deserialized: CacheStats =
-            serde_json::from_str(&json).expect("Failed to deserialize");
+        let deserialized: CacheStats = serde_json::from_str(&json).expect("Failed to deserialize");
         assert_eq!(stats.size, deserialized.size);
         assert_eq!(stats.hit_rate, deserialized.hit_rate);
     }
@@ -879,9 +877,9 @@ mod tests {
         // Create multiple different requests
         for i in 0..5 {
             let request = Request::new(
-                Principal::agent(&format!("user_{}", i)),
+                Principal::agent(format!("user_{}", i)),
                 Action::new("read"),
-                Resource::file(&format!("/data/file_{}.txt", i)),
+                Resource::file(format!("/data/file_{}.txt", i)),
             );
             engine.authorize(&request).expect("Authorization failed");
         }
@@ -892,9 +890,9 @@ mod tests {
         // Authorizing the same requests again should hit cache
         for i in 0..5 {
             let request = Request::new(
-                Principal::agent(&format!("user_{}", i)),
+                Principal::agent(format!("user_{}", i)),
                 Action::new("read"),
-                Resource::file(&format!("/data/file_{}.txt", i)),
+                Resource::file(format!("/data/file_{}.txt", i)),
             );
             let result = engine.authorize(&request).expect("Authorization failed");
             assert!(result.cached);
@@ -911,9 +909,9 @@ mod tests {
         // Perform authorizations (they will all be Deny since we have no rules)
         for i in 0..3 {
             let request = Request::new(
-                Principal::agent(&format!("user_{}", i)),
+                Principal::agent(format!("user_{}", i)),
                 Action::new("read"),
-                Resource::file(&format!("/file_{}.txt", i)),
+                Resource::file(format!("/file_{}.txt", i)),
             );
             engine.authorize(&request).expect("Authorization failed");
         }
@@ -933,8 +931,14 @@ mod tests {
         let engine = RUNEEngine::new();
 
         // Add some facts
-        engine.add_fact("has_role", vec![Value::string("alice"), Value::string("admin")]);
-        engine.add_fact("has_role", vec![Value::string("bob"), Value::string("user")]);
+        engine.add_fact(
+            "has_role",
+            vec![Value::string("alice"), Value::string("admin")],
+        );
+        engine.add_fact(
+            "has_role",
+            vec![Value::string("bob"), Value::string("user")],
+        );
 
         // Authorize a request
         let request = Request::new(

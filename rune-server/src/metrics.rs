@@ -346,7 +346,11 @@ mod tests {
         let handles: Vec<_> = (0..10)
             .map(|i| {
                 thread::spawn(move || {
-                    record_authorization(if i % 2 == 0 { "permit" } else { "deny" }, 0.001, i % 3 == 0);
+                    record_authorization(
+                        if i % 2 == 0 { "permit" } else { "deny" },
+                        0.001,
+                        i % 3 == 0,
+                    );
                     record_rule_evaluations(i);
                     record_policy_evaluations(i * 2);
                     update_connections(i);
