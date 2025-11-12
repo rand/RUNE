@@ -25,6 +25,7 @@ pub mod aggregation;
 pub mod backends;
 pub mod bridge;
 pub mod evaluation;
+pub mod semi_naive;
 pub mod types;
 pub mod unification;
 
