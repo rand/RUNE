@@ -25,6 +25,7 @@ pub mod aggregation;
 pub mod backends;
 pub mod bridge;
 pub mod evaluation;
+pub mod incremental;
 pub mod lattice;
 pub mod magic_sets;
 pub mod provenance;
@@ -40,6 +41,9 @@ pub use backends::{
 };
 pub use bridge::CedarDatalogBridge;
 pub use evaluation::{EvaluationResult, Evaluator};
+pub use incremental::{
+    compute_fact_diff, Delta, IncrementalEvaluator, IncrementalResult, IncrementalStats,
+};
 pub use lattice::{
     BoolLattice, CounterLattice, Lattice, LatticeValue, MaxLattice, MinLattice, SetLattice,
 };
