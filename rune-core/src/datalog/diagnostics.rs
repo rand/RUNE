@@ -253,7 +253,7 @@ impl Suggestion {
 /// Extract source code context around a span
 fn extract_source_context(source: &str, span: &Span) -> Option<String> {
     let lines: Vec<&str> = source.lines().collect();
-    if span.line == 0 || span.line > lines.count() {
+    if span.line == 0 || span.line > lines.len() {
         return None;
     }
 
