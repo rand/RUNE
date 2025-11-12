@@ -30,6 +30,7 @@ pub mod provenance;
 pub mod semi_naive;
 pub mod types;
 pub mod unification;
+pub mod wcoj;
 
 // Re-export main types
 pub use aggregation::{evaluate_aggregate, AggregationResult};
@@ -42,6 +43,7 @@ pub use magic_sets::{MagicSetsTransformer, Query};
 pub use provenance::{ProvenanceTracker, ProvenanceQuery, ProofTree};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
+pub use wcoj::{LeapfrogIterator, LeapfrogJoin, TrieNode, WCOJIndex};
 
 use crate::engine::{AuthorizationResult, Decision};
 use crate::error::Result;

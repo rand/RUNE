@@ -10,7 +10,6 @@
 //! - Explanation generation: produce human-readable explanations
 
 use crate::facts::Fact;
-use crate::types::Value;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
 

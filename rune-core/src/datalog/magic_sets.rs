@@ -30,7 +30,6 @@
 //! This ensures only paths from 'a' are computed, not all possible paths.
 
 use super::types::{Atom, Rule, Term};
-use crate::facts::Fact;
 use crate::types::Value;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::Arc;
