@@ -581,6 +581,7 @@ impl RelationBackend for TrieBackend {
 }
 
 /// Backend selection based on relation characteristics
+#[derive(Debug, Clone, PartialEq)]
 pub enum BackendType {
     /// Vector backend for small relations
     Vec,
@@ -590,6 +591,8 @@ pub enum BackendType {
     UnionFind,
     /// Trie backend for hierarchical data
     Trie,
+    /// Worst-case optimal join backend for multi-way joins
+    WCOJ,
 }
 
 impl BackendType {

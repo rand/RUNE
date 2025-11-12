@@ -28,6 +28,7 @@ pub mod evaluation;
 pub mod incremental;
 pub mod lattice;
 pub mod magic_sets;
+pub mod planner;
 pub mod provenance;
 pub mod semi_naive;
 pub mod types;
@@ -48,6 +49,7 @@ pub use lattice::{
     BoolLattice, CounterLattice, Lattice, LatticeValue, MaxLattice, MinLattice, SetLattice,
 };
 pub use magic_sets::{MagicSetsTransformer, Query};
+pub use planner::{AtomAnalysis, PredicateStats, QueryPlan, QueryPlanner};
 pub use provenance::{ProvenanceQuery, ProvenanceTracker, ProofTree};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
