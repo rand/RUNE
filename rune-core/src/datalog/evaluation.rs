@@ -4,6 +4,7 @@
 //! fixpoint computation. Based on the semi-naive algorithm from
 //! Datalog research and adapted from patterns in datafrog/ascent.
 
+use super::provenance::ProvenanceTracker;
 use super::types::{Atom, Rule, Substitution};
 use super::unification::{ground_atom, unify_atom_with_fact};
 use crate::facts::{Fact, FactStore};
@@ -21,6 +22,8 @@ pub struct EvaluationResult {
     pub iterations: usize,
     /// Time taken for evaluation
     pub evaluation_time_ns: u64,
+    /// Provenance tracker for debugging
+    pub provenance: ProvenanceTracker,
 }
 
 /// Semi-naive Datalog evaluator
@@ -29,18 +32,34 @@ pub struct Evaluator {
     rules: Vec<Rule>,
     /// Fact store for querying
     fact_store: Arc<FactStore>,
+    /// Whether to track provenance
+    track_provenance: bool,
 }
 
 impl Evaluator {
     /// Create a new evaluator
     pub fn new(rules: Vec<Rule>, fact_store: Arc<FactStore>) -> Self {
-        Evaluator { rules, fact_store }
+        Evaluator {
+            rules,
+            fact_store,
+            track_provenance: false,
+        }
+    }
+
+    /// Create a new evaluator with provenance tracking
+    pub fn with_provenance(rules: Vec<Rule>, fact_store: Arc<FactStore>) -> Self {
+        Evaluator {
+            rules,
+            fact_store,
+            track_provenance: true,
+        }
     }
 
     /// Evaluate all rules until fixpoint using semi-naive algorithm
     pub fn evaluate(&self) -> EvaluationResult {
         let start = Instant::now();
         let mut iteration_count = 0;
+        let mut provenance = ProvenanceTracker::new(self.track_provenance);
 
         // Separate rules by stratum for stratified negation
         let strata = self.stratify_rules();
@@ -60,12 +79,18 @@ impl Evaluator {
             // Add all ground facts first (they don't need iteration)
             for rule in &fact_rules {
                 if let Some(fact) = self.atom_to_fact(&rule.head) {
-                    accumulated.insert(fact);
+                    accumulated.insert(fact.clone());
+                    // Record fact rules as base facts in provenance
+                    provenance.record_base(fact);
                 }
             }
 
             // Add facts from the fact store (base facts for this stratum)
             let fact_store_facts = self.fact_store.all_facts();
+            for fact in fact_store_facts.iter() {
+                // Record base facts from fact store
+                provenance.record_base(fact.clone());
+            }
             accumulated.extend(fact_store_facts.iter().cloned());
 
             // Start with facts as initial delta
@@ -84,8 +109,23 @@ impl Evaluator {
                 let mut new_delta: HashSet<Fact> = HashSet::new();
 
                 // Apply each non-fact rule in the stratum
-                for rule in &non_fact_rules {
+                for (rule_idx, rule) in non_fact_rules.iter().enumerate() {
                     let derived = self.apply_rule_semi_naive(rule, &accumulated, &delta);
+
+                    // Record provenance for derived facts
+                    for fact in &derived {
+                        // Get premises from the rule body (simplified for now)
+                        // In a full implementation, we'd track which specific facts matched
+                        let rule_name = format!("{}", rule.head.predicate);
+                        let premises: Vec<Fact> = delta.iter().cloned().take(rule.body.len()).collect();
+                        provenance.record_derived(
+                            fact.clone(),
+                            rule_name,
+                            rule_idx,
+                            premises,
+                        );
+                    }
+
                     new_delta.extend(derived);
                 }
 
@@ -116,6 +156,7 @@ impl Evaluator {
             facts: all_accumulated.into_iter().collect(),
             iterations: iteration_count,
             evaluation_time_ns: start.elapsed().as_nanos() as u64,
+            provenance,
         }
     }
 
