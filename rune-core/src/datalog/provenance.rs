@@ -367,6 +367,7 @@ impl<'a> ProvenanceQuery<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::Value;
 
     fn test_fact(pred: &str, arg: i64) -> Fact {
         Fact::new(pred.to_string(), vec![Value::Integer(arg)])

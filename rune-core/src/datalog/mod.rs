@@ -25,6 +25,7 @@ pub mod aggregation;
 pub mod backends;
 pub mod bridge;
 pub mod evaluation;
+pub mod lattice;
 pub mod magic_sets;
 pub mod provenance;
 pub mod semi_naive;
@@ -39,8 +40,11 @@ pub use backends::{
 };
 pub use bridge::CedarDatalogBridge;
 pub use evaluation::{EvaluationResult, Evaluator};
+pub use lattice::{
+    BoolLattice, CounterLattice, Lattice, LatticeValue, MaxLattice, MinLattice, SetLattice,
+};
 pub use magic_sets::{MagicSetsTransformer, Query};
-pub use provenance::{ProvenanceTracker, ProvenanceQuery, ProofTree};
+pub use provenance::{ProvenanceQuery, ProvenanceTracker, ProofTree};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
 pub use wcoj::{LeapfrogIterator, LeapfrogJoin, TrieNode, WCOJIndex};
