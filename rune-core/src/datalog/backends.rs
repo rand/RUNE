@@ -204,11 +204,14 @@ impl RelationBackend for HashBackend {
 /// for future UnionFind optimization
 #[derive(Debug, Clone)]
 pub struct UnionFindBackend {
-    // TODO: Replace with actual UnionFind structure
-    // For now, use HashSet as baseline
+    /// All facts stored in the backend
     facts: HashSet<Fact>,
-    // Future: HashMap<Value, Value> for parent pointers
-    // Future: HashMap<Value, usize> for ranks
+    /// Parent pointers for UnionFind structure
+    parent: HashMap<Value, Value>,
+    /// Rank for union by rank optimization
+    rank: HashMap<Value, usize>,
+    /// Component size tracking
+    size: HashMap<Value, usize>,
 }
 
 impl UnionFindBackend {
@@ -216,6 +219,9 @@ impl UnionFindBackend {
     pub fn new() -> Self {
         UnionFindBackend {
             facts: HashSet::new(),
+            parent: HashMap::new(),
+            rank: HashMap::new(),
+            size: HashMap::new(),
         }
     }
 
@@ -223,12 +229,103 @@ impl UnionFindBackend {
     pub fn with_capacity(capacity: usize) -> Self {
         UnionFindBackend {
             facts: HashSet::with_capacity(capacity),
+            parent: HashMap::with_capacity(capacity * 2),
+            rank: HashMap::with_capacity(capacity * 2),
+            size: HashMap::with_capacity(capacity * 2),
         }
     }
 
-    // TODO: Implement actual UnionFind operations
-    // pub fn find(&mut self, x: &Value) -> Value { ... }
-    // pub fn union(&mut self, x: &Value, y: &Value) -> bool { ... }
+    /// Find the root of the set containing x (with path compression)
+    pub fn find(&mut self, x: &Value) -> Value {
+        // If x is not in parent map, it's its own parent
+        if !self.parent.contains_key(x) {
+            self.parent.insert(x.clone(), x.clone());
+            self.rank.insert(x.clone(), 0);
+            self.size.insert(x.clone(), 1);
+            return x.clone();
+        }
+
+        let parent = self.parent.get(x).unwrap().clone();
+        if parent == *x {
+            return x.clone();
+        }
+
+        // Path compression: make all nodes point directly to root
+        let root = self.find(&parent);
+        self.parent.insert(x.clone(), root.clone());
+        root
+    }
+
+    /// Union two sets (by rank)
+    pub fn union(&mut self, x: &Value, y: &Value) -> bool {
+        let root_x = self.find(x);
+        let root_y = self.find(y);
+
+        if root_x == root_y {
+            return false; // Already in same set
+        }
+
+        // Union by rank
+        let rank_x = self.rank.get(&root_x).copied().unwrap_or(0);
+        let rank_y = self.rank.get(&root_y).copied().unwrap_or(0);
+        let size_x = self.size.get(&root_x).copied().unwrap_or(1);
+        let size_y = self.size.get(&root_y).copied().unwrap_or(1);
+
+        if rank_x < rank_y {
+            self.parent.insert(root_x.clone(), root_y.clone());
+            self.size.insert(root_y.clone(), size_x + size_y);
+        } else if rank_x > rank_y {
+            self.parent.insert(root_y.clone(), root_x.clone());
+            self.size.insert(root_x.clone(), size_x + size_y);
+        } else {
+            self.parent.insert(root_y.clone(), root_x.clone());
+            self.rank.insert(root_x.clone(), rank_x + 1);
+            self.size.insert(root_x.clone(), size_x + size_y);
+        }
+
+        true
+    }
+
+    /// Check if two values are in the same component
+    pub fn connected(&mut self, x: &Value, y: &Value) -> bool {
+        self.find(x) == self.find(y)
+    }
+
+    /// Get all values in the same component as x
+    pub fn get_component(&mut self, x: &Value) -> Vec<Value> {
+        let root = self.find(x);
+        let mut component = Vec::new();
+
+        // Collect keys first to avoid borrow checker issues
+        let keys: Vec<Value> = self.parent.keys().cloned().collect();
+        for key in keys {
+            if self.find(&key) == root {
+                component.push(key);
+            }
+        }
+
+        component
+    }
+
+    /// Get size of the component containing x
+    pub fn component_size(&mut self, x: &Value) -> usize {
+        let root = self.find(x);
+        self.size.get(&root).copied().unwrap_or(1)
+    }
+
+    /// Process a fact for UnionFind operations
+    fn process_fact(&mut self, fact: &Fact) {
+        // For binary predicates (edges), perform union
+        if fact.args.len() == 2 {
+            self.union(&fact.args[0], &fact.args[1]);
+        }
+        // For unary predicates or other arities, just ensure the values are in the structure
+        else {
+            for arg in fact.args.iter() {
+                self.find(arg);
+            }
+        }
+    }
 }
 
 impl Default for UnionFindBackend {
@@ -239,7 +336,11 @@ impl Default for UnionFindBackend {
 
 impl RelationBackend for UnionFindBackend {
     fn insert(&mut self, fact: Fact) -> bool {
-        self.facts.insert(fact)
+        let is_new = self.facts.insert(fact.clone());
+        if is_new {
+            self.process_fact(&fact);
+        }
+        is_new
     }
 
     fn contains(&self, fact: &Fact) -> bool {
@@ -256,6 +357,9 @@ impl RelationBackend for UnionFindBackend {
 
     fn clear(&mut self) {
         self.facts.clear();
+        self.parent.clear();
+        self.rank.clear();
+        self.size.clear();
     }
 }
 
@@ -1095,5 +1199,166 @@ mod tests {
         let pattern = vec![Some(Value::String(Arc::from("fact1")))];
         let results = backend.find_pattern(&pattern);
         assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_unionfind_backend_transitive_closure() {
+        let mut backend = UnionFindBackend::new();
+
+        // Create a graph: 1->2, 2->3, 4->5
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(1), Value::Integer(2)],
+        ));
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(2), Value::Integer(3)],
+        ));
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(4), Value::Integer(5)],
+        ));
+
+        // Check connectivity
+        assert!(backend.connected(&Value::Integer(1), &Value::Integer(2)));
+        assert!(backend.connected(&Value::Integer(2), &Value::Integer(3)));
+        assert!(backend.connected(&Value::Integer(1), &Value::Integer(3))); // Transitive
+        assert!(backend.connected(&Value::Integer(4), &Value::Integer(5)));
+        assert!(!backend.connected(&Value::Integer(1), &Value::Integer(4))); // Different components
+
+        // Check component sizes
+        assert_eq!(backend.component_size(&Value::Integer(1)), 3);
+        assert_eq!(backend.component_size(&Value::Integer(4)), 2);
+    }
+
+    #[test]
+    fn test_unionfind_backend_find_and_union() {
+        let mut backend = UnionFindBackend::new();
+
+        // Initially, each value is its own parent
+        let a = Value::Integer(1);
+        let b = Value::Integer(2);
+        let c = Value::Integer(3);
+
+        assert_eq!(backend.find(&a), a);
+        assert_eq!(backend.find(&b), b);
+
+        // Union a and b
+        assert!(backend.union(&a, &b));
+        assert!(backend.connected(&a, &b));
+
+        // Union should return false for already connected elements
+        assert!(!backend.union(&a, &b));
+
+        // Union b and c (should connect all three)
+        assert!(backend.union(&b, &c));
+        assert!(backend.connected(&a, &c));
+    }
+
+    #[test]
+    fn test_unionfind_backend_get_component() {
+        let mut backend = UnionFindBackend::new();
+
+        // Create two separate components
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(1), Value::Integer(2)],
+        ));
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(2), Value::Integer(3)],
+        ));
+        backend.insert(Fact::new(
+            "edge".to_string(),
+            vec![Value::Integer(4), Value::Integer(5)],
+        ));
+
+        // Get component containing 1
+        let component1 = backend.get_component(&Value::Integer(1));
+        assert_eq!(component1.len(), 3);
+        assert!(component1.contains(&Value::Integer(1)));
+        assert!(component1.contains(&Value::Integer(2)));
+        assert!(component1.contains(&Value::Integer(3)));
+
+        // Get component containing 4
+        let component2 = backend.get_component(&Value::Integer(4));
+        assert_eq!(component2.len(), 2);
+        assert!(component2.contains(&Value::Integer(4)));
+        assert!(component2.contains(&Value::Integer(5)));
+    }
+
+    #[test]
+    fn test_unionfind_backend_equivalence_relation() {
+        let mut backend = UnionFindBackend::new();
+
+        // Create equivalence classes
+        backend.insert(Fact::new(
+            "equal".to_string(),
+            vec![
+                Value::String(Arc::from("x")),
+                Value::String(Arc::from("y")),
+            ],
+        ));
+        backend.insert(Fact::new(
+            "equal".to_string(),
+            vec![
+                Value::String(Arc::from("y")),
+                Value::String(Arc::from("z")),
+            ],
+        ));
+        backend.insert(Fact::new(
+            "equal".to_string(),
+            vec![
+                Value::String(Arc::from("a")),
+                Value::String(Arc::from("b")),
+            ],
+        ));
+
+        // Check equivalence transitivity
+        assert!(backend.connected(&Value::String(Arc::from("x")), &Value::String(Arc::from("z"))));
+        assert!(!backend.connected(&Value::String(Arc::from("x")), &Value::String(Arc::from("a"))));
+    }
+
+    #[test]
+    fn test_unionfind_backend_path_compression() {
+        let mut backend = UnionFindBackend::new();
+
+        // Create a long chain: 1->2->3->4->5
+        for i in 1..5 {
+            backend.insert(Fact::new(
+                "edge".to_string(),
+                vec![Value::Integer(i), Value::Integer(i + 1)],
+            ));
+        }
+
+        // Multiple finds should trigger path compression
+        let root = backend.find(&Value::Integer(1));
+        assert_eq!(backend.find(&Value::Integer(1)), root);
+        assert_eq!(backend.find(&Value::Integer(2)), root);
+        assert_eq!(backend.find(&Value::Integer(5)), root);
+
+        // All should be in same component
+        assert!(backend.connected(&Value::Integer(1), &Value::Integer(5)));
+        assert_eq!(backend.component_size(&Value::Integer(1)), 5);
+    }
+
+    #[test]
+    fn test_unionfind_backend_non_binary_facts() {
+        let mut backend = UnionFindBackend::new();
+
+        // Non-binary facts should just add values to the structure
+        backend.insert(Fact::new(
+            "node".to_string(),
+            vec![Value::Integer(1)],
+        ));
+        backend.insert(Fact::new(
+            "triple".to_string(),
+            vec![Value::Integer(2), Value::Integer(3), Value::Integer(4)],
+        ));
+
+        // Values should exist but be in separate components
+        assert_eq!(backend.find(&Value::Integer(1)), Value::Integer(1));
+        assert_eq!(backend.find(&Value::Integer(2)), Value::Integer(2));
+        assert!(!backend.connected(&Value::Integer(1), &Value::Integer(2)));
     }
 }
