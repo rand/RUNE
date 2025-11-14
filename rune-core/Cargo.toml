@@ -58,11 +58,6 @@ quickcheck = { workspace = true }
 tracing-subscriber = { workspace = true }
 tempfile = "3.8"
 
-# Benchmarks will be added later
-# [[bench]]
-# name = "authorization"
-# harness = false
-#
-# [[bench]]
-# name = "datalog"
-# harness = false
+[[bench]]
+name = "datalog_evaluation"
+harness = false
