@@ -61,3 +61,7 @@ tempfile = "3.8"
 [[bench]]
 name = "datalog_evaluation"
 harness = false
+
+[[bench]]
+name = "cedar_integration"
+harness = false
