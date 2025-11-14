@@ -104,6 +104,7 @@ htmlcov/
 # Benchmarks
 /benches/results/
 criterion/
+.benchmark-baselines/
 
 # Temporary files
 *.tmp

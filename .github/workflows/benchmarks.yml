@@ -1,0 +1,252 @@
+name: Benchmarks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'rune-core/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/benchmarks.yml'
+      - 'scripts/benchmark-regression.sh'
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'rune-core/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  workflow_dispatch:
+    inputs:
+      save_baseline:
+        description: 'Save current results as new baseline'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-bench-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc
+
+      - name: Download baseline (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v3
+        with:
+          path: .benchmark-baselines
+          key: benchmark-baseline-${{ github.base_ref }}
+          restore-keys: |
+            benchmark-baseline-main
+            benchmark-baseline-
+
+      - name: Run benchmarks with regression detection (PR)
+        if: github.event_name == 'pull_request'
+        id: benchmark_pr
+        continue-on-error: true
+        run: |
+          chmod +x scripts/benchmark-regression.sh
+          ./scripts/benchmark-regression.sh --threshold 10 --verbose 2>&1 | tee benchmark-output.txt
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Run benchmarks and save baseline (Push to main/develop)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        run: |
+          chmod +x scripts/benchmark-regression.sh
+          ./scripts/benchmark-regression.sh --baseline
+
+      - name: Run benchmarks and save baseline (Manual)
+        if: github.event_name == 'workflow_dispatch' && inputs.save_baseline
+        run: |
+          chmod +x scripts/benchmark-regression.sh
+          ./scripts/benchmark-regression.sh --baseline
+
+      - name: Save baseline (Push to main/develop)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        uses: actions/cache/save@v3
+        with:
+          path: .benchmark-baselines
+          key: benchmark-baseline-${{ github.ref_name }}-${{ github.sha }}
+
+      - name: Parse benchmark results
+        if: github.event_name == 'pull_request'
+        id: parse_results
+        run: |
+          if [ -f benchmark-output.txt ]; then
+            # Extract summary
+            REGRESSIONS=$(grep "Regressions detected:" benchmark-output.txt | awk '{print $3}')
+            IMPROVEMENTS=$(grep "Improvements detected:" benchmark-output.txt | awk '{print $3}')
+
+            # Format output for PR comment
+            cat > pr-comment.txt <<'EOF'
+          ## 📊 Benchmark Results
+
+          **Summary:**
+          - Regressions: ${REGRESSIONS:-0}
+          - Improvements: ${IMPROVEMENTS:-0}
+
+          <details>
+          <summary>Full Benchmark Output</summary>
+
+          \`\`\`
+          $(cat benchmark-output.txt)
+          \`\`\`
+
+          </details>
+          EOF
+
+            # Replace variables
+            sed -i "s/\${REGRESSIONS:-0}/${REGRESSIONS:-0}/g" pr-comment.txt
+            sed -i "s/\${IMPROVEMENTS:-0}/${IMPROVEMENTS:-0}/g" pr-comment.txt
+
+            echo "regressions=${REGRESSIONS:-0}" >> $GITHUB_OUTPUT
+            echo "improvements=${IMPROVEMENTS:-0}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with benchmark results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            // Read PR comment
+            let comment = '## 📊 Benchmark Results\n\n';
+
+            if (fs.existsSync('pr-comment.txt')) {
+              comment = fs.readFileSync('pr-comment.txt', 'utf8');
+            } else {
+              comment += '**Status:** Benchmarks completed successfully\n\n';
+              comment += 'No baseline found for comparison. ';
+              comment += 'Merge to main to establish baseline.\n';
+            }
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 Benchmark Results')
+            );
+
+            // Create or update comment
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            target/criterion/**
+            benchmark-output.txt
+            .benchmark-baselines/
+          retention-days: 30
+
+      - name: Fail on regression
+        if: github.event_name == 'pull_request' && steps.benchmark_pr.outputs.exit_code == '1'
+        run: |
+          echo "❌ Performance regression detected!"
+          echo "See benchmark results above for details."
+          exit 1
+
+  benchmark-comparison:
+    name: Compare with Main
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Checkout main branch for comparison
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          git checkout origin/main
+          cargo bench --no-run 2>&1 | head -20 || true
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc
+
+      - name: Run criterion benchmarks with baseline
+        run: |
+          # Run benchmarks and save as baseline
+          cargo bench -- --save-baseline main
+
+          # Run benchmarks for PR branch
+          cargo bench -- --baseline main
+
+      - name: Generate comparison report
+        run: |
+          echo "Benchmark comparison completed"
+          echo "Results stored in target/criterion/"
+
+          # List any significant changes
+          find target/criterion -name "change" -type d | while read dir; do
+            if [ -f "$dir/estimates.json" ]; then
+              echo "Found changes in: $dir"
+            fi
+          done
+
+      - name: Upload comparison artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-comparison-${{ github.sha }}
+          path: target/criterion/**
+          retention-days: 7
