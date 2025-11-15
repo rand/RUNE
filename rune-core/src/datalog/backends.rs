@@ -1,3 +1,4 @@
+#![allow(clippy::only_used_in_recursion)]
 //! Relation backends for optimized fact storage
 //!
 //! Implements the BYODS (Bring Your Own Data Structures) principle from

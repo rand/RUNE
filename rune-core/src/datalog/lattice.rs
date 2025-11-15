@@ -417,8 +417,8 @@ mod tests {
         let t = BoolLattice::new(true);
         let f = BoolLattice::new(false);
 
-        assert_eq!(t.join(&f).value(), true);
-        assert_eq!(f.join(&f).value(), false);
+        assert!(t.join(&f).value());
+        assert!(!f.join(&f).value());
 
         // Commutative
         assert_eq!(t.join(&f), f.join(&t));

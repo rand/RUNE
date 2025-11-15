@@ -145,7 +145,7 @@ impl Evaluator {
                         // In a full implementation, we'd track which specific facts matched
                         let rule_name = format!("{}", rule.head.predicate);
                         let premises: Vec<Fact> =
-                            delta.iter().cloned().take(rule.body.len()).collect();
+                            delta.iter().take(rule.body.len()).cloned().collect();
                         provenance.record_derived(fact.clone(), rule_name, rule_idx, premises);
                     }
 

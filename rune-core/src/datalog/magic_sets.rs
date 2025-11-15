@@ -204,11 +204,10 @@ impl MagicSetsTransformer {
         // Check if bound in head
         for (i, term) in rule.head.terms.iter().enumerate() {
             if let Term::Variable(v) = term {
-                if v == var && i < head_pattern.len() {
-                    if &head_pattern[i..i + 1] == "b" {
+                if v == var && i < head_pattern.len()
+                    && &head_pattern[i..i + 1] == "b" {
                         return true;
                     }
-                }
             }
         }
 
@@ -245,7 +244,7 @@ impl MagicSetsTransformer {
     }
 
     /// Generate magic rules from adorned rules
-    fn generate_magic_rules(&mut self, adorned_rules: &[Rule], query: &Query) -> Vec<Rule> {
+    fn generate_magic_rules(&mut self, adorned_rules: &[Rule], _query: &Query) -> Vec<Rule> {
         let mut magic_rules = Vec::new();
 
         for rule in adorned_rules {
@@ -255,7 +254,7 @@ impl MagicSetsTransformer {
             // Start with magic predicate for head
             let head_magic = self.get_magic_predicate(&rule.head.predicate);
 
-            for (i, body_atom) in rule.body.iter().enumerate() {
+            for body_atom in rule.body.iter() {
                 if body_atom.negated {
                     continue; // Skip negated atoms for magic generation
                 }
@@ -345,10 +344,8 @@ impl MagicSetsTransformer {
 
         // Create seed fact with bound arguments
         let mut seed_terms = Vec::new();
-        for arg in &query.bound_args {
-            if let Some(value) = arg {
-                seed_terms.push(Term::Constant(value.clone()));
-            }
+        for value in query.bound_args.iter().flatten() {
+            seed_terms.push(Term::Constant(value.clone()));
         }
 
         if seed_terms.is_empty() {

@@ -117,6 +117,12 @@ pub struct TrieNode {
     children: HashMap<Value, TrieNode>,
 }
 
+impl Default for TrieNode {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TrieNode {
     pub fn new() -> Self {
         TrieNode {
@@ -140,7 +146,7 @@ impl TrieNode {
             let child = self
                 .children
                 .entry(first.clone())
-                .or_insert_with(TrieNode::new);
+                .or_default();
             child.insert(&path[1..]);
         }
     }
@@ -321,6 +327,12 @@ pub struct WCOJIndex {
     tries: HashMap<(Arc<str>, Vec<usize>), TrieNode>,
 }
 
+impl Default for WCOJIndex {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WCOJIndex {
     pub fn new() -> Self {
         WCOJIndex {
@@ -337,7 +349,7 @@ impl WCOJIndex {
 
             for perm in Self::generate_permutations(arity) {
                 let key = (fact.predicate.clone(), perm.clone());
-                let trie = self.tries.entry(key).or_insert_with(TrieNode::new);
+                let trie = self.tries.entry(key).or_default();
 
                 // Reorder arguments according to permutation
                 let reordered: Vec<Value> = perm

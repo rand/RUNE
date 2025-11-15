@@ -417,7 +417,7 @@ impl CedarDatalogBridge {
         // Reconstruct context from context(key, val) facts
         let mut request = Request::new(principal, action, resource);
         for fact in facts.iter().filter(|f| f.predicate.as_ref() == "context") {
-            if let (Some(Value::String(key)), Some(value)) = (fact.args.get(0), fact.args.get(1)) {
+            if let (Some(Value::String(key)), Some(value)) = (fact.args.first(), fact.args.get(1)) {
                 request = request.with_context(key.as_ref(), value.clone());
             }
         }
@@ -440,7 +440,7 @@ impl CedarDatalogBridge {
                 if let Some(Value::String(id)) = fact.args.first() {
                     entity_ids
                         .entry(id.clone())
-                        .or_insert_with(Vec::new)
+                        .or_default()
                         .push(fact);
                 }
             }

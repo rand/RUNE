@@ -30,6 +30,12 @@ pub struct FactIndex {
     by_second_arg: HashMap<(Arc<str>, Value), Vec<Fact>>,
 }
 
+impl Default for FactIndex {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FactIndex {
     /// Create a new empty index
     pub fn new() -> Self {

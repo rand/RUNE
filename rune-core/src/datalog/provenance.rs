@@ -73,7 +73,7 @@ impl ProvenanceTracker {
         let arc_derivation = self.get_or_cache_derivation(derivation);
         self.derivations
             .entry(fact)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(arc_derivation);
     }
 
@@ -115,7 +115,7 @@ impl ProvenanceTracker {
         let arc_derivation = self.get_or_cache_derivation(derivation);
         self.derivations
             .entry(fact)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(arc_derivation);
     }
 
@@ -216,10 +216,10 @@ impl ProofTree {
             } => {
                 let mut result = format!("{}• {} (by {})", indent_str, fact_str, rule_name);
                 if !premises.is_empty() {
-                    result.push_str("\n");
+                    result.push('\n');
                     result.push_str(&format!("{}  because:", indent_str));
                     for premise in premises {
-                        result.push_str("\n");
+                        result.push('\n');
                         result.push_str(&self.format_derivation(premise, indent + 1));
                     }
                 }
