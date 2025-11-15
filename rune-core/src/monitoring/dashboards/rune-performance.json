@@ -1,0 +1,289 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "rune-performance",
+    "title": "RUNE Performance Deep Dive",
+    "tags": ["rune", "performance", "latency", "throughput"],
+    "timezone": "browser",
+    "schemaVersion": 30,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Authorization Latency Heatmap",
+        "targets": [
+          {
+            "expr": "sum(increase(rune_authorization_latency_bucket[1m])) by (le)",
+            "format": "heatmap",
+            "legendFormat": "{{le}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "dataFormat": "tsbuckets"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Throughput vs Latency",
+        "targets": [
+          {
+            "expr": "rate(rune_authorization_requests_total[1m])",
+            "legendFormat": "Throughput",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(rune_authorization_latency_bucket[1m])) by (le)) * 1000",
+            "legendFormat": "P99 Latency (ms)",
+            "refId": "B",
+            "yaxis": 2
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "reqps",
+            "label": "Throughput"
+          },
+          {
+            "format": "ms",
+            "label": "Latency"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "type": "graph",
+        "title": "Latency Percentiles Over Time",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.75, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P75",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.9, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P90",
+            "refId": "C"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P95",
+            "refId": "D"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P99",
+            "refId": "E"
+          },
+          {
+            "expr": "histogram_quantile(0.999, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P99.9",
+            "refId": "F"
+          },
+          {
+            "expr": "histogram_quantile(0.9999, sum(rate(rune_authorization_latency_bucket[1m])) by (le))",
+            "legendFormat": "P99.99",
+            "refId": "G"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency",
+            "logBase": 10
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "Datalog Evaluation Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(rune_datalog_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(rune_datalog_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(rune_datalog_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 16},
+        "type": "graph",
+        "title": "Cedar Policy Evaluation Performance",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(rune_policy_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(rune_policy_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(rune_policy_evaluation_latency_bucket[5m])) by (le))",
+            "legendFormat": "P99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "s",
+            "label": "Latency"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 16},
+        "type": "graph",
+        "title": "Facts Derived per Second",
+        "targets": [
+          {
+            "expr": "rate(rune_datalog_facts_derived[1m])",
+            "legendFormat": "Facts/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Facts/sec"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "stat",
+        "title": "Performance SLOs",
+        "targets": [
+          {
+            "expr": "(sum(rate(rune_authorization_latency_bucket{le=\"0.001\"}[5m])) / sum(rate(rune_authorization_latency_count[5m]))) * 100",
+            "legendFormat": "< 1ms",
+            "refId": "A"
+          },
+          {
+            "expr": "(sum(rate(rune_authorization_latency_bucket{le=\"0.01\"}[5m])) / sum(rate(rune_authorization_latency_count[5m]))) * 100",
+            "legendFormat": "< 10ms",
+            "refId": "B"
+          },
+          {
+            "expr": "(sum(rate(rune_authorization_latency_bucket{le=\"0.1\"}[5m])) / sum(rate(rune_authorization_latency_count[5m]))) * 100",
+            "legendFormat": "< 100ms",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 90},
+                {"color": "green", "value": 99}
+              ]
+            }
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "table",
+        "title": "Policy Performance Breakdown",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (policy_id) (rate(rune_policy_evaluations[5m])))",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "left"
+            }
+          }
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true
+              },
+              "renameByName": {
+                "policy_id": "Policy ID",
+                "Value": "Evaluations/sec"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

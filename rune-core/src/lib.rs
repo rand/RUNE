@@ -10,6 +10,7 @@ pub mod datalog;
 pub mod engine;
 pub mod error;
 pub mod facts;
+pub mod monitoring;
 pub mod parser;
 pub mod policy;
 pub mod reload;
