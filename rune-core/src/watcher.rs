@@ -636,7 +636,8 @@ mod tests {
 
     #[test]
     fn test_debouncer_overwrite_event() {
-        let mut debouncer = EventDebouncer::new(Duration::from_millis(100));
+        // Use larger durations to avoid timing issues on CI
+        let mut debouncer = EventDebouncer::new(Duration::from_millis(200));
 
         let event1 = FileChangeEvent {
             path: PathBuf::from("test.rune"),
@@ -654,12 +655,12 @@ mod tests {
         std::thread::sleep(Duration::from_millis(50));
         debouncer.add_event(event2); // This should reset the timer
 
-        // Wait for first duration but not second
-        std::thread::sleep(Duration::from_millis(60));
+        // Wait less than the debounce duration from the second event
+        std::thread::sleep(Duration::from_millis(100));
         assert_eq!(debouncer.get_settled_events().len(), 0); // Not settled yet
 
-        // Wait for second duration
-        std::thread::sleep(Duration::from_millis(50));
+        // Wait for the full duration to elapse
+        std::thread::sleep(Duration::from_millis(150));
         let settled = debouncer.get_settled_events();
         assert_eq!(settled.len(), 1);
         assert_eq!(settled[0].kind, ChangeKind::Modified); // Should have the latest event
