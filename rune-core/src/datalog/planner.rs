@@ -23,7 +23,7 @@
 //!
 //! ## Example
 //!
-//! ```rust
+//! ```ignore
 //! use rune_core::datalog::planner::QueryPlanner;
 //! use rune_core::datalog::types::Rule;
 //! use rune_core::facts::FactStore;

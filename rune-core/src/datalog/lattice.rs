@@ -25,7 +25,7 @@
 //! let a = MaxLattice::new(5);
 //! let b = MaxLattice::new(10);
 //! let c = a.join(&b);
-//! assert_eq!(c.value(), 10); // max(5, 10) = 10
+//! assert_eq!(*c.value(), 10); // max(5, 10) = 10
 //! ```
 
 use crate::types::Value;
