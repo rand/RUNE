@@ -438,10 +438,7 @@ impl CedarDatalogBridge {
                 || fact.predicate.starts_with(&format!("{}_", prefix))
             {
                 if let Some(Value::String(id)) = fact.args.first() {
-                    entity_ids
-                        .entry(id.clone())
-                        .or_default()
-                        .push(fact);
+                    entity_ids.entry(id.clone()).or_default().push(fact);
                 }
             }
         }

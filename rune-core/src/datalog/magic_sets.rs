@@ -204,10 +204,9 @@ impl MagicSetsTransformer {
         // Check if bound in head
         for (i, term) in rule.head.terms.iter().enumerate() {
             if let Term::Variable(v) = term {
-                if v == var && i < head_pattern.len()
-                    && &head_pattern[i..i + 1] == "b" {
-                        return true;
-                    }
+                if v == var && i < head_pattern.len() && &head_pattern[i..i + 1] == "b" {
+                    return true;
+                }
             }
         }
 

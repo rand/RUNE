@@ -78,9 +78,7 @@ fn bench_policy_loading(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_policies),
             num_policies,
             |b, &num_policies| {
-                let policies: Vec<String> = (0..num_policies)
-                    .map(generate_simple_policy)
-                    .collect();
+                let policies: Vec<String> = (0..num_policies).map(generate_simple_policy).collect();
                 let policy_str = policies.join("\n\n");
 
                 b.iter(|| {
@@ -132,9 +130,7 @@ fn bench_multi_policy_authorization(c: &mut Criterion) {
             BenchmarkId::from_parameter(num_policies),
             num_policies,
             |b, &num_policies| {
-                let policies: Vec<String> = (0..num_policies)
-                    .map(generate_simple_policy)
-                    .collect();
+                let policies: Vec<String> = (0..num_policies).map(generate_simple_policy).collect();
                 let policy_str = policies.join("\n\n");
 
                 let mut policy_set = PolicySet::new();
@@ -217,9 +213,11 @@ fn bench_deny_policies(c: &mut Criterion) {
     let mut group = c.benchmark_group("cedar/deny_policies");
 
     // Mix of permit and forbid policies
-    let policies = [r#"permit(principal, action == Action::"read", resource);"#,
+    let policies = [
+        r#"permit(principal, action == Action::"read", resource);"#,
         r#"forbid(principal == User::"blocked", action, resource);"#,
-        r#"forbid(principal, action == Action::"delete", resource in Folder::"protected");"#]
+        r#"forbid(principal, action == Action::"delete", resource in Folder::"protected");"#,
+    ]
     .join("\n\n");
 
     let mut policy_set = PolicySet::new();

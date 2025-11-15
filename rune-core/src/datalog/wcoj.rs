@@ -143,10 +143,7 @@ impl TrieNode {
         }
 
         if path.len() > 1 {
-            let child = self
-                .children
-                .entry(first.clone())
-                .or_default();
+            let child = self.children.entry(first.clone()).or_default();
             child.insert(&path[1..]);
         }
     }
