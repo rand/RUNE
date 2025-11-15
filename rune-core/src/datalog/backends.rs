@@ -272,16 +272,21 @@ impl UnionFindBackend {
         let size_x = self.size.get(&root_x).copied().unwrap_or(1);
         let size_y = self.size.get(&root_y).copied().unwrap_or(1);
 
-        if rank_x < rank_y {
-            self.parent.insert(root_x.clone(), root_y.clone());
-            self.size.insert(root_y.clone(), size_x + size_y);
-        } else if rank_x > rank_y {
-            self.parent.insert(root_y.clone(), root_x.clone());
-            self.size.insert(root_x.clone(), size_x + size_y);
-        } else {
-            self.parent.insert(root_y.clone(), root_x.clone());
-            self.rank.insert(root_x.clone(), rank_x + 1);
-            self.size.insert(root_x.clone(), size_x + size_y);
+        use std::cmp::Ordering;
+        match rank_x.cmp(&rank_y) {
+            Ordering::Less => {
+                self.parent.insert(root_x.clone(), root_y.clone());
+                self.size.insert(root_y.clone(), size_x + size_y);
+            }
+            Ordering::Greater => {
+                self.parent.insert(root_y.clone(), root_x.clone());
+                self.size.insert(root_x.clone(), size_x + size_y);
+            }
+            Ordering::Equal => {
+                self.parent.insert(root_y.clone(), root_x.clone());
+                self.rank.insert(root_x.clone(), rank_x + 1);
+                self.size.insert(root_x.clone(), size_x + size_y);
+            }
         }
 
         true
