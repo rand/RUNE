@@ -66,18 +66,15 @@ impl Evaluator {
         let transformed_rules = transformer.transform(&query);
 
         // Create a new evaluator with transformed rules
-        let goal_directed_evaluator = Evaluator::new(
-            transformed_rules,
-            self.fact_store.clone(),
-        );
+        let goal_directed_evaluator = Evaluator::new(transformed_rules, self.fact_store.clone());
 
         // Run normal evaluation on transformed rules
         let mut result = goal_directed_evaluator.evaluate();
 
         // Filter out magic predicates from results
-        result.facts.retain(|fact| {
-            !transformer.is_magic_predicate(fact.predicate.as_ref())
-        });
+        result
+            .facts
+            .retain(|fact| !transformer.is_magic_predicate(fact.predicate.as_ref()));
 
         // Update evaluation time
         result.evaluation_time_ns = start.elapsed().as_nanos() as u64;
@@ -147,13 +144,9 @@ impl Evaluator {
                         // Get premises from the rule body (simplified for now)
                         // In a full implementation, we'd track which specific facts matched
                         let rule_name = format!("{}", rule.head.predicate);
-                        let premises: Vec<Fact> = delta.iter().cloned().take(rule.body.len()).collect();
-                        provenance.record_derived(
-                            fact.clone(),
-                            rule_name,
-                            rule_idx,
-                            premises,
-                        );
+                        let premises: Vec<Fact> =
+                            delta.iter().cloned().take(rule.body.len()).collect();
+                        provenance.record_derived(fact.clone(), rule_name, rule_idx, premises);
                     }
 
                     new_delta.extend(derived);
@@ -505,10 +498,7 @@ mod tests {
         let evaluator = Evaluator::new(rules, fact_store);
 
         // Query: path(1, ?) - find all paths starting from node 1
-        let query = Query::new(
-            "path",
-            vec![Some(Value::Integer(1)), None],
-        );
+        let query = Query::new("path", vec![Some(Value::Integer(1)), None]);
 
         // Goal-directed evaluation with Magic Sets
         let goal_directed_result = evaluator.evaluate_query(query);
@@ -523,7 +513,9 @@ mod tests {
         assert!(!goal_directed_result.facts.is_empty() || goal_directed_result.iterations > 0);
 
         // Full evaluation finds all paths
-        let all_paths: Vec<_> = full_result.facts.iter()
+        let all_paths: Vec<_> = full_result
+            .facts
+            .iter()
             .filter(|f| f.predicate.as_ref() == "path")
             .collect();
 

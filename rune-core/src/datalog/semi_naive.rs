@@ -78,7 +78,10 @@ impl FactIndex {
 
         // Try to use first argument index
         if let Some(const_val) = atom.terms[0].as_constant() {
-            if let Some(facts) = self.by_first_arg.get(&(atom.predicate.clone(), const_val.clone())) {
+            if let Some(facts) = self
+                .by_first_arg
+                .get(&(atom.predicate.clone(), const_val.clone()))
+            {
                 return facts.iter().collect();
             }
         }
@@ -86,7 +89,10 @@ impl FactIndex {
         // Try to use second argument index for binary predicates
         if atom.terms.len() >= 2 {
             if let Some(const_val) = atom.terms[1].as_constant() {
-                if let Some(facts) = self.by_second_arg.get(&(atom.predicate.clone(), const_val.clone())) {
+                if let Some(facts) = self
+                    .by_second_arg
+                    .get(&(atom.predicate.clone(), const_val.clone()))
+                {
                     return facts.iter().collect();
                 }
             }
@@ -150,11 +156,8 @@ impl OptimizedEvaluator {
 
         // Process each stratum
         for (stratum_idx, stratum_rules) in strata.iter().enumerate() {
-            let (stratum_facts, stratum_stats) = self.evaluate_stratum(
-                stratum_rules,
-                &all_facts,
-                stratum_idx,
-            );
+            let (stratum_facts, stratum_stats) =
+                self.evaluate_stratum(stratum_rules, &all_facts, stratum_idx);
 
             // Merge results
             all_facts.extend(stratum_facts);
@@ -197,7 +200,10 @@ impl OptimizedEvaluator {
         }
 
         if derivation_rules.is_empty() {
-            return (accumulated.difference(prior_facts).cloned().collect(), stats);
+            return (
+                accumulated.difference(prior_facts).cloned().collect(),
+                stats,
+            );
         }
 
         // Build fact index for efficient lookups
@@ -227,7 +233,12 @@ impl OptimizedEvaluator {
             let new_facts = if self.enable_parallel {
                 self.apply_rules_parallel(&derivation_rules, &fact_index, &delta_index, &mut stats)
             } else {
-                self.apply_rules_sequential(&derivation_rules, &fact_index, &delta_index, &mut stats)
+                self.apply_rules_sequential(
+                    &derivation_rules,
+                    &fact_index,
+                    &delta_index,
+                    &mut stats,
+                )
             };
 
             // Compute new delta (facts not in accumulated)
@@ -245,7 +256,10 @@ impl OptimizedEvaluator {
 
         // Return only newly derived facts (exclude base facts and prior facts)
         let initial_facts: HashSet<Fact> = prior_facts.union(&base_facts).cloned().collect();
-        (accumulated.difference(&initial_facts).cloned().collect(), stats)
+        (
+            accumulated.difference(&initial_facts).cloned().collect(),
+            stats,
+        )
     }
 
     /// Apply rules sequentially
@@ -371,7 +385,9 @@ impl OptimizedEvaluator {
             return None;
         }
 
-        let args: Vec<Value> = atom.terms.iter()
+        let args: Vec<Value> = atom
+            .terms
+            .iter()
             .filter_map(|t| t.as_constant().cloned())
             .collect();
 
@@ -424,7 +440,9 @@ impl OptimizedEvaluator {
         // Sort rules by estimated cost (simpler rules first)
         rules.sort_by_key(|rule| {
             // Cost heuristic: number of variables * body size
-            let var_count = rule.body.iter()
+            let var_count = rule
+                .body
+                .iter()
                 .flat_map(|atom| &atom.terms)
                 .filter(|term| matches!(term, Term::Variable(_)))
                 .count();
@@ -456,7 +474,10 @@ mod tests {
         assert_eq!(results.len(), 2);
 
         // Test first argument lookup
-        let atom = Atom::new("edge", vec![Term::constant(Value::Integer(1)), Term::var("Y")]);
+        let atom = Atom::new(
+            "edge",
+            vec![Term::constant(Value::Integer(1)), Term::var("Y")],
+        );
         let results = index.lookup(&atom);
         assert_eq!(results.len(), 1);
     }
@@ -505,7 +526,11 @@ mod tests {
 
         // Add more facts for parallel testing
         for i in 0..10 {
-            fact_store.add_fact(Fact::binary("edge", Value::Integer(i), Value::Integer(i + 1)));
+            fact_store.add_fact(Fact::binary(
+                "edge",
+                Value::Integer(i),
+                Value::Integer(i + 1),
+            ));
         }
 
         let rules = vec![

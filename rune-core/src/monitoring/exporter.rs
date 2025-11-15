@@ -72,12 +72,7 @@ impl PrometheusExporter {
         )
         .unwrap();
         writeln!(&mut output, "# TYPE rune_up gauge").unwrap();
-        writeln!(
-            &mut output,
-            "rune_up {}",
-            self.collector.uptime().as_secs()
-        )
-        .unwrap();
+        writeln!(&mut output, "rune_up {}", self.collector.uptime().as_secs()).unwrap();
 
         // Write timestamp
         let timestamp = snapshot
@@ -218,9 +213,10 @@ impl PrometheusExporter {
         timestamp: u128,
     ) {
         // Authorization success rate
-        if let (Some(allows), Some(denies)) =
-            (snapshot.counters.get("allows"), snapshot.counters.get("denies"))
-        {
+        if let (Some(allows), Some(denies)) = (
+            snapshot.counters.get("allows"),
+            snapshot.counters.get("denies"),
+        ) {
             let total = allows + denies;
             if total > 0 {
                 let success_rate = *allows as f64 / total as f64 * 100.0;
@@ -264,11 +260,7 @@ impl PrometheusExporter {
                 "high"
             };
 
-            writeln!(
-                output,
-                "# HELP rune_system_load Current system load level"
-            )
-            .unwrap();
+            writeln!(output, "# HELP rune_system_load Current system load level").unwrap();
             writeln!(output, "# TYPE rune_system_load gauge").unwrap();
             writeln!(
                 output,
@@ -308,7 +300,13 @@ impl PrometheusExporter {
 /// Sanitize metric names for Prometheus
 fn sanitize_metric_name(name: &str) -> String {
     name.chars()
-        .map(|c| if c.is_alphanumeric() || c == '_' { c } else { '_' })
+        .map(|c| {
+            if c.is_alphanumeric() || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
         .collect()
 }
 
@@ -364,6 +362,9 @@ mod tests {
         assert_eq!(sanitize_metric_name("valid_name"), "valid_name");
         assert_eq!(sanitize_metric_name("invalid-name"), "invalid_name");
         assert_eq!(sanitize_metric_name("name.with.dots"), "name_with_dots");
-        assert_eq!(sanitize_metric_name("name@with#symbols"), "name_with_symbols");
+        assert_eq!(
+            sanitize_metric_name("name@with#symbols"),
+            "name_with_symbols"
+        );
     }
 }

@@ -283,7 +283,8 @@ impl CedarDatalogBridge {
             .filter(|f| f.predicate.as_ref() == attr_predicate)
         {
             if Self::fact_has_id(&fact.args, entity_id) {
-                if let (Some(Value::String(key)), Some(value)) = (fact.args.get(1), fact.args.get(2))
+                if let (Some(Value::String(key)), Some(value)) =
+                    (fact.args.get(1), fact.args.get(2))
                 {
                     entity = entity.with_attribute(key.as_ref(), value.clone());
                 }
@@ -299,9 +300,7 @@ impl CedarDatalogBridge {
             if Self::fact_has_id(&fact.args, entity_id) {
                 if let Some(Value::String(parent_id)) = fact.args.get(1) {
                     // Recursively reconstruct parent
-                    if let Some(parent) =
-                        Self::facts_to_entity(facts, parent_id.as_ref(), prefix)
-                    {
+                    if let Some(parent) = Self::facts_to_entity(facts, parent_id.as_ref(), prefix) {
                         entity = entity.with_parent(parent);
                     }
                 }
@@ -342,15 +341,16 @@ impl CedarDatalogBridge {
     /// Collects action(name) and action_param(name, key, val) facts
     pub fn facts_to_action(facts: &[Fact], action_name: &str) -> Option<Action> {
         // Find action identity fact
-        facts
-            .iter()
-            .find(|f| {
-                f.predicate.as_ref() == "action"
-                    && f.args.first().and_then(|v| match v {
+        facts.iter().find(|f| {
+            f.predicate.as_ref() == "action"
+                && f.args
+                    .first()
+                    .and_then(|v| match v {
                         Value::String(s) => Some(s.as_ref() == action_name),
                         _ => None,
-                    }).unwrap_or(false)
-            })?;
+                    })
+                    .unwrap_or(false)
+        })?;
 
         // Create base action
         let mut action = Action::new(action_name);
@@ -362,7 +362,9 @@ impl CedarDatalogBridge {
         {
             if let Some(Value::String(name)) = fact.args.first() {
                 if name.as_ref() == action_name {
-                    if let (Some(Value::String(key)), Some(value)) = (fact.args.get(1), fact.args.get(2)) {
+                    if let (Some(Value::String(key)), Some(value)) =
+                        (fact.args.get(1), fact.args.get(2))
+                    {
                         action = action.with_parameter(key.as_ref(), value.clone());
                     }
                 }
@@ -432,7 +434,9 @@ impl CedarDatalogBridge {
         let mut entity_ids: HashMap<Arc<str>, Vec<&Fact>> = HashMap::new();
 
         for fact in facts {
-            if fact.predicate.as_ref() == prefix || fact.predicate.starts_with(&format!("{}_", prefix)) {
+            if fact.predicate.as_ref() == prefix
+                || fact.predicate.starts_with(&format!("{}_", prefix))
+            {
                 if let Some(Value::String(id)) = fact.args.first() {
                     entity_ids
                         .entry(id.clone())
@@ -615,7 +619,10 @@ mod tests {
 
         // Verify identity
         assert_eq!(reconstructed.entity.id, principal.entity.id);
-        assert_eq!(reconstructed.entity.entity_type, principal.entity.entity_type);
+        assert_eq!(
+            reconstructed.entity.entity_type,
+            principal.entity.entity_type
+        );
 
         // Verify attributes
         assert_eq!(
@@ -807,15 +814,10 @@ mod tests {
 
     #[test]
     fn test_facts_to_entity_missing() {
-        let facts = vec![
-            Fact::new(
-                "principal".to_string(),
-                vec![
-                    Value::string("User::alice"),
-                    Value::string("User"),
-                ],
-            ),
-        ];
+        let facts = vec![Fact::new(
+            "principal".to_string(),
+            vec![Value::string("User::alice"), Value::string("User")],
+        )];
 
         // Try to reconstruct non-existent entity
         let result = CedarDatalogBridge::facts_to_entity(&facts, "User::bob", "principal");

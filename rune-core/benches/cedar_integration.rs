@@ -40,7 +40,9 @@ fn generate_conditional_policy(id: usize) -> String {
             context.timestamp > 1000 &&
             context.source_ip == "192.168.1.{}"
         }};"#,
-        id, id, id % 256
+        id,
+        id,
+        id % 256
     )
 }
 
@@ -52,7 +54,8 @@ fn generate_hierarchical_policy(id: usize) -> String {
             action == Action::"read",
             resource in Folder::"folder{}"
         );"#,
-        id, id / 10
+        id,
+        id / 10
     )
 }
 
@@ -232,12 +235,16 @@ fn bench_deny_policies(c: &mut Criterion) {
     ];
 
     for (name, request) in scenarios {
-        group.bench_with_input(BenchmarkId::new("scenario", name), &request, |b, request| {
-            b.iter(|| {
-                let result = policy_set.evaluate(request);
-                black_box(result)
-            });
-        });
+        group.bench_with_input(
+            BenchmarkId::new("scenario", name),
+            &request,
+            |b, request| {
+                b.iter(|| {
+                    let result = policy_set.evaluate(request);
+                    black_box(result)
+                });
+            },
+        );
     }
 
     group.finish();
@@ -258,7 +265,9 @@ fn bench_incremental_policy_addition(c: &mut Criterion) {
                     // Add policies one by one
                     for i in 0..batch_size {
                         let policy = generate_simple_policy(i);
-                        policy_set.add_policy(&format!("policy{}", i), &policy).unwrap();
+                        policy_set
+                            .add_policy(&format!("policy{}", i), &policy)
+                            .unwrap();
                     }
 
                     black_box(policy_set)

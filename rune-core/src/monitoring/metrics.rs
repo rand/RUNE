@@ -48,7 +48,13 @@ impl MetricsRecorder {
     }
 
     /// Register a metric with metadata
-    fn register_metric(&self, name: &str, metric_type: MetricType, unit: Option<Unit>, description: Option<String>) {
+    fn register_metric(
+        &self,
+        name: &str,
+        metric_type: MetricType,
+        unit: Option<Unit>,
+        description: Option<String>,
+    ) {
         let mut metadata = self.metadata.write().unwrap();
         metadata.insert(
             name.to_string(),
@@ -191,122 +197,120 @@ impl MetricsBuilder {
 
 /// Register all RUNE-specific metrics
 fn register_rune_metrics() {
-    use metrics::{describe_counter, describe_gauge, describe_histogram};
-
     // Performance metrics
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_authorization_latency",
         Unit::Seconds,
         "Time taken to process authorization requests"
     );
 
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_datalog_evaluation_latency",
         Unit::Seconds,
         "Time taken to evaluate Datalog rules"
     );
 
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_policy_evaluation_latency",
         Unit::Seconds,
         "Time taken to evaluate Cedar policies"
     );
 
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_authorization_requests_total",
         Unit::Count,
         "Total number of authorization requests processed"
     );
 
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_active_evaluations",
         Unit::Count,
         "Number of currently active evaluations"
     );
 
     // Business metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_authorization_decisions",
         Unit::Count,
         "Number of authorization decisions made, labeled by result"
     );
 
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_policy_evaluations",
         Unit::Count,
         "Number of policy evaluations, labeled by policy ID"
     );
 
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_datalog_facts_derived",
         Unit::Count,
         "Number of facts derived from Datalog rules"
     );
 
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_request_context_size",
         Unit::Bytes,
         "Size of authorization request context"
     );
 
     // System health metrics
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_fact_store_size",
         Unit::Count,
         "Current number of facts in the fact store"
     );
 
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_policy_count",
         Unit::Count,
         "Current number of loaded policies"
     );
 
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_cache_size",
         Unit::Bytes,
         "Size of various internal caches"
     );
 
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_cache_hit_rate",
         Unit::Percent,
         "Cache hit rate percentage"
     );
 
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_memory_usage",
         Unit::Bytes,
         "Current memory usage of the RUNE engine"
     );
 
     // Error metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_errors_total",
         Unit::Count,
         "Total number of errors, labeled by error type"
     );
 
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_policy_conflicts",
         Unit::Count,
         "Number of policy conflicts detected"
     );
 
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_datalog_cycles_detected",
         Unit::Count,
         "Number of cycles detected in Datalog evaluation"
     );
 
     // Hot-reload metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_hot_reloads",
         Unit::Count,
         "Number of hot-reload events"
     );
 
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_hot_reload_duration",
         Unit::Seconds,
         "Time taken to perform hot-reload"
@@ -401,9 +405,7 @@ mod tests {
 
     #[test]
     fn test_metrics_builder() {
-        let builder = MetricsBuilder::new()
-            .with_prometheus(9090)
-            .with_json(9091);
+        let builder = MetricsBuilder::new().with_prometheus(9090).with_json(9091);
 
         assert!(builder.enable_prometheus);
         assert!(builder.enable_json);

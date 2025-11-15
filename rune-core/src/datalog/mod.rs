@@ -42,9 +42,7 @@ pub use backends::{
     BackendType, HashBackend, RelationBackend, TrieBackend, UnionFindBackend, VecBackend,
 };
 pub use bridge::CedarDatalogBridge;
-pub use diagnostics::{
-    DatalogDiagnostics, Diagnostic, DiagnosticBag, Severity, Span, Suggestion,
-};
+pub use diagnostics::{DatalogDiagnostics, Diagnostic, DiagnosticBag, Severity, Span, Suggestion};
 pub use evaluation::{EvaluationResult, Evaluator};
 pub use incremental::{
     compute_fact_diff, Delta, IncrementalEvaluator, IncrementalResult, IncrementalStats,
@@ -54,7 +52,7 @@ pub use lattice::{
 };
 pub use magic_sets::{MagicSetsTransformer, Query};
 pub use planner::{AtomAnalysis, PredicateStats, QueryPlan, QueryPlanner};
-pub use provenance::{ProvenanceQuery, ProvenanceTracker, ProofTree};
+pub use provenance::{ProofTree, ProvenanceQuery, ProvenanceTracker};
 pub use types::{AggregateAtom, AggregateOp, Atom, Rule, Substitution, Term};
 pub use unification::{find_matching_facts, ground_atom, unify_atom_with_fact, unify_atoms};
 pub use wcoj::{LeapfrogIterator, LeapfrogJoin, TrieNode, WCOJIndex};

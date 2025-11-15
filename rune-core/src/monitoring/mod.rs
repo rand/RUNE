@@ -13,7 +13,7 @@ pub mod health;
 pub mod metrics;
 pub mod tracing_setup;
 
-use metrics::{describe_counter, describe_gauge, describe_histogram, Unit};
+use metrics::Unit;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -58,105 +58,101 @@ pub fn metrics() -> Arc<MetricsCollector> {
 /// Register all metric descriptions for Prometheus
 fn register_metrics() {
     // Performance metrics
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_authorization_latency",
         Unit::Seconds,
         "Authorization request latency"
     );
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_datalog_evaluation_latency",
         Unit::Seconds,
         "Datalog evaluation latency"
     );
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_policy_evaluation_latency",
         Unit::Seconds,
         "Cedar policy evaluation latency"
     );
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_authorization_requests_total",
         Unit::Count,
         "Total authorization requests"
     );
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_active_evaluations",
         Unit::Count,
         "Currently active evaluations"
     );
 
     // Business metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_authorization_decisions",
         Unit::Count,
         "Authorization decisions by result (allow/deny)"
     );
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_policy_evaluations",
         Unit::Count,
         "Policy evaluations by policy ID"
     );
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_datalog_facts_derived",
         Unit::Count,
         "Number of facts derived from Datalog rules"
     );
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_request_context_size",
         Unit::Bytes,
         "Size of request context data"
     );
 
     // System health metrics
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_fact_store_size",
         Unit::Count,
         "Number of facts in the fact store"
     );
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_policy_count",
         Unit::Count,
         "Number of loaded policies"
     );
-    describe_gauge!(
-        "rune_cache_size",
-        Unit::Bytes,
-        "Size of various caches"
-    );
-    describe_gauge!(
+    metrics::describe_gauge!("rune_cache_size", Unit::Bytes, "Size of various caches");
+    metrics::describe_gauge!(
         "rune_cache_hit_rate",
         Unit::Percent,
         "Cache hit rate percentage"
     );
-    describe_gauge!(
+    metrics::describe_gauge!(
         "rune_memory_usage",
         Unit::Bytes,
         "Memory usage of the RUNE engine"
     );
 
     // Error metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_errors_total",
         Unit::Count,
         "Total errors by error type"
     );
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_policy_conflicts",
         Unit::Count,
         "Policy conflicts detected"
     );
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_datalog_cycles_detected",
         Unit::Count,
         "Cycles detected in Datalog evaluation"
     );
 
     // Hot-reload metrics
-    describe_counter!(
+    metrics::describe_counter!(
         "rune_hot_reloads",
         Unit::Count,
         "Number of hot-reload events"
     );
-    describe_histogram!(
+    metrics::describe_histogram!(
         "rune_hot_reload_duration",
         Unit::Seconds,
         "Duration of hot-reload operations"

@@ -190,12 +190,18 @@ impl Diagnostic {
 
         // Help text
         if let Some(ref help) = self.help {
-            output.push_str(&format!("\x1b[1m{} = help:\x1b[0m {}\n", severity_color, help));
+            output.push_str(&format!(
+                "\x1b[1m{} = help:\x1b[0m {}\n",
+                severity_color, help
+            ));
         }
 
         // Suggestions
         for suggestion in &self.suggestions {
-            output.push_str(&format!("\x1b[1;32msuggestion:\x1b[0m {}\n", suggestion.message));
+            output.push_str(&format!(
+                "\x1b[1;32msuggestion:\x1b[0m {}\n",
+                suggestion.message
+            ));
             if let Some(ref replacement) = suggestion.replacement {
                 output.push_str(&format!("  replace with: {}\n", replacement));
             }
@@ -576,8 +582,8 @@ mod tests {
 
     #[test]
     fn test_suggestion_with_replacement() {
-        let suggestion = Suggestion::new("use underscore for unused variables")
-            .with_replacement("_var");
+        let suggestion =
+            Suggestion::new("use underscore for unused variables").with_replacement("_var");
 
         assert_eq!(suggestion.message, "use underscore for unused variables");
         assert_eq!(suggestion.replacement.unwrap(), "_var");
@@ -587,13 +593,9 @@ mod tests {
     fn test_multiple_diagnostics_formatting() {
         let mut bag = DiagnosticBag::new();
 
-        bag.add(
-            Diagnostic::error("first error").with_span(Span::new(0, 5, 1, 1)),
-        );
+        bag.add(Diagnostic::error("first error").with_span(Span::new(0, 5, 1, 1)));
 
-        bag.add(
-            Diagnostic::warning("first warning").with_span(Span::new(10, 15, 2, 1)),
-        );
+        bag.add(Diagnostic::warning("first warning").with_span(Span::new(10, 15, 2, 1)));
 
         let formatted = bag.format(None);
         assert!(formatted.contains("first error"));
@@ -625,8 +627,7 @@ mod tests {
     #[test]
     fn test_related_diagnostics() {
         let main_diag = Diagnostic::error("main error").with_related(
-            Diagnostic::info("note: this is related information")
-                .with_span(Span::new(5, 10, 1, 6)),
+            Diagnostic::info("note: this is related information").with_span(Span::new(5, 10, 1, 6)),
         );
 
         assert_eq!(main_diag.related.len(), 1);

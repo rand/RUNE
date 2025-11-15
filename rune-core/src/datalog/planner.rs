@@ -233,7 +233,9 @@ impl QueryPlanner {
                 .predicate_stats
                 .get(&atom.predicate)
                 .cloned()
-                .unwrap_or_else(|| PredicateStats::new(atom.predicate.clone(), 0, atom.terms.len()));
+                .unwrap_or_else(|| {
+                    PredicateStats::new(atom.predicate.clone(), 0, atom.terms.len())
+                });
 
             // Initial cardinality (no variables bound yet)
             let estimated_cardinality = stats.count;
@@ -393,9 +395,9 @@ impl QueryPlanner {
 
             // Cost depends on backend
             let lookup_cost = match backend {
-                BackendType::Hash => 1.0,                                // O(1)
-                BackendType::Trie => analysis.atom.terms.len() as f64,  // O(log n) per level
-                BackendType::WCOJ => 0.5,                                // Amortized cost
+                BackendType::Hash => 1.0,                              // O(1)
+                BackendType::Trie => analysis.atom.terms.len() as f64, // O(log n) per level
+                BackendType::WCOJ => 0.5,                              // Amortized cost
                 _ => 1.0,
             };
 
@@ -498,7 +500,10 @@ mod tests {
     fn test_atom(pred: &str, vars: Vec<&str>) -> Atom {
         Atom {
             predicate: pred.to_string().into(),
-            terms: vars.into_iter().map(|v| Term::Variable(v.to_string())).collect(),
+            terms: vars
+                .into_iter()
+                .map(|v| Term::Variable(v.to_string()))
+                .collect(),
             negated: false,
         }
     }

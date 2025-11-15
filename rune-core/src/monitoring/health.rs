@@ -86,21 +86,18 @@ pub struct HealthThresholds {
 impl Default for HealthThresholds {
     fn default() -> Self {
         Self {
-            max_p99_latency_ms: 10.0,       // 10ms P99 latency
+            max_p99_latency_ms: 10.0,        // 10ms P99 latency
             max_error_rate: 5.0,             // 5% error rate
             max_fact_store_size: 10_000_000, // 10M facts
-            max_memory_mb: 1024.0,            // 1GB memory
-            min_rps: 0.1,                     // At least 0.1 RPS to be "alive"
+            max_memory_mb: 1024.0,           // 1GB memory
+            min_rps: 0.1,                    // At least 0.1 RPS to be "alive"
         }
     }
 }
 
 impl HealthCheck {
     /// Create a new health check system
-    pub fn new(
-        collector: Arc<MetricsCollector>,
-        fact_store: Arc<FactStore>,
-    ) -> Self {
+    pub fn new(collector: Arc<MetricsCollector>, fact_store: Arc<FactStore>) -> Self {
         Self {
             collector,
             fact_store,
@@ -389,10 +386,14 @@ impl SystemHealth {
         let uptime = self.health_check.start_time.elapsed().as_secs();
 
         output.push_str(&format!("rune_health 1\n"));
-        output.push_str(&format!("# HELP rune_uptime_seconds System uptime in seconds\n"));
+        output.push_str(&format!(
+            "# HELP rune_uptime_seconds System uptime in seconds\n"
+        ));
         output.push_str(&format!("# TYPE rune_uptime_seconds counter\n"));
         output.push_str(&format!("rune_uptime_seconds {}\n", uptime));
-        output.push_str(&format!("# HELP rune_fact_store_size Current fact store size\n"));
+        output.push_str(&format!(
+            "# HELP rune_fact_store_size Current fact store size\n"
+        ));
         output.push_str(&format!("# TYPE rune_fact_store_size gauge\n"));
         output.push_str(&format!("rune_fact_store_size {}\n", fact_store_size));
 

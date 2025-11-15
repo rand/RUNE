@@ -132,7 +132,9 @@ impl MagicSetsTransformer {
             processed.insert((pred.clone(), pattern.clone()));
 
             // Find rules with this predicate in the head
-            let matching_rules: Vec<_> = self.rules.iter()
+            let matching_rules: Vec<_> = self
+                .rules
+                .iter()
                 .filter(|rule| rule.head.predicate == pred)
                 .cloned()
                 .collect();
@@ -144,11 +146,8 @@ impl MagicSetsTransformer {
                 // Add body predicates to queue with their binding patterns
                 for body_atom in &adorned_rule.body {
                     if !body_atom.negated {
-                        let body_pattern = self.compute_binding_pattern(
-                            body_atom,
-                            &adorned_rule,
-                            &pattern,
-                        );
+                        let body_pattern =
+                            self.compute_binding_pattern(body_atom, &adorned_rule, &pattern);
                         queue.push_back((body_atom.predicate.clone(), body_pattern));
                     }
                 }
@@ -163,10 +162,7 @@ impl MagicSetsTransformer {
     /// Adorn a rule based on the head's binding pattern
     fn adorn_rule(&mut self, rule: &Rule, head_pattern: &str) -> Rule {
         // Create adorned head predicate
-        let adorned_head_pred = self.get_adorned_predicate(
-            &rule.head.predicate,
-            head_pattern,
-        );
+        let adorned_head_pred = self.get_adorned_predicate(&rule.head.predicate, head_pattern);
 
         let adorned_head = Atom {
             predicate: adorned_head_pred,
@@ -179,12 +175,7 @@ impl MagicSetsTransformer {
     }
 
     /// Compute binding pattern for a body atom
-    fn compute_binding_pattern(
-        &self,
-        atom: &Atom,
-        rule: &Rule,
-        head_pattern: &str,
-    ) -> String {
+    fn compute_binding_pattern(&self, atom: &Atom, rule: &Rule, head_pattern: &str) -> String {
         let mut pattern = String::new();
 
         for term in &atom.terms {
@@ -320,10 +311,7 @@ impl MagicSetsTransformer {
         let mut magic_terms = Vec::new();
 
         // Extract binding pattern from adorned predicate name
-        let pattern = atom.predicate
-            .rsplit('_')
-            .next()
-            .unwrap_or("");
+        let pattern = atom.predicate.rsplit('_').next().unwrap_or("");
 
         for (i, term) in atom.terms.iter().enumerate() {
             if i < pattern.len() && &pattern[i..i + 1] == "b" {
@@ -399,10 +387,7 @@ mod tests {
         assert_eq!(query.binding_pattern(), "bb");
 
         // Partially bound query
-        let query = Query::new(
-            "path",
-            vec![Some(Value::String(Arc::from("a"))), None],
-        );
+        let query = Query::new("path", vec![Some(Value::String(Arc::from("a"))), None]);
         assert_eq!(query.binding_pattern(), "bf");
 
         // Unbound query
@@ -428,10 +413,7 @@ mod tests {
         ];
 
         // Query: path(a, ?)
-        let query = Query::new(
-            "path",
-            vec![Some(Value::String(Arc::from("a"))), None],
-        );
+        let query = Query::new("path", vec![Some(Value::String(Arc::from("a"))), None]);
 
         let mut transformer = MagicSetsTransformer::new(rules);
         let transformed = transformer.transform(&query);
@@ -440,29 +422,24 @@ mod tests {
         assert!(!transformer.magic_predicates.is_empty());
 
         // Check that we have seed facts
-        let seed_facts: Vec<_> = transformed
-            .iter()
-            .filter(|r| r.is_fact())
-            .collect();
+        let seed_facts: Vec<_> = transformed.iter().filter(|r| r.is_fact()).collect();
         assert!(!seed_facts.is_empty());
 
         // Check that magic predicates appear in transformed rules
         let has_magic = transformed.iter().any(|rule| {
-            rule.body.iter().any(|atom| {
-                transformer.is_magic_predicate(atom.predicate.as_ref())
-            })
+            rule.body
+                .iter()
+                .any(|atom| transformer.is_magic_predicate(atom.predicate.as_ref()))
         });
         assert!(has_magic);
     }
 
     #[test]
     fn test_adorned_predicate_generation() {
-        let rules = vec![
-            Rule::new(
-                Atom::new("ancestor", vec![Term::var("X"), Term::var("Y")]),
-                vec![Atom::new("parent", vec![Term::var("X"), Term::var("Y")])],
-            ),
-        ];
+        let rules = vec![Rule::new(
+            Atom::new("ancestor", vec![Term::var("X"), Term::var("Y")]),
+            vec![Atom::new("parent", vec![Term::var("X"), Term::var("Y")])],
+        )];
 
         let mut transformer = MagicSetsTransformer::new(rules);
 
@@ -486,12 +463,10 @@ mod tests {
 
     #[test]
     fn test_no_transformation_for_unbound_query() {
-        let rules = vec![
-            Rule::new(
-                Atom::new("node", vec![Term::var("X")]),
-                vec![Atom::new("edge", vec![Term::var("X"), Term::var("_")])],
-            ),
-        ];
+        let rules = vec![Rule::new(
+            Atom::new("node", vec![Term::var("X")]),
+            vec![Atom::new("edge", vec![Term::var("X"), Term::var("_")])],
+        )];
 
         let query = Query::unbound("node", 1);
 
@@ -499,39 +474,40 @@ mod tests {
         let transformed = transformer.transform(&query);
 
         // Should have minimal transformation for fully unbound query
-        let seed_facts: Vec<_> = transformed
-            .iter()
-            .filter(|r| r.is_fact())
-            .collect();
+        let seed_facts: Vec<_> = transformed.iter().filter(|r| r.is_fact()).collect();
         assert!(seed_facts.is_empty()); // No seed facts for unbound query
     }
 
     #[test]
     fn test_negation_handling() {
         // Rules with negation
-        let rules = vec![
-            Rule::new(
-                Atom::new("unreachable", vec![Term::var("X")]),
-                vec![
-                    Atom::new("node", vec![Term::var("X")]),
-                    Atom::negated("path", vec![Term::constant(Value::String(Arc::from("root"))), Term::var("X")]),
-                ],
-            ),
-        ];
+        let rules = vec![Rule::new(
+            Atom::new("unreachable", vec![Term::var("X")]),
+            vec![
+                Atom::new("node", vec![Term::var("X")]),
+                Atom::negated(
+                    "path",
+                    vec![
+                        Term::constant(Value::String(Arc::from("root"))),
+                        Term::var("X"),
+                    ],
+                ),
+            ],
+        )];
 
-        let query = Query::new(
-            "unreachable",
-            vec![None],
-        );
+        let query = Query::new("unreachable", vec![None]);
 
         let mut transformer = MagicSetsTransformer::new(rules);
         let transformed = transformer.transform(&query);
 
         // Check that transformation handles negation correctly
         // Negated atoms shouldn't generate magic rules
-        let magic_for_negated = transformed.iter().any(|rule| {
-            rule.head.predicate.as_ref().contains("magic_path")
-        });
-        assert!(!magic_for_negated, "Should not generate magic rules for negated atoms");
+        let magic_for_negated = transformed
+            .iter()
+            .any(|rule| rule.head.predicate.as_ref().contains("magic_path"));
+        assert!(
+            !magic_for_negated,
+            "Should not generate magic rules for negated atoms"
+        );
     }
 }

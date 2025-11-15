@@ -146,20 +146,19 @@ impl MetricsCollector {
         }
 
         // Calculate derived gauges
-        let total_cache = self.cache_hits.load(Ordering::Relaxed)
-            + self.cache_misses.load(Ordering::Relaxed);
+        let total_cache =
+            self.cache_hits.load(Ordering::Relaxed) + self.cache_misses.load(Ordering::Relaxed);
         if total_cache > 0 {
-            let hit_rate = self.cache_hits.load(Ordering::Relaxed) as f64
-                / total_cache as f64
-                * 100.0;
+            let hit_rate =
+                self.cache_hits.load(Ordering::Relaxed) as f64 / total_cache as f64 * 100.0;
             gauges.insert("cache_hit_rate".to_string(), hit_rate);
         }
 
         // Calculate average latency
         let total_reqs = self.total_requests.load(Ordering::Relaxed);
         if total_reqs > 0 {
-            let avg_latency = self.total_latency_us.load(Ordering::Relaxed) as f64
-                / total_reqs as f64;
+            let avg_latency =
+                self.total_latency_us.load(Ordering::Relaxed) as f64 / total_reqs as f64;
             gauges.insert("avg_latency_us".to_string(), avg_latency);
         }
 

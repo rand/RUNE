@@ -137,7 +137,10 @@ impl TrieNode {
         }
 
         if path.len() > 1 {
-            let child = self.children.entry(first.clone()).or_insert_with(TrieNode::new);
+            let child = self
+                .children
+                .entry(first.clone())
+                .or_insert_with(TrieNode::new);
             child.insert(&path[1..]);
         }
     }
@@ -264,10 +267,7 @@ impl LeapfrogJoin {
 
     /// Find the maximum key among all iterators
     fn find_max_key(&self) -> Option<&Value> {
-        self.iterators
-            .iter()
-            .filter_map(|iter| iter.key())
-            .max()
+        self.iterators.iter().filter_map(|iter| iter.key()).max()
     }
 
     /// Leapfrog iteration: find next tuple in join result
@@ -369,10 +369,7 @@ impl WCOJIndex {
 
         // For larger arities, we'd need full permutation generation
         // For now, just support common cases
-        vec![
-            (0..n).collect(),
-            (0..n).rev().collect(),
-        ]
+        vec![(0..n).collect(), (0..n).rev().collect()]
     }
 }
 
@@ -499,14 +496,15 @@ mod tests {
     fn test_multi_way_join() {
         // Triangle query: R(X,Y), S(Y,Z), T(Z,X)
         let iter_r = ValueIterator::new(vec![Value::Integer(1), Value::Integer(2)]);
-        let iter_s = ValueIterator::new(vec![Value::Integer(1), Value::Integer(2), Value::Integer(3)]);
+        let iter_s = ValueIterator::new(vec![
+            Value::Integer(1),
+            Value::Integer(2),
+            Value::Integer(3),
+        ]);
         let iter_t = ValueIterator::new(vec![Value::Integer(1), Value::Integer(2)]);
 
-        let mut join = LeapfrogJoin::new(vec![
-            Box::new(iter_r),
-            Box::new(iter_s),
-            Box::new(iter_t),
-        ]);
+        let mut join =
+            LeapfrogJoin::new(vec![Box::new(iter_r), Box::new(iter_s), Box::new(iter_t)]);
 
         let result = join.intersect();
         assert!(!result.is_empty());

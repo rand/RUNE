@@ -11,9 +11,7 @@
 //! - Throughput: 100K+ ops/sec
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use rune_core::datalog::{
-    Atom, Evaluator, IncrementalEvaluator, Rule, Term, QueryPlanner,
-};
+use rune_core::datalog::{Atom, Evaluator, IncrementalEvaluator, QueryPlanner, Rule, Term};
 use rune_core::facts::{Fact, FactStore};
 use rune_core::types::Value;
 use std::sync::Arc;
@@ -51,7 +49,13 @@ fn generate_hierarchy(depth: usize, fanout: usize) -> Vec<Fact> {
     let mut facts = Vec::new();
     let mut id = 0i64;
 
-    fn add_level(facts: &mut Vec<Fact>, parent_id: i64, depth: usize, fanout: usize, next_id: &mut i64) {
+    fn add_level(
+        facts: &mut Vec<Fact>,
+        parent_id: i64,
+        depth: usize,
+        fanout: usize,
+        next_id: &mut i64,
+    ) {
         if depth == 0 {
             return;
         }
@@ -159,25 +163,21 @@ fn bench_transitive_closure(c: &mut Criterion) {
 
     for size in [10, 50, 100, 500].iter() {
         group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            size,
-            |b, &size| {
-                let facts = generate_edge_facts(size);
-                let fact_store = Arc::new(FactStore::new());
-                for fact in facts {
-                    fact_store.add_fact(fact);
-                }
+        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
+            let facts = generate_edge_facts(size);
+            let fact_store = Arc::new(FactStore::new());
+            for fact in facts {
+                fact_store.add_fact(fact);
+            }
 
-                let rules = create_transitive_closure_rules();
+            let rules = create_transitive_closure_rules();
 
-                b.iter(|| {
-                    let evaluator = Evaluator::new(rules.clone(), fact_store.clone());
-                    let result = evaluator.evaluate();
-                    black_box(result)
-                });
-            },
-        );
+            b.iter(|| {
+                let evaluator = Evaluator::new(rules.clone(), fact_store.clone());
+                let result = evaluator.evaluate();
+                black_box(result)
+            });
+        });
     }
 
     group.finish();
@@ -189,25 +189,21 @@ fn bench_complete_graph(c: &mut Criterion) {
 
     for size in [5, 10, 20, 30].iter() {
         group.throughput(Throughput::Elements((*size * (*size - 1)) as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            size,
-            |b, &size| {
-                let facts = generate_complete_graph(size);
-                let fact_store = Arc::new(FactStore::new());
-                for fact in facts {
-                    fact_store.add_fact(fact);
-                }
+        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
+            let facts = generate_complete_graph(size);
+            let fact_store = Arc::new(FactStore::new());
+            for fact in facts {
+                fact_store.add_fact(fact);
+            }
 
-                let rules = create_transitive_closure_rules();
+            let rules = create_transitive_closure_rules();
 
-                b.iter(|| {
-                    let evaluator = Evaluator::new(rules.clone(), fact_store.clone());
-                    let result = evaluator.evaluate();
-                    black_box(result)
-                });
-            },
-        );
+            b.iter(|| {
+                let evaluator = Evaluator::new(rules.clone(), fact_store.clone());
+                let result = evaluator.evaluate();
+                black_box(result)
+            });
+        });
     }
 
     group.finish();
@@ -219,9 +215,9 @@ fn bench_hierarchy(c: &mut Criterion) {
 
     // Test different hierarchy shapes
     let configurations = vec![
-        (3, 3, "narrow"),  // depth 3, fanout 3
-        (2, 10, "wide"),   // depth 2, fanout 10
-        (5, 2, "deep"),    // depth 5, fanout 2
+        (3, 3, "narrow"), // depth 3, fanout 3
+        (2, 10, "wide"),  // depth 2, fanout 10
+        (5, 2, "deep"),   // depth 5, fanout 2
     ];
 
     for (depth, fanout, name) in configurations {
@@ -383,24 +379,20 @@ fn bench_query_planning(c: &mut Criterion) {
     ];
 
     for (name, rules) in test_rules {
-        group.bench_with_input(
-            BenchmarkId::new("plan", name),
-            &rules,
-            |b, rules| {
-                let fact_store = Arc::new(FactStore::new());
-                // Add some facts for statistics
-                for fact in generate_edge_facts(100) {
-                    fact_store.add_fact(fact);
-                }
+        group.bench_with_input(BenchmarkId::new("plan", name), &rules, |b, rules| {
+            let fact_store = Arc::new(FactStore::new());
+            // Add some facts for statistics
+            for fact in generate_edge_facts(100) {
+                fact_store.add_fact(fact);
+            }
 
-                let planner = QueryPlanner::new(fact_store);
+            let planner = QueryPlanner::new(fact_store);
 
-                b.iter(|| {
-                    let plan = planner.plan_rule(&rules[0]);
-                    black_box(plan)
-                });
-            },
-        );
+            b.iter(|| {
+                let plan = planner.plan_rule(&rules[0]);
+                black_box(plan)
+            });
+        });
     }
 
     group.finish();
@@ -412,21 +404,17 @@ fn bench_fact_insertion(c: &mut Criterion) {
 
     for size in [100, 1000, 10000].iter() {
         group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            size,
-            |b, &size| {
-                let facts = generate_edge_facts(size);
+        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
+            let facts = generate_edge_facts(size);
 
-                b.iter(|| {
-                    let fact_store = FactStore::new();
-                    for fact in &facts {
-                        fact_store.add_fact(fact.clone());
-                    }
-                    black_box(fact_store)
-                });
-            },
-        );
+            b.iter(|| {
+                let fact_store = FactStore::new();
+                for fact in &facts {
+                    fact_store.add_fact(fact.clone());
+                }
+                black_box(fact_store)
+            });
+        });
     }
 
     group.finish();
@@ -437,22 +425,18 @@ fn bench_fact_lookup(c: &mut Criterion) {
     let mut group = c.benchmark_group("datalog/fact_lookup");
 
     for size in [100, 1000, 10000].iter() {
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            size,
-            |b, &size| {
-                let fact_store = FactStore::new();
-                for fact in generate_edge_facts(size) {
-                    fact_store.add_fact(fact);
-                }
+        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
+            let fact_store = FactStore::new();
+            for fact in generate_edge_facts(size) {
+                fact_store.add_fact(fact);
+            }
 
-                b.iter(|| {
-                    // Lookup facts by predicate
-                    let facts = fact_store.get_by_predicate("edge");
-                    black_box(facts.len())
-                });
-            },
-        );
+            b.iter(|| {
+                // Lookup facts by predicate
+                let facts = fact_store.get_by_predicate("edge");
+                black_box(facts.len())
+            });
+        });
     }
 
     group.finish();

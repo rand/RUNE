@@ -15,11 +15,11 @@ pub fn init_tracing() {
 
 /// Initialize tracing with custom configuration
 pub fn init_tracing_with_config(config: TracingConfig) {
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(config.default_level));
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(config.default_level));
 
     let fmt_layer = fmt::layer()
-        .with_span_events(config.span_events)
+        .with_span_events(config.span_events.clone())
         .with_target(config.show_target)
         .with_thread_ids(config.show_thread_ids)
         .with_thread_names(config.show_thread_names)
@@ -222,7 +222,10 @@ pub mod otel {
     use tracing_subscriber::layer::SubscriberExt;
 
     /// Initialize OpenTelemetry tracing
-    pub fn init_opentelemetry(endpoint: &str, service_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn init_opentelemetry(
+        endpoint: &str,
+        service_name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         global::set_text_map_propagator(opentelemetry_jaeger::Propagator::new());
 
         let tracer = opentelemetry_otlp::new_pipeline()
@@ -233,11 +236,10 @@ pub mod otel {
                     .with_endpoint(endpoint),
             )
             .with_trace_config(
-                opentelemetry::sdk::trace::config()
-                    .with_resource(Resource::new(vec![
-                        KeyValue::new("service.name", service_name.to_string()),
-                        KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
-                    ])),
+                opentelemetry::sdk::trace::config().with_resource(Resource::new(vec![
+                    KeyValue::new("service.name", service_name.to_string()),
+                    KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
+                ])),
             )
             .install_batch(opentelemetry::runtime::Tokio)?;
 

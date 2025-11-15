@@ -47,10 +47,10 @@
 //! let result2 = evaluator.evaluate();
 //! ```
 
-use crate::facts::{Fact, FactStore};
-use crate::datalog::evaluation::{Evaluator, EvaluationResult};
+use crate::datalog::evaluation::{EvaluationResult, Evaluator};
 use crate::datalog::provenance::ProvenanceTracker;
 use crate::datalog::types::Rule;
+use crate::facts::{Fact, FactStore};
 use std::collections::HashSet;
 use std::sync::Arc;
 
@@ -372,8 +372,12 @@ mod tests {
 
     #[test]
     fn test_delta_from_sets() {
-        let old: HashSet<_> = vec![test_fact("a", 1), test_fact("a", 2)].into_iter().collect();
-        let new: HashSet<_> = vec![test_fact("a", 2), test_fact("a", 3)].into_iter().collect();
+        let old: HashSet<_> = vec![test_fact("a", 1), test_fact("a", 2)]
+            .into_iter()
+            .collect();
+        let new: HashSet<_> = vec![test_fact("a", 2), test_fact("a", 3)]
+            .into_iter()
+            .collect();
 
         let delta = Delta::from_sets(&old, &new);
 

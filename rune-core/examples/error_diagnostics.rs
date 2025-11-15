@@ -71,9 +71,8 @@ fn main() {
 
     // Example 6: Stratification violation
     println!("\n--- Example 6: Stratification Violation ---");
-    let error6 = RUNEError::from_diagnostic(DatalogDiagnostics::stratification_violation(
-        "ancestor",
-    ));
+    let error6 =
+        RUNEError::from_diagnostic(DatalogDiagnostics::stratification_violation("ancestor"));
     println!("{}", error6);
 
     // Example 7: Unification failure

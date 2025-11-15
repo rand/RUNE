@@ -2530,6 +2530,7 @@ dependencies = [
  "dashmap",
  "memmap2",
  "metrics 0.21.1",
+ "metrics-exporter-prometheus",
  "nom",
  "notify",
  "once_cell",

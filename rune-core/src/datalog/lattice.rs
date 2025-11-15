@@ -309,9 +309,7 @@ impl LatticeValue {
             (LatticeValue::Counter(a), LatticeValue::Counter(b)) => {
                 Some(LatticeValue::Counter(a.saturating_add(*b)))
             }
-            (LatticeValue::Bool(a), LatticeValue::Bool(b)) => {
-                Some(LatticeValue::Bool(*a || *b))
-            }
+            (LatticeValue::Bool(a), LatticeValue::Bool(b)) => Some(LatticeValue::Bool(*a || *b)),
             _ => None, // Incompatible lattice types
         }
     }

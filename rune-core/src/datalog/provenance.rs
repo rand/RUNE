@@ -93,16 +93,13 @@ impl ProvenanceTracker {
         let premise_derivations: Vec<Arc<Derivation>> = premises
             .iter()
             .flat_map(|p| {
-                self.derivations
-                    .get(p)
-                    .cloned()
-                    .unwrap_or_else(|| {
-                        // If no derivation found, treat as base fact
-                        vec![self.get_or_cache_derivation(Derivation {
-                            fact: p.clone(),
-                            source: DerivationSource::Base,
-                        })]
-                    })
+                self.derivations.get(p).cloned().unwrap_or_else(|| {
+                    // If no derivation found, treat as base fact
+                    vec![self.get_or_cache_derivation(Derivation {
+                        fact: p.clone(),
+                        source: DerivationSource::Base,
+                    })]
+                })
             })
             .collect();
 
@@ -405,7 +402,12 @@ mod tests {
         let derivations = tracker.get_derivations(&derived);
         assert_eq!(derivations.len(), 1);
 
-        if let DerivationSource::Rule { rule_name, premises, .. } = &derivations[0].source {
+        if let DerivationSource::Rule {
+            rule_name,
+            premises,
+            ..
+        } = &derivations[0].source
+        {
             assert_eq!(rule_name, "transitive");
             assert_eq!(premises.len(), 2);
         } else {
@@ -432,12 +434,7 @@ mod tests {
         let derived = test_fact("path", 2);
 
         tracker.record_base(base.clone());
-        tracker.record_derived(
-            derived.clone(),
-            "rule1".to_string(),
-            1,
-            vec![base],
-        );
+        tracker.record_derived(derived.clone(), "rule1".to_string(), 1, vec![base]);
 
         let proof = tracker.get_proof_tree(&derived).unwrap();
         assert_eq!(proof.depth(), 2);
@@ -452,12 +449,7 @@ mod tests {
         let derived = test_fact("authorized", 2);
 
         tracker.record_base(base.clone());
-        tracker.record_derived(
-            derived.clone(),
-            "auth_rule".to_string(),
-            1,
-            vec![base],
-        );
+        tracker.record_derived(derived.clone(), "auth_rule".to_string(), 1, vec![base]);
 
         let explanation = tracker.explain(&derived);
         assert!(explanation.contains("auth_rule"));

@@ -416,7 +416,10 @@ impl TrieNode {
 
         // Navigate to child or create it
         let first = &path[0];
-        let child = self.children.entry(first.clone()).or_insert_with(TrieNode::new);
+        let child = self
+            .children
+            .entry(first.clone())
+            .or_insert_with(TrieNode::new);
 
         // Recursively insert
         if child.insert(fact, &path[1..]) {
@@ -515,7 +518,12 @@ impl TrieBackend {
         self.find_pattern_helper(&self.root, pattern, 0)
     }
 
-    fn find_pattern_helper(&self, node: &TrieNode, pattern: &[Option<Value>], depth: usize) -> Vec<Fact> {
+    fn find_pattern_helper(
+        &self,
+        node: &TrieNode,
+        pattern: &[Option<Value>],
+        depth: usize,
+    ) -> Vec<Fact> {
         if depth >= pattern.len() {
             return node.facts.clone();
         }
@@ -1108,31 +1116,19 @@ mod tests {
         // Insert various facts
         backend.insert(Fact::new(
             "edge".to_string(),
-            vec![
-                Value::Integer(1),
-                Value::Integer(2),
-            ],
+            vec![Value::Integer(1), Value::Integer(2)],
         ));
         backend.insert(Fact::new(
             "edge".to_string(),
-            vec![
-                Value::Integer(2),
-                Value::Integer(3),
-            ],
+            vec![Value::Integer(2), Value::Integer(3)],
         ));
         backend.insert(Fact::new(
             "edge".to_string(),
-            vec![
-                Value::Integer(1),
-                Value::Integer(3),
-            ],
+            vec![Value::Integer(1), Value::Integer(3)],
         ));
         backend.insert(Fact::new(
             "node".to_string(),
-            vec![
-                Value::Integer(1),
-                Value::String(Arc::from("start")),
-            ],
+            vec![Value::Integer(1), Value::String(Arc::from("start"))],
         ));
 
         // Pattern: edge(1, ?)
@@ -1154,11 +1150,7 @@ mod tests {
         assert_eq!(edges_to_3.len(), 2); // edge(2,3) and edge(1,3)
 
         // Pattern: node(?, ?)
-        let pattern = vec![
-            Some(Value::String(Arc::from("node"))),
-            None,
-            None,
-        ];
+        let pattern = vec![Some(Value::String(Arc::from("node"))), None, None];
         let all_nodes = backend.find_pattern(&pattern);
         assert_eq!(all_nodes.len(), 1);
     }
@@ -1185,14 +1177,8 @@ mod tests {
     fn test_trie_backend_empty_patterns() {
         let mut backend = TrieBackend::new();
 
-        backend.insert(Fact::new(
-            "fact1".to_string(),
-            vec![],
-        ));
-        backend.insert(Fact::new(
-            "fact2".to_string(),
-            vec![Value::Integer(1)],
-        ));
+        backend.insert(Fact::new("fact1".to_string(), vec![]));
+        backend.insert(Fact::new("fact2".to_string(), vec![Value::Integer(1)]));
 
         // Empty prefix should return all facts
         let all = backend.find_prefix(&[]);
@@ -1297,29 +1283,26 @@ mod tests {
         // Create equivalence classes
         backend.insert(Fact::new(
             "equal".to_string(),
-            vec![
-                Value::String(Arc::from("x")),
-                Value::String(Arc::from("y")),
-            ],
+            vec![Value::String(Arc::from("x")), Value::String(Arc::from("y"))],
         ));
         backend.insert(Fact::new(
             "equal".to_string(),
-            vec![
-                Value::String(Arc::from("y")),
-                Value::String(Arc::from("z")),
-            ],
+            vec![Value::String(Arc::from("y")), Value::String(Arc::from("z"))],
         ));
         backend.insert(Fact::new(
             "equal".to_string(),
-            vec![
-                Value::String(Arc::from("a")),
-                Value::String(Arc::from("b")),
-            ],
+            vec![Value::String(Arc::from("a")), Value::String(Arc::from("b"))],
         ));
 
         // Check equivalence transitivity
-        assert!(backend.connected(&Value::String(Arc::from("x")), &Value::String(Arc::from("z"))));
-        assert!(!backend.connected(&Value::String(Arc::from("x")), &Value::String(Arc::from("a"))));
+        assert!(backend.connected(
+            &Value::String(Arc::from("x")),
+            &Value::String(Arc::from("z"))
+        ));
+        assert!(!backend.connected(
+            &Value::String(Arc::from("x")),
+            &Value::String(Arc::from("a"))
+        ));
     }
 
     #[test]
@@ -1350,10 +1333,7 @@ mod tests {
         let mut backend = UnionFindBackend::new();
 
         // Non-binary facts should just add values to the structure
-        backend.insert(Fact::new(
-            "node".to_string(),
-            vec![Value::Integer(1)],
-        ));
+        backend.insert(Fact::new("node".to_string(), vec![Value::Integer(1)]));
         backend.insert(Fact::new(
             "triple".to_string(),
             vec![Value::Integer(2), Value::Integer(3), Value::Integer(4)],
